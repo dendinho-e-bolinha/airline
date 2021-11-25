@@ -7,5 +7,5 @@ set(CMAKE_CXX_STANDARD 11)
 #include_directories(lib/googletest-master/googletest/include)
 #include_directories(lib/googletest-master/googlemock/include)
 
-add_executable(main.cpp)
+add_executable(airline main.cpp)
 
