@@ -3,7 +3,7 @@
 
 #include <string>
 #include <list>
-#include "Flight.h"
+#include "flight.h"
 
 class Plane {
     string plate;

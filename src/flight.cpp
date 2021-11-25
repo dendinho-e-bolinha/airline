@@ -1,4 +1,4 @@
-#include "Flight.h"
+#include "flight.h"
 
 using namespace std;
 
