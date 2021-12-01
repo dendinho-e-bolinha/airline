@@ -1,25 +1,37 @@
-#ifndef PROJ_1_PLANE_H
-#define PROJ_1_PLANE_H
+#ifndef AIRLINE_PLANE_H
+#define AIRLINE_PLANE_H
 
 #include <string>
-#include <list>
+#include <vector>
+#include <queue>
 #include "flight.h"
+#include "service.h"
+#include <functional>
 
 class Plane {
-    string plate;
-    string type;
+    std::string plate;
+    std::string type;
     unsigned int capacity;
-    List<Flight> flights;
+    std::vector<Flight*> flights;
+    std::queue<Service*> services;
+    std::vector<Service*> finished_services;
 
 public:
-        Plane();
-        //plane só com 3?
-        Plane(string plate, string type, unsigned int capacity, List<Flight> flights);
-        string getPlate();
-        string getType();
-        unsigned int getCapacity();
-        List<Flight> getFlights();
-
+        Plane(std::string &plate, std::string &type, unsigned int &capacity);
+        std::string getPlate() const;
+        std::string getType() const;
+        unsigned int getCapacity() const;
+        std::vector<Flight*> getFlights() const;
+        std::queue<Service*> getServices() const;
+        std::vector<Service*> getFinishedServices() const;
+        void emptyMaintenance();
+        void popFrontMaintenance();  //bool??
+        void addFlight(Flight &flight);
+        bool removeFlight(const Flight &flight);
+        bool removeFirstFlight(const std::function <bool (const Flight&)> selector);
+        bool removeAllFlights(const std::function <bool (const Flight&)> selector);
+        void scheduleService(Service& service);
+        bool completeService();
 };
 
-#endif //PROJ_1_PLANE_H
+#endif //AIRLINE_PLANE_H

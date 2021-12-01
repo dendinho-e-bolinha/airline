@@ -1,31 +1,35 @@
-#ifndef PROJ_1_FLIGHT_H
-#define PROJ_1_FLIGHT_H
+#ifndef AIRLINE_FLIGHT_H
+#define AIRLINE_FLIGHT_H
 
 #include <string>
+#include <vector>
+#include "datetime.h"
+#include "plane.h"
+#include "ticket.h"
+#include "functional"
 
 class Flight {
-    int flight_id;
-    unsigned int date; //(?) date.h?
-    unsigned int duration;
-    unsigned int seats;
-    string origin;
-    string destiny;
+    Plane& plane;
+    std::string flight_id;
+    Datetime departure;
+    Time duration;
+    Airport& origin;
+    Airport& destination;
+    std::vector<Ticket*> tickets;
 
 public:
-    Flight();
-    Flight(int id, unsigned int date, unsigned int duration, unsigned int seats, string origin, string destiny);
-    int getFlightId();
-    unsigned int getDate();
-    unsigned int getDuration();
-    string getOrigin();
-    string getDestiny();
-    void setDate(unsigned int date);
-    void setDuration(unsigned int duration);
-    void setSeats(unsigned int seats);
-    void setOrigin(string origin);
-    void setDestiny(string destiny);
-    void freeSeat();
-    void takeSeat();
+    Flight(std::string &id, Datetime &departure, Time &duration, Airport &origin, Airport &destination, Plane& plane);
+    std::string getFlightId() const;
+    Datetime getDepartureTime() const;
+    Time getDuration() const;
+    Airport& getOrigin() const;
+    Airport& getDestination() const;
+    std::vector<Ticket> getTickets() const;
+    void addTicket(Ticket& ticket);
+    bool removeTicket(const Ticket& ticket);
+    bool removeFirstTicket(const std::function <bool (const Ticket&)> selector);
+    bool removeAllTickets(const std::function <bool (const Ticket&)> selector);
+    bool addTicket(Ticket &ticket);
 };
 
-#endif //PROJ_1_FLIGHT_H
+#endif //AIRLINE_FLIGHT_H

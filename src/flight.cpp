@@ -2,63 +2,77 @@
 
 using namespace std;
 
-Flight::Flight() {}
-
-Flight::Flight(int id, unsigned int date, unsigned int duration, unsigned int seats, string origin, string destiny) {
+Flight::Flight(string &id, Datetime &departure, Time &duration, Airport &origin, Airport &destination, Plane &plane) {
     this->flight_id =id;
-    this->date = date;
+    this->departure = departure;
     this->duration = duration;
-    this->seats = seats;
-    this->origin= origin;
-    this->destiny= destiny;
+    this->origin = origin;
+    this->destination = destination;
+    this->plane = plane;
 }
 
-int Flight::getFlightId() {
+std::string Flight::getFlightId() const {
     return this->flight_id;
 }
 
-unsigned int Flight::getDate() {
-    return this->date;
+Datetime Flight::getDepartureTime() const {
+    return this->departure;
 }
 
-unsigned int Flight::getDuration() {
+Time Flight::getDuration() const {
     return this->duration;
 }
 
-string Flight::getOrigin() {
+Airport& Flight::getOrigin() const {
     return this->origin;
 }
 
-string Flight::getDestiny() {
-    return this->destiny;
+Airport& Flight::getDestination() const {
+    return this->destination;
 }
 
-void Flight::setDate(unsigned int date) {
-    this->date = date;
+vector<Ticket*> Flight::getTickets() const {
+    return this->tickets;
 }
 
-void Flight::setDuration(unsigned int duration) {
-    this->duration = duration;
+bool Flight::addTicket(int &ticket) {
+    if (this->tickets.size() < this->plane.getCapacity()) {
+        this->tickets.push_back(ticket);
+        return true;
+    }
+    return false;
 }
 
-void Flight::setSeats(unsigned int seats) {
-    this->seats = seats;
+bool Flight::removeTicket(const int &ticket) {
+    auto it = find(this->tickets.begin(), this->tickets.end(), &ticket);
+    if (it != this->tickets.end()) {
+        this->tickets.erase(it);
+        return true;
+    }
+    return false;
 }
 
-void Flight::setOrigin(std::string origin) {
-    this->origin = origin;
+bool Flight::removeFirstTicket(const std::function<bool(const int &)> selector) {
+    vector<Ticket*>::iterator it = this->tickets.begin();
+    while (it != this->tickets.end()) {
+        if (selector(**it)) {
+            it = this->tickets.erase(it);
+            return true;
+        }
+        it++;
+    }
+    return false;
 }
 
-void Flight::setDestiny(std::string destiny) {
-    this->destiny = destiny;
+bool Flight::removeAllTickets(const std::function<bool(const int &)> selector) {
+    vector<Ticket*>::iterator it = this->tickets.begin();
+    bool removed_any;
+    while (it != this->tickets.end()) {
+        if (selector(**it)) {
+            it = this->tickets.erase(it);
+            removed_any = true;
+        }
+        it++;
+    }
+    return removed_any;
 }
-
-void Flight::freeSeat() {
-    this->seats++;
-}
-
-void Flight::takeSeat() {
-    this->seats--;
-}
-
-
