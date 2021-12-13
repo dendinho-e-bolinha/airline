@@ -52,8 +52,8 @@ bool Flight::removeTicket(const int &ticket) {
     return false;
 }
 
-bool Flight::removeFirstTicket(const std::function<bool(const int &)> selector) {
-    vector<Ticket*>::iterator it = this->tickets.begin();
+bool Flight::removeFirstTicket(const std::function<bool(const int &)> &selector) {
+    auto it = this->tickets.begin();
     while (it != this->tickets.end()) {
         if (selector(**it)) {
             it = this->tickets.erase(it);
@@ -64,8 +64,8 @@ bool Flight::removeFirstTicket(const std::function<bool(const int &)> selector) 
     return false;
 }
 
-bool Flight::removeAllTickets(const std::function<bool(const int &)> selector) {
-    vector<Ticket*>::iterator it = this->tickets.begin();
+bool Flight::removeAllTickets(const std::function<bool(const int &)> &selector) {
+    auto it = this->tickets.begin();
     bool removed_any;
     while (it != this->tickets.end()) {
         if (selector(**it)) {

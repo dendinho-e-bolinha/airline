@@ -17,6 +17,14 @@ class Service {
     Plane& plane;
 
 public:
+    /**
+     * @brief Creates an object of type Service with the given attributes
+     *
+     * @param type The service's type
+     * @param date The service's scheduled date
+     * @param worker The worker that will perform the service
+     * @param plane The plane where the service will take place
+     */
     Service(ServiceType type, Date date, std::string worker, Plane& plane);
     ServiceType getType() const;
     Date getDate() const;

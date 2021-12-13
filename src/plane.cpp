@@ -33,15 +33,6 @@ vector<Service*> Plane::getFinishedServices() const {
     return this->finished_services;
 }
 
-void Plane::emptyMaintenance() {
-    this->services.empty();
-}
-
-void Plane::popFrontMaintenance() {
-    this->finished_services.push_back(this->services.front());
-    this->services.pop();
-}
-
 void Plane::addFlight(Flight &flight) {
     this->flights.push_back(&flight);
 }
@@ -55,8 +46,8 @@ bool Plane::removeFlight(const Flight &flight) {
     return false;
 }
 
-bool Plane::removeFirstFlight(const std::function<bool(const Flight &)> selector) {
-    vector<Flight*>::iterator it = this->flights.begin();
+bool Plane::removeFirstFlight(const std::function<bool(const Flight &)>& selector) {
+    auto it = this->flights.begin();
     while (it != this->flights.end()) {
         if (selector(**it)) {
             it = this->flights.erase(it);
@@ -67,8 +58,8 @@ bool Plane::removeFirstFlight(const std::function<bool(const Flight &)> selector
     return false;
 }
 
-bool Plane::removeAllFlights(const function<bool(const Flight&)> selector) {
-    vector<Flight*>::iterator it = this->flights.begin();
+bool Plane::removeAllFlights(const function<bool(const Flight&)>& selector) {
+    auto it = this->flights.begin();
     bool removed_any= false;
     while (it != this->flights.end()) {
         if (selector(**it)) {
@@ -85,6 +76,10 @@ void Plane::scheduleService(Service& service) {
 }
 
 bool Plane::completeService() {
+    if (this->services.empty()) {
+        return false;
+    }
     this->finished_services.push_back(this->services.front());
     this->services.pop();
+    return true;
 }

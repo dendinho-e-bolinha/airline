@@ -1,19 +1,30 @@
 #include "datetime.h"
+#include <stdexcept>
 
 using namespace std;
 
 Date::Date(unsigned int day, unsigned int month,unsigned int year) {
-    this->day = day;
-    this->month = month;
+    if (0 < day && day < 32)
+        this->day = day;
+    else throw invalid_argument("Day value must be between 1 and 31");
+    if (0 < month && month < 13)
+        this->month = month;
+    else throw invalid_argument("Month value must be between 1 and 12");
     this->year = year;
 }
 
 void Date::setDay(unsigned int day) {
-    this->day= day;
+    if (0 < day  && day < 32)
+        this->day= day;
+    else
+        throw invalid_argument("Day value must been between 1 and 31");
 }
 
 void Date::setMonth(unsigned int month) {
-    this->month = month;
+    if (0 < month && month < 13)
+        this->month = month;
+    else
+        throw std::invalid_argument("Month value must be between 1 and 12");
 }
 
 void Date::setYear(unsigned int year) {
@@ -33,21 +44,39 @@ unsigned int Date::getYear() const {
 }
 
 Time::Time(unsigned int hour, unsigned int minute, unsigned int second) {
-    this->hour = hour;
-    this->minute = minute;
-    this->second = second;
+    if (0 <= hour && hour < 24)
+        this->hour = hour;
+    else
+        throw invalid_argument("Hour value must be between 0 and 23");
+    if (0 <= minute && minute < 60)
+        this->minute = minute;
+    else
+        throw invalid_argument("Minute value must be between 0 and 59");
+    if (0 <= second && second < 60)
+        this->second = second;
+    else
+        throw invalid_argument("Second value must be between 0 and 59");
 }
 
 void Time::setHour(unsigned int hour) {
-    this->hour = hour;
+    if (0 <= hour && hour < 24)
+        this->hour = hour;
+    else
+        throw invalid_argument("Hour value must be between 0 and 23");
 }
 
 void Time::setMinute(unsigned int minute) {
-    this->minute = minute;
+    if (0 <= minute && minute < 60)
+        this->minute = minute;
+    else
+        throw invalid_argument("Minute value must be between 0 and 59");
 }
 
 void Time::setSecond(unsigned int second) {
-    this->second = second;
+    if (0 <= second && second < 60)
+        this->second = second;
+    else
+        throw invalid_argument("Second value must be between 0 and 59");
 }
 
 unsigned int Time::getHour() const {
