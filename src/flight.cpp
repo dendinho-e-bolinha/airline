@@ -2,6 +2,7 @@
 
 using namespace std;
 
+/*
 Flight::Flight() {}
 
 Flight::Flight(int id, unsigned int date, unsigned int duration, unsigned int seats, string origin, string destiny) {
@@ -60,5 +61,4 @@ void Flight::freeSeat() {
 void Flight::takeSeat() {
     this->seats--;
 }
-
-
+*/

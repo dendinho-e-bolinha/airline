@@ -1,5 +1,6 @@
 #include "plane.h"
 
+/*
 using namespace std;
 
 Plane::Plane() {
@@ -28,3 +29,4 @@ unsigned int Plane::getCapacity() {
 List<Flight> Plane::getFlights() {
     return this->flights;
 }
+ */

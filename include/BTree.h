@@ -21,19 +21,11 @@ class BTree {
 private:
     BTNode<T> *root;
 
-
     /**
      * @brief Destroys a tree
      * @param node starting node
      */
-    void clear(BTNode<T> *node) {
-        if (node) {
-            clear(node->left);
-            clear(node->right);
-            delete node;
-        }
-    }
-
+    void clear(BTNode<T> *node);
 
     /**
      * @brief Copies a tree
@@ -41,14 +33,7 @@ private:
      * @param node starting node
      * @return Returns the root node of the copy tree
      */
-    BTNode<T> *copyTree(const BTNode<T> *node) const {
-        if (node) {
-            BTNode<T> *newNode = new BTNode<T>(node->data, node->left, node->right);
-            return node;
-        }
-        return nullptr;
-    }
-
+    BTNode<T> *copyTree(const BTNode<T> *node) const;
 
     /**
      * @brief Inserts a new node with the given value on a tree
@@ -56,21 +41,7 @@ private:
      * @param key value to be inserted
      * @param node starting node
      */
-    void insert(T key, BTNode<T> *node) {
-        if (key < node->data) {
-            if (node->left) {
-                insert(key, node->left);
-            } else {
-                node->left = new BTNode<T>(key);
-            }
-        } else if (key >= node->data) {
-            if (node->right) {
-                insert(key, node->right);
-            } else {
-                node->right = new BTNode<T>(key);
-            }
-        }
-    }
+    void insert(T key, BTNode<T> *node);
 
 
     /**
@@ -81,19 +52,34 @@ private:
      *
      * @return Returns the node that contains the value `key`
      */
-    BTNode<T> *search(T key, BTNode<T> *node) {
-        if (node) {
-            if (key == node->data)
-                return node;
-            else if (key < node->data)
-                return search(key, node->left);
-            else
-                return search(key, node->right);
-        } else {
-            return nullptr;
-        }
-    }
+    BTNode<T> *search(T key, BTNode<T> *node);
 
+    /**
+     * @brief Finds the node with the highest value on the tree
+     *
+     * @param node starting node
+     *
+     * @return Returns the node that contains the highest value
+     */
+    BTNode<T> *max(BTNode<T> *node);
+
+
+    /**
+     * @brief Finds the node with the lower value on the tree
+     *
+     * @param node starting node
+     *
+     * @return Returns the node that contains the lower value
+     */
+    BTNode<T> *min(BTNode<T> *node);
+
+    /**
+     * @brief Removes the first node of the tree with the value `k`
+     * @param node starting node
+     * @param key value to be removed
+     * @return Returns the new root node
+     */
+    BTNode<T> *remove(BTNode<T> *node, T key);
 
     /**
      * @brief Displays the tree data in a Preorder format
@@ -101,13 +87,7 @@ private:
      * @param out ostream
      * @param node starting node
      */
-    void printPreorder(ostream &out, const BTNode<T> *node) const {
-        if (node) {
-            out << node->data << ' ';
-            printPreorder(out, node->left);
-            printPreorder(out, node->right);
-        }
-    }
+    void printPreorder(ostream &out, const BTNode<T> *node) const;
 
 
     /**
@@ -116,13 +96,7 @@ private:
      * @param out ostream
      * @param node starting node
      */
-    void printPostorder(ostream &out, const BTNode<T> *node) const {
-        if (node) {
-            printPostorder(out, node->left);
-            printPostorder(out, node->right);
-            out << node->data << ' ';
-        }
-    }
+    void printPostorder(ostream &out, const BTNode<T> *node) const;
 
 
     /**
@@ -131,79 +105,65 @@ private:
      * @param out ostream
      * @param node starting node
      */
-    void printInorder(ostream &out, const BTNode<T> *node) const {
-        if (node) {
-            printInorder(out, node->left);
-            out << node->data << ' ';
-            printInorder(out, node->right);
-        }
-    }
+    void printInorder(ostream &out, const BTNode<T> *node) const;
 
 public:
 
     /**
      * @brief default constructor
      */
-    BTree() { root = nullptr; }
-
+    BTree();
 
     /**
      * @brief Constructs a tree with a single root node that has the given value
      * @param el value for the root data
      */
-    BTree(const T& el) { root = new BTNode<T>(el); }
+    BTree(const T& el);
 
     /**
      * @brief Copy constructor
      * @param bTree Tree to be copied
      */
-    BTree(const BTree<T>& bTree) { root = copyTree(bTree.root); }
-
+    BTree(const BTree<T>& bTree);
 
     /**
      * @brief Destructor
      * @details Deallocates all the memory allocated to the BTree object
      */
-    ~BTree() { clear(); }
-
+    ~BTree();
 
     /**
      * @brief Destroys the tree and deallocates all the memory associated to it
      */
-    void clear() {
-        clear(root);
-        root = nullptr;
-    }
-
+    void clear();
 
     /**
      * @brief Retrieves the root BTNode
      * @return Returns a pointer to the tree's root
      */
-    BTNode<T> *getRoot() const {
-        return root;
-    }
-
+    BTNode<T> *getRoot() const;
 
     /**
      * @brief Checks if the tree is empty
      *
      * @return Returns a boolean that represents the tree being empty (true) or not (false)
      */
-    bool isEmpty() const { return root == nullptr; }
-
+    bool isEmpty() const;
 
     /**
      * @brief Inserts a value on the tree
      * @param key value to be inserted
      */
-    void insert(T key) {
-        if (root)
-            insert(key, root);
-        else
-            root = new BTNode<T>(key);
-    }
+    void insert(T key);
 
+    /**
+     * @brief Removes the first node of the tree with the value `k`
+     * @param key value to be removed
+     * @return Returns the new root node
+     *
+     * @note the children nodes will also be removed
+     */
+    void remove(T val);
 
     /**
      * @brief Searches a value on the key
@@ -211,46 +171,213 @@ public:
      *
      * @return Returns the first node that has the value `key`
      */
-    BTNode<T> *search(T key) {
-        return search(key, root);
-    }
-
+    BTNode<T> *search(T key);
 
     /**
      * @brief Displays the tree data in a Preorder format
      *
      * @param out ostream
      */
-    void printPreorder(ostream &out) const {
-        printPreorder(out, root);
-        out << "\n";
-    }
+    void printPreorder(ostream &out) const;
 
-
-    /**
-     *
-     * @param out
-     */
     /**
      * @brief Displays the tree data in a Postorder format
      *
      * @param out ostream
      */
-    void printPostorder(ostream &out) const {
-        printPostorder(out, root);
-        out << "\n";
-    }
-
+    void printPostorder(ostream &out) const;
 
     /**
      * @brief Displays the tree data in an Inorder format
      *
      * @param out ostream
      */
-    void printInorder(ostream &out) const {
-        printInorder(out, root);
-        out << "\n";
-    }
+    void printInorder(ostream &out) const;
 };
+
+
+template<class T>
+void BTree<T>::clear(BTNode<T> *node) {
+    if (node) {
+        clear(node->left);
+        clear(node->right);
+        delete node;
+    }
+}
+
+template<class T>
+BTNode<T> *BTree<T>::copyTree(const BTNode<T> *node) const {
+    if (node) {
+        BTNode<T> *newNode = new BTNode<T>(node->data, node->left, node->right);
+        return node;
+    }
+    return nullptr;
+}
+
+template<class T>
+void BTree<T>::insert(T key, BTNode<T> *node) {
+    if (key < node->data) {
+        if (node->left) {
+            insert(key, node->left);
+        } else {
+            node->left = new BTNode<T>(key);
+        }
+    } else if (key >= node->data) {
+        if (node->right) {
+            insert(key, node->right);
+        } else {
+            node->right = new BTNode<T>(key);
+        }
+    }
+}
+
+template<class T>
+BTNode<T> *BTree<T>::search(T key, BTNode<T> *node) {
+    if (node) {
+        if (key == node->data)
+            return node;
+        else if (key < node->data)
+            return search(key, node->left);
+        else
+            return search(key, node->right);
+    } else {
+        return nullptr;
+    }
+}
+
+template<class T>
+void BTree<T>::printPreorder(ostream &out, const BTNode<T> *node) const {
+    if (node) {
+        out << node->data << ' ';
+        printPreorder(out, node->left);
+        printPreorder(out, node->right);
+    }
+}
+
+template<class T>
+void BTree<T>::printPostorder(ostream &out, const BTNode<T> *node) const {
+    if (node) {
+        printPostorder(out, node->left);
+        printPostorder(out, node->right);
+        out << node->data << ' ';
+    }
+}
+
+template<class T>
+void BTree<T>::printInorder(ostream &out, const BTNode<T> *node) const {
+    if (node) {
+        printInorder(out, node->left);
+        out << node->data << ' ';
+        printInorder(out, node->right);
+    }
+}
+
+template<class T>
+BTree<T>::BTree() { root = nullptr; }
+
+template<class T>
+BTree<T>::BTree(const T &el) { root = new BTNode<T>(el); }
+
+template<class T>
+BTree<T>::BTree(const BTree<T> &bTree) { root = copyTree(bTree.root); }
+
+template<class T>
+void BTree<T>::clear() {
+    clear(root);
+    root = nullptr;
+}
+
+template<class T>
+BTNode<T> *BTree<T>::getRoot() const {
+    return root;
+}
+
+template<class T>
+bool BTree<T>::isEmpty() const { return root == nullptr; }
+
+template<class T>
+BTree<T>::~BTree() { clear(); }
+
+template<class T>
+void BTree<T>::insert(T key) {
+    if (root)
+        insert(key, root);
+    else
+        root = new BTNode<T>(key);
+}
+
+template<class T>
+BTNode<T> *BTree<T>::search(T key) {
+    return search(key, root);
+}
+
+template<class T>
+void BTree<T>::printPreorder(ostream &out) const {
+    printPreorder(out, root);
+    out << "\n";
+}
+
+template<class T>
+void BTree<T>::printPostorder(ostream &out) const {
+    printPostorder(out, root);
+    out << "\n";
+}
+
+template<class T>
+void BTree<T>::printInorder(ostream &out) const {
+    printInorder(out, root);
+    out << "\n";
+}
+
+template<class T>
+BTNode<T> *BTree<T>::max(BTNode<T> *node) {
+    if (node == NULL)
+        return NULL;
+    else if (node->right == NULL)
+        return node;
+    else
+        return max(node->right);
+}
+
+template<class T>
+BTNode<T> *BTree<T>::min(BTNode<T> *node) {
+    if (node == NULL)
+        return NULL;
+    else if (node->left == NULL)
+        return node;
+    else
+        return min(node->left);
+}
+
+template<class T>
+BTNode<T> *BTree<T>::remove(BTNode<T> *node, T key) {
+    BTNode<T> *tmp;
+    cout << "?" << endl;
+    if (node == NULL) {
+        return NULL;
+    } else if (key < node->data) {
+        node->left = remove(node->left, key);
+    } else if (key > node->data) {
+        node->right = remove(node->right, key);
+    } else if (node->left && node->right) {
+        tmp = min(node->right);
+        node->data = tmp->data;
+        node->right = remove(node->right, node->data);
+    } else {
+        tmp = node;
+        if (node->left == NULL) {
+            node = node->left;
+        } else if (node->right == NULL) {
+            node = node->right;
+        }
+        delete tmp;
+    }
+    return node;
+}
+
+template<class T>
+void BTree<T>::remove(T val) {
+    root = remove(root, val);
+}
 
 #endif //PROJ_1_BTREE_H
