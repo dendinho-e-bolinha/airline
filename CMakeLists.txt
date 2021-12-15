@@ -12,7 +12,8 @@ add_executable(airline main.cpp
         include/ticket.h src/ticket.cpp
         include/luggage.h src/luggage.cpp
         include/handling_cart.h src/handling_cart.cpp
-        include/airport.h src/airport.cpp)
+        include/airport.h src/airport.cpp
+        include/customer.h src/customer.cpp)
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
