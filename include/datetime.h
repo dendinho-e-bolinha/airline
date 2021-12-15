@@ -15,6 +15,7 @@ public:
      * @param year A year
      */
     Date(unsigned int day, unsigned int month, unsigned int year);
+    Date(const Date &date);
     void setDay(unsigned int day);
     void setMonth(unsigned int month);
     void setYear(unsigned int year);
@@ -35,6 +36,7 @@ public:
      * @param second A second between 0-59
      */
     Time(unsigned int hour, unsigned int minute, unsigned int second);
+    Time(const Time &time);
     void setHour(unsigned int hour);
     void setMinute(unsigned int minute);
     void setSecond(unsigned int second);
@@ -55,7 +57,7 @@ class Datetime: public Date, public Time {
      * @param second A second between 0-59
      */
     Datetime(unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute, unsigned int second);
-
+    Datetime(const Datetime &datetime);
 };
 
 #endif //AIRLINE_DATETIME_H
