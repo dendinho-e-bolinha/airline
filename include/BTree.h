@@ -1,20 +1,40 @@
-#ifndef PROJ_1_BTREE_H
-#define PROJ_1_BTREE_H
+#ifndef AIRLINE_BTREE_H
+#define AIRLINE_BTREE_H
 
 // STL imports
 #include <ostream>
 #include <stdexcept>
 
-// Files
-#include "BTreeNode.h"
 
-using namespace std;
+/**
+ * @Brief Represents a node of the tree
+ *
+ * @tparam T type of the data stored in each node
+ * @param *left Pointer to the left child node
+ * @param *right Pointer to the right child node
+ */
+template <class T>
+struct BTNode {
+    T data;
+    BTNode *left, *right;
+
+
+    /**
+     * @brief Constructor for a `BTNode`
+     * @details if `left` or `right` are not passed, it is assumed that the node is a leaf
+     */
+    BTNode(const T &data, BTNode *left = nullptr, BTNode *right = nullptr) {
+        this->data = data;
+        this->left = left;
+        this->right = right;
+    }
+};
 
 /**
  * @brief Binary Search tree
  * @tparam T type of the data stored in each node
  *
- * @details For each node n, n->left->data < n->data && n->right->data >= n->data
+ * @details For each node n, n->left->data < n->data && n->right->data > n->data
  */
 template <class T>
 class BTree {
@@ -41,7 +61,7 @@ private:
      * @param key value to be inserted
      * @param node starting node
      */
-    void insert(T key, BTNode<T> *node);
+    bool insert(T key, BTNode<T> *node);
 
 
     /**
@@ -87,7 +107,7 @@ private:
      * @param out ostream
      * @param node starting node
      */
-    void printPreorder(ostream &out, const BTNode<T> *node) const;
+    void printPreorder(std::ostream &out, const BTNode<T> *node) const;
 
 
     /**
@@ -96,7 +116,7 @@ private:
      * @param out ostream
      * @param node starting node
      */
-    void printPostorder(ostream &out, const BTNode<T> *node) const;
+    void printPostorder(std::ostream &out, const BTNode<T> *node) const;
 
 
     /**
@@ -105,7 +125,7 @@ private:
      * @param out ostream
      * @param node starting node
      */
-    void printInorder(ostream &out, const BTNode<T> *node) const;
+    void printInorder(std::ostream &out, const BTNode<T> *node) const;
 
 public:
 
@@ -150,16 +170,19 @@ public:
      */
     bool isEmpty() const;
 
-    /**
-     * @brief Inserts a value on the tree
-     * @param key value to be inserted
-     */
-    void insert(T key);
+     /**
+      * @brief Inserts a value on the tree
+      * @param key value to be inserted
+      *
+      * @param key
+      * @return Returns `true` if `key` was inserted and false if it already existed on the tree
+      */
+    bool insert(T key);
 
     /**
      * @brief Removes the first node of the tree with the value `k`
      * @param key value to be removed
-     * @return Returns the new root node
+     * @return Returns true if the node was found and false if it does not exist on the tree
      *
      * @note the children nodes will also be removed
      */
@@ -178,21 +201,21 @@ public:
      *
      * @param out ostream
      */
-    void printPreorder(ostream &out) const;
+    void printPreorder(std::ostream &out) const;
 
     /**
      * @brief Displays the tree data in a Postorder format
      *
      * @param out ostream
      */
-    void printPostorder(ostream &out) const;
+    void printPostorder(std::ostream &out) const;
 
     /**
      * @brief Displays the tree data in an Inorder format
      *
      * @param out ostream
      */
-    void printInorder(ostream &out) const;
+    void printInorder(std::ostream &out) const;
 };
 
 
@@ -207,46 +230,50 @@ void BTree<T>::clear(BTNode<T> *node) {
 
 template<class T>
 BTNode<T> *BTree<T>::copyTree(const BTNode<T> *node) const {
-    if (node) {
-        BTNode<T> *newNode = new BTNode<T>(node->data, node->left, node->right);
-        return node;
-    }
-    return nullptr;
+    if (node)
+        return new BTNode<T>(node->data, copyTree(node->left), copyTree(node->right));
+    else
+        return NULL;
+
 }
 
 template<class T>
-void BTree<T>::insert(T key, BTNode<T> *node) {
+bool BTree<T>::insert(T key, BTNode<T> *node) {
+    bool success = false;
     if (key < node->data) {
         if (node->left) {
             insert(key, node->left);
         } else {
             node->left = new BTNode<T>(key);
+            success = true;
         }
-    } else if (key >= node->data) {
+    } else if (node->data < key) {
         if (node->right) {
             insert(key, node->right);
         } else {
             node->right = new BTNode<T>(key);
+            success = true;
         }
     }
+    return success;
 }
 
 template<class T>
 BTNode<T> *BTree<T>::search(T key, BTNode<T> *node) {
     if (node) {
-        if (key == node->data)
-            return node;
-        else if (key < node->data)
+        if (key < node->data)
             return search(key, node->left);
-        else
+        else if (node->data < key)
             return search(key, node->right);
+        else
+            return node;
     } else {
         return nullptr;
     }
 }
 
 template<class T>
-void BTree<T>::printPreorder(ostream &out, const BTNode<T> *node) const {
+void BTree<T>::printPreorder(std::ostream &out, const BTNode<T> *node) const {
     if (node) {
         out << node->data << ' ';
         printPreorder(out, node->left);
@@ -255,7 +282,7 @@ void BTree<T>::printPreorder(ostream &out, const BTNode<T> *node) const {
 }
 
 template<class T>
-void BTree<T>::printPostorder(ostream &out, const BTNode<T> *node) const {
+void BTree<T>::printPostorder(std::ostream &out, const BTNode<T> *node) const {
     if (node) {
         printPostorder(out, node->left);
         printPostorder(out, node->right);
@@ -264,7 +291,7 @@ void BTree<T>::printPostorder(ostream &out, const BTNode<T> *node) const {
 }
 
 template<class T>
-void BTree<T>::printInorder(ostream &out, const BTNode<T> *node) const {
+void BTree<T>::printInorder(std::ostream &out, const BTNode<T> *node) const {
     if (node) {
         printInorder(out, node->left);
         out << node->data << ' ';
@@ -293,17 +320,19 @@ BTNode<T> *BTree<T>::getRoot() const {
 }
 
 template<class T>
-bool BTree<T>::isEmpty() const { return root == nullptr; }
+bool BTree<T>::isEmpty() const { return root == NULL; }
 
 template<class T>
 BTree<T>::~BTree() { clear(); }
 
 template<class T>
-void BTree<T>::insert(T key) {
+bool BTree<T>::insert(T key) {
+    bool success = false;
     if (root)
-        insert(key, root);
+        success = insert(key, root);
     else
         root = new BTNode<T>(key);
+    return success;
 }
 
 template<class T>
@@ -312,19 +341,19 @@ BTNode<T> *BTree<T>::search(T key) {
 }
 
 template<class T>
-void BTree<T>::printPreorder(ostream &out) const {
+void BTree<T>::printPreorder(std::ostream &out) const {
     printPreorder(out, root);
     out << "\n";
 }
 
 template<class T>
-void BTree<T>::printPostorder(ostream &out) const {
+void BTree<T>::printPostorder(std::ostream &out) const {
     printPostorder(out, root);
     out << "\n";
 }
 
 template<class T>
-void BTree<T>::printInorder(ostream &out) const {
+void BTree<T>::printInorder(std::ostream &out) const {
     printInorder(out, root);
     out << "\n";
 }
@@ -356,7 +385,7 @@ BTNode<T> *BTree<T>::remove(BTNode<T> *node, T key) {
         return NULL;
     } else if (key < node->data) {
         node->left = remove(node->left, key);
-    } else if (key > node->data) {
+    } else if (node->data < key) {
         node->right = remove(node->right, key);
     } else if (node->left && node->right) {
         tmp = min(node->right);
@@ -379,4 +408,4 @@ void BTree<T>::remove(T val) {
     root = remove(root, val);
 }
 
-#endif //PROJ_1_BTREE_H
+#endif //AIRLINE_BTREE_H
