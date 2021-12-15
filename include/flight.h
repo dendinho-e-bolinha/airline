@@ -1,9 +1,8 @@
-//#ifndef PROJ_1_FLIGHT_H
+#ifndef PROJ_1_FLIGHT_H
 #define PROJ_1_FLIGHT_H
 
 #include <string>
 
-/*
 class Flight {
     int flight_id;
     unsigned int date; //(?) date.h?
@@ -30,5 +29,3 @@ public:
 };
 
 #endif //PROJ_1_FLIGHT_H
-
- */

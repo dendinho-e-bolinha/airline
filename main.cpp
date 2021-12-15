@@ -4,7 +4,7 @@
 
 using namespace std;
 
-int main() {
+void debugTree() {
     BTree<int> bTree(2);
     bTree.insert(4);
     bTree.insert(3);
@@ -13,15 +13,14 @@ int main() {
     bTree.insert(7);
     bTree.insert(12);
     bTree.insert(11);
-    cout << bTree.min(bTree.getRoot())->data << endl;
-    cout << bTree.max(bTree.getRoot())->data << endl;
-    BTNode<int> *node = bTree.search(99);
-    bTree.remover(99);
+    bTree.remove(4);
+    bTree.printInorder(cout);   // -1 2 3 4 7 11 12 99
 
-    //bTree.remover(99);
+}
 
+int main() {
 
-    bTree.printInorder(cout);   // -1 2 3 4 4 7 11 12 99
+    debugTree();
 
     return 0;
 }

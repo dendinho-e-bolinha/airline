@@ -1,6 +1,5 @@
 #ifndef PROJ_1_PLANE_H
 #define PROJ_1_PLANE_H
-/*
 
 #include <string>
 #include <list>
@@ -22,6 +21,5 @@ public:
         List<Flight> getFlights();
 
 };
- */
 
 #endif //PROJ_1_PLANE_H

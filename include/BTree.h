@@ -352,7 +352,6 @@ BTNode<T> *BTree<T>::min(BTNode<T> *node) {
 template<class T>
 BTNode<T> *BTree<T>::remove(BTNode<T> *node, T key) {
     BTNode<T> *tmp;
-    cout << "?" << endl;
     if (node == NULL) {
         return NULL;
     } else if (key < node->data) {
