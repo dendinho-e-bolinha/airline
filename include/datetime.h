@@ -46,6 +46,7 @@ public:
 };
 
 class Datetime: public Date, public Time {
+public:
     /**
      * @brief Creates an object of type Datetime with the given attributes
      *
