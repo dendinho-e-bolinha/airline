@@ -3,7 +3,7 @@
 using namespace std;
 
 Flight::Flight(string &id, Datetime &departure, Time &duration, Airport &origin, Airport &destination, Plane &plane) {
-    this->flight_id =id;
+    this->flight_id = id;
     this->departure = departure;
     this->duration = duration;
     this->origin = origin;
@@ -33,6 +33,10 @@ Airport& Flight::getDestination() const {
 
 vector<Ticket*> Flight::getTickets() const {
     return this->tickets;
+}
+
+Plane& Flight::getPlane() const {
+    return this->plane;
 }
 
 bool Flight::addTicket(int &ticket) {

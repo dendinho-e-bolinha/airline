@@ -19,6 +19,6 @@ std::string Service::getWorker() const {
     return this->worker;
 }
 
-Plane& Service::getPlane() {
+Plane& Service::getPlane() const {
     return this->plane;
 }

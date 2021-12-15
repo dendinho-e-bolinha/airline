@@ -29,7 +29,7 @@ public:
     ServiceType getType() const;
     Date getDate() const;
     std::string getWorker() const;
-    Plane& getPlane();
+    Plane& getPlane() const;
 };
 
 #endif //AIRLINE_MAINTENANCE_H

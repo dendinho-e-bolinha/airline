@@ -3,7 +3,7 @@
 
 using namespace std;
 
-Plane::Plane(string &plate, string &type, unsigned int &capacity) {
+Plane::Plane(string &plate, string &type, unsigned int capacity) {
     this->plate = plate;
     this->type= type;
     this->capacity = capacity;
@@ -25,8 +25,8 @@ vector<Flight*> Plane::getFlights() const {
     return this->flights;
 }
 
-queue<Service*> Plane::getServices() const {
-    return this->services;
+queue<Service*> Plane::getScheduledServices() const {
+    return this->scheduledServices;
 }
 
 vector<Service*> Plane::getFinishedServices() const {
@@ -46,7 +46,7 @@ bool Plane::removeFlight(const Flight &flight) {
     return false;
 }
 
-bool Plane::removeFirstFlight(const std::function<bool(const Flight &)>& selector) {
+bool Plane::removeFirstFlight(const std::function<bool(const Flight &)> selector) {
     auto it = this->flights.begin();
     while (it != this->flights.end()) {
         if (selector(**it)) {
@@ -58,7 +58,7 @@ bool Plane::removeFirstFlight(const std::function<bool(const Flight &)>& selecto
     return false;
 }
 
-bool Plane::removeAllFlights(const function<bool(const Flight&)>& selector) {
+bool Plane::removeAllFlights(const function<bool(const Flight&)> selector) {
     auto it = this->flights.begin();
     bool removed_any= false;
     while (it != this->flights.end()) {
@@ -72,14 +72,14 @@ bool Plane::removeAllFlights(const function<bool(const Flight&)>& selector) {
 }
 
 void Plane::scheduleService(Service& service) {
-    this->services.push(&service);
+    this->scheduledServices.push(&service);
 }
 
 bool Plane::completeService() {
-    if (this->services.empty()) {
+    if (this->scheduledServices.empty()) {
         return false;
     }
-    this->finished_services.push_back(this->services.front());
-    this->services.pop();
+    this->finished_services.push_back(this->scheduledServices.front());
+    this->scheduledServices.pop();
     return true;
 }

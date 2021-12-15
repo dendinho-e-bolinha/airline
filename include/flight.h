@@ -22,11 +22,11 @@ public:
      * @brief Creates an object of type Flight with given attributes
      *
      * @param id The flight's id
-     * @param departure The flight's departure location
+     * @param departure The flight's departure location timestamp
      * @param duration The flight's duration
-     * @param origin The flight's origin location
-     * @param destination The flight's destination location
-     * @param plane The plane the flight will take place on
+     * @param origin The flight's origin
+     * @param destination The flight's destination
+     * @param plane A flight performed by the plane
      */
     Flight(std::string &id, Datetime &departure, Time &duration, Airport &origin, Airport &destination, Plane& plane);
 
@@ -35,13 +35,14 @@ public:
     Time getDuration() const;
     Airport& getOrigin() const;
     Airport& getDestination() const;
-    std::vector<Ticket> getTickets() const;
+    std::vector<Ticket*> getTickets() const;
+    PLane& getPlane() const;
 
     /**
      * @brief Adds a ticket to the flight's purchased tickets
      * @param ticket A flight's ticket
      *
-     * @return True, if a ticket was successfully purchased; false, if a ticket couldn't be bought
+     * @return true, if there was room on the flight for another passenger; false, otherwise
      */
     bool addTicket(Ticket& ticket);
 
@@ -49,7 +50,7 @@ public:
      * @brief Removes a ticket from the flight's purchased tickets
      * @param ticket A flight's ticket
      *
-     * @return true, if the ticket was successfully removed from the flight's bought tickets; false, if the ticket couldn't be removed
+     * @return true, if the ticket was on this flight's purchased tickets; false otherwise
      */
     bool removeTicket(const Ticket& ticket);
 
@@ -59,7 +60,7 @@ public:
      *
      * @return true, if at least one ticket was removed; false, if no tickets were removed
      */
-    bool removeFirstTicket(const std::function <bool (const Ticket&)>& selector);
+    bool removeFirstTicket(const std::function <bool (const Ticket&)> &selector);
 
     /**
      * @brief Removes all the tickets already purchased for a flight that fulfill the removal condition
@@ -67,7 +68,7 @@ public:
      *
      * @return true, if at least one ticket was removed; false, if no tickets were removed
      */
-    bool removeAllTickets(const std::function <bool (const Ticket&)>& selector);
+    bool removeAllTickets(const std::function <bool (const Ticket&)> &selector);
 };
 
 #endif //AIRLINE_FLIGHT_H

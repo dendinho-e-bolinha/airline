@@ -12,8 +12,8 @@ class Plane {
     std::string plate;
     std::string type;
     unsigned int capacity;
-    std::vector<Flight*> flights;
-    std::queue<Service*> services;
+    std::list<Flight*> flights;
+    std::queue<Service*> scheduledServices;
     std::vector<Service*> finished_services;
 
 public:
@@ -24,13 +24,13 @@ public:
      * @param type The plane's type
      * @param capacity The plane's capacity
      */
-    Plane(std::string &plate, std::string &type, unsigned int &capacity);
+    Plane(std::string &plate, std::string &type, unsigned int capacity);
 
     std::string getPlate() const;
     std::string getType() const;
     unsigned int getCapacity() const;
     std::vector<Flight*> getFlights() const;
-    std::queue<Service*> getServices() const;
+    std::queue<Service*> getScheduledServices() const;
     std::vector<Service*> getFinishedServices() const;
 
     /**
@@ -53,18 +53,18 @@ public:
      *
      * @return true, if a flight was removed; false, if no flights were removed
      */
-    bool removeFirstFlight(const std::function <bool (const Flight&)>& selector);
+    bool removeFirstFlight(const std::function <bool (const Flight&)> selector);
 
     /**
      * @brief Removes all flights scheduled for the plane that fulfill the removal condition
      * @param selector A selection method to choose the flight to remove
      *
-     * @return true, if at least a flight was removed; false, if no flights were removed
+     * @return true, if at least one flight was removed; false, if no flights were removed
      */
-    bool removeAllFlights(const std::function <bool (const Flight&)>& selector);
+    bool removeAllFlights(const std::function <bool (const Flight&)> selector);
 
     /**
-     * @brief Adds a new service to the plane's queue of services
+     * @brief Schedule's a new service for the plane
      * @param service A service to schedule for the plane
      */
     void scheduleService(Service& service);
