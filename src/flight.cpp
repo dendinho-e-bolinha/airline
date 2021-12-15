@@ -39,15 +39,15 @@ Plane& Flight::getPlane() const {
     return this->plane;
 }
 
-bool Flight::addTicket(int &ticket) {
+bool Flight::addTicket(Ticket &ticket) {
     if (this->tickets.size() < this->plane.getCapacity()) {
-        this->tickets.push_back(ticket);
+        this->tickets.push_back(&ticket);
         return true;
     }
     return false;
 }
 
-bool Flight::removeTicket(const int &ticket) {
+bool Flight::removeTicket(const Ticket &ticket) {
     auto it = find(this->tickets.begin(), this->tickets.end(), &ticket);
     if (it != this->tickets.end()) {
         this->tickets.erase(it);
@@ -56,7 +56,7 @@ bool Flight::removeTicket(const int &ticket) {
     return false;
 }
 
-bool Flight::removeFirstTicket(const std::function<bool(const int &)> &selector) {
+bool Flight::removeFirstTicket(const std::function<bool(const Ticket &)> &selector) {
     for (auto it = tickets.begin(), end = tickets.end(); it != end; it++) {
         if (selector(**it)) {
             it = this->tickets.erase(it);
@@ -66,7 +66,7 @@ bool Flight::removeFirstTicket(const std::function<bool(const int &)> &selector)
     return false;
 }
 
-bool Flight::removeAllTickets(const std::function<bool(const int &)> &selector) {
+bool Flight::removeAllTickets(const std::function<bool(const Ticket &)> &selector) {
     bool removed_any = false;
     for (auto it = tickets.begin(), end = tickets.end(); it != end; it++) {
         if (selector(**it)) {

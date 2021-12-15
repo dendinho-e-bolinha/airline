@@ -6,7 +6,9 @@
 #include "datetime.h"
 #include "plane.h"
 #include "ticket.h"
+#include "airport.h"
 #include <functional>
+#include <algorithm>
 
 using namespace std;
 
@@ -46,7 +48,7 @@ public:
      *
      * @return true, if there was room on the flight for another passenger; false, otherwise
      */
-    bool addTicket(Ticket& ticket);
+    bool addTicket(Ticket &ticket);
 
     /**
      * @brief Removes a ticket from the flight's purchased tickets
@@ -54,7 +56,7 @@ public:
      *
      * @return true, if the ticket was on this flight's purchased tickets; false otherwise
      */
-    bool removeTicket(const Ticket& ticket);
+    bool removeTicket(const Ticket &ticket);
 
     /**
      * @brief Removes the first ticket already purchased for the flight that fulfills the removal condition
