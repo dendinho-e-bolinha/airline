@@ -32,7 +32,7 @@ public:
      * @param destination The flight's destination
      * @param plane A flight performed by the plane
      */
-    Flight(std::string &id, Datetime &departure_time, Time &duration, Airport &origin, Airport &destination, Plane& plane);
+    Flight(const std::string &id, const Datetime &departure_time, const Time &duration, Airport &origin, Airport &destination, Plane& plane);
 
     std::string getFlightId() const;
     Datetime getDepartureTime() const;

@@ -2,14 +2,9 @@
 
 using namespace std;
 
-Flight::Flight(string &id, Datetime &departure_time, Time &duration, Airport &origin, Airport &destination, Plane &plane) {
-    this->flight_id = id;
-    this->departure_time = departure_time;
-    this->duration = duration;
-    this->origin = origin;
-    this->destination = destination;
-    this->plane = plane;
-}
+Flight::Flight(const string &id, const Datetime &departure_time, const Time &duration, Airport &origin, Airport &destination,
+               Plane &plane) : plane(plane), flight_id(id), departure_time(departure_time),
+                               duration(duration), origin(origin), destination(destination) {}
 
 std::string Flight::getFlightId() const {
     return this->flight_id;
@@ -23,19 +18,19 @@ Time Flight::getDuration() const {
     return this->duration;
 }
 
-Airport& Flight::getOrigin() const {
+Airport &Flight::getOrigin() const {
     return this->origin;
 }
 
-Airport& Flight::getDestination() const {
+Airport &Flight::getDestination() const {
     return this->destination;
 }
 
-vector<Ticket*> Flight::getTickets() const {
+vector<Ticket *> Flight::getTickets() const {
     return this->tickets;
 }
 
-Plane& Flight::getPlane() const {
+Plane &Flight::getPlane() const {
     return this->plane;
 }
 
