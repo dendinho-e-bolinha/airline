@@ -1,0 +1,4 @@
+#ifndef AIRLINE_LUGGAGE_H
+#define AIRLINE_LUGGAGE_H
+
+#endif // AIRLINE_LUGGAGE_H

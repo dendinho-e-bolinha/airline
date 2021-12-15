@@ -8,6 +8,8 @@
 #include "ticket.h"
 #include <functional>
 
+using namespace std;
+
 class Flight {
     Plane& plane;
     std::string flight_id;
