@@ -25,7 +25,7 @@ public:
      * @param worker The worker that will perform the service
      * @param plane The plane where the service will take place
      */
-    Service(ServiceType type, Date date, std::string worker, Plane& plane);
+    Service(const ServiceType &type, const Date &date, const std::string &worker, Plane &plane);
     ServiceType getType() const;
     Date getDate() const;
     std::string getWorker() const;

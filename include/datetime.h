@@ -14,7 +14,7 @@ public:
      * @param month A month between 1-12
      * @param year A year
      */
-    Date(unsigned int day, unsigned int month,unsigned int year);
+    Date(unsigned int day, unsigned int month, unsigned int year);
     void setDay(unsigned int day);
     void setMonth(unsigned int month);
     void setYear(unsigned int year);
@@ -57,6 +57,5 @@ class Datetime: public Date, public Time {
     Datetime(unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute, unsigned int second);
 
 };
-
 
 #endif //AIRLINE_DATETIME_H

@@ -1,6 +1,6 @@
 #include "service.h"
 
-Service::Service(ServiceType type, Date date, std::string worker, Plane& plane) {
+Service::Service(const ServiceType &type, const Date &date, const std::string &worker, Plane& plane) {
     this->type = type;
     this->date = date;
     this->worker = worker;

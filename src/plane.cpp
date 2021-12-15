@@ -1,9 +1,9 @@
 #include "plane.h"
-#include "algorithm"
+#include <algorithm>
 
 using namespace std;
 
-Plane::Plane(string &plate, string &type, unsigned int capacity) {
+Plane::Plane(const string &plate, const string &type, const unsigned int capacity) {
     this->plate = plate;
     this->type= type;
     this->capacity = capacity;
@@ -26,7 +26,7 @@ vector<Flight*> Plane::getFlights() const {
 }
 
 queue<Service*> Plane::getScheduledServices() const {
-    return this->scheduledServices;
+    return this->scheduled_services;
 }
 
 vector<Service*> Plane::getFinishedServices() const {
@@ -46,40 +46,36 @@ bool Plane::removeFlight(const Flight &flight) {
     return false;
 }
 
-bool Plane::removeFirstFlight(const std::function<bool(const Flight &)> selector) {
-    auto it = this->flights.begin();
-    while (it != this->flights.end()) {
+bool Plane::removeFirstFlight(const std::function<bool(const Flight &)>& selector) {
+    for (auto it = tickets.begin(), end = tickets.end(); it != end; it++) {
         if (selector(**it)) {
             it = this->flights.erase(it);
             return true;
         }
-        it++;
     }
     return false;
 }
 
-bool Plane::removeAllFlights(const function<bool(const Flight&)> selector) {
-    auto it = this->flights.begin();
-    bool removed_any= false;
-    while (it != this->flights.end()) {
+bool Plane::removeAllFlights(const function<bool(const Flight&)>& selector) {
+    bool removed_any = false;
+    for (auto it = tickets.begin(), end = tickets.end(); it != end; it++) {
         if (selector(**it)) {
             it = this->flights.erase(it);
             removed_any = true;
         }
-        it++;
+        return removed_any;
     }
-    return removed_any;
 }
 
 void Plane::scheduleService(Service& service) {
-    this->scheduledServices.push(&service);
+    this->scheduled_services.push(&service);
 }
 
 bool Plane::completeService() {
-    if (this->scheduledServices.empty()) {
+    if (this->scheduled_services.empty()) {
         return false;
     }
-    this->finished_services.push_back(this->scheduledServices.front());
-    this->scheduledServices.pop();
+    this->finished_services.push_back(this->scheduled_services.front());
+    this->scheduled_services.pop();
     return true;
 }

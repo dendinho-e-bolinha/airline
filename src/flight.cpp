@@ -2,9 +2,9 @@
 
 using namespace std;
 
-Flight::Flight(string &id, Datetime &departure, Time &duration, Airport &origin, Airport &destination, Plane &plane) {
+Flight::Flight(string &id, Datetime &departure_time, Time &duration, Airport &origin, Airport &destination, Plane &plane) {
     this->flight_id = id;
-    this->departure = departure;
+    this->departure_time = departure_time;
     this->duration = duration;
     this->origin = origin;
     this->destination = destination;
@@ -16,7 +16,7 @@ std::string Flight::getFlightId() const {
 }
 
 Datetime Flight::getDepartureTime() const {
-    return this->departure;
+    return this->departure_time;
 }
 
 Time Flight::getDuration() const {
@@ -57,26 +57,22 @@ bool Flight::removeTicket(const int &ticket) {
 }
 
 bool Flight::removeFirstTicket(const std::function<bool(const int &)> &selector) {
-    auto it = this->tickets.begin();
-    while (it != this->tickets.end()) {
+    for (auto it = tickets.begin(), end = tickets.end(); it != end; it++) {
         if (selector(**it)) {
             it = this->tickets.erase(it);
             return true;
         }
-        it++;
     }
     return false;
 }
 
 bool Flight::removeAllTickets(const std::function<bool(const int &)> &selector) {
-    auto it = this->tickets.begin();
-    bool removed_any;
-    while (it != this->tickets.end()) {
+    bool removed_any = false;
+    for (auto it = tickets.begin(), end = tickets.end(); it != end; it++) {
         if (selector(**it)) {
             it = this->tickets.erase(it);
             removed_any = true;
         }
-        it++;
     }
     return removed_any;
 }

@@ -13,7 +13,7 @@ class Plane {
     std::string type;
     unsigned int capacity;
     std::list<Flight*> flights;
-    std::queue<Service*> scheduledServices;
+    std::queue<Service*> scheduled_services;
     std::vector<Service*> finished_services;
 
 public:
@@ -24,7 +24,7 @@ public:
      * @param type The plane's type
      * @param capacity The plane's capacity
      */
-    Plane(std::string &plate, std::string &type, unsigned int capacity);
+    Plane(const std::string &plate, const std::string &type, const unsigned int capacity);
 
     std::string getPlate() const;
     std::string getType() const;
@@ -53,7 +53,7 @@ public:
      *
      * @return true, if a flight was removed; false, if no flights were removed
      */
-    bool removeFirstFlight(const std::function <bool (const Flight&)> selector);
+    bool removeFirstFlight(const std::function <bool (const Flight&)> &selector);
 
     /**
      * @brief Removes all flights scheduled for the plane that fulfill the removal condition
@@ -61,13 +61,13 @@ public:
      *
      * @return true, if at least one flight was removed; false, if no flights were removed
      */
-    bool removeAllFlights(const std::function <bool (const Flight&)> selector);
+    bool removeAllFlights(const std::function <bool (const Flight&)> &selector);
 
     /**
      * @brief Schedule's a new service for the plane
      * @param service A service to schedule for the plane
      */
-    void scheduleService(Service& service);
+    void scheduleService(Service &service);
 
     /**
      * @brief Removes the most recently finished maintenance on the plane and adds a log to the finished maintenances

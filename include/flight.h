@@ -6,12 +6,12 @@
 #include "datetime.h"
 #include "plane.h"
 #include "ticket.h"
-#include "functional"
+#include <functional>
 
 class Flight {
     Plane& plane;
     std::string flight_id;
-    Datetime departure;
+    Datetime departure_time;
     Time duration;
     Airport& origin;
     Airport& destination;
@@ -22,13 +22,13 @@ public:
      * @brief Creates an object of type Flight with given attributes
      *
      * @param id The flight's id
-     * @param departure The flight's departure location timestamp
+     * @param departure_time The flight's departure timestamp
      * @param duration The flight's duration
      * @param origin The flight's origin
      * @param destination The flight's destination
      * @param plane A flight performed by the plane
      */
-    Flight(std::string &id, Datetime &departure, Time &duration, Airport &origin, Airport &destination, Plane& plane);
+    Flight(std::string &id, Datetime &departure_time, Time &duration, Airport &origin, Airport &destination, Plane& plane);
 
     std::string getFlightId() const;
     Datetime getDepartureTime() const;
