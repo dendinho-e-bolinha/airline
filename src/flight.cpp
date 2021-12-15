@@ -49,14 +49,13 @@ void Flight::setOrigin(std::string origin) {
     this->origin = origin;
 }
 
-void Flight::setDestiny(std::string destiny) {
-    this->destiny = destiny;
-}
-
-void Flight::freeSeat() {
-    this->seats++;
-}
-
-void Flight::takeSeat() {
-    this->seats--;
+bool Flight::removeAllTickets(const std::function<bool(const int &)> &selector) {
+    bool removed_any = false;
+    for (auto it = tickets.begin(), end = tickets.end(); it != end; it++) {
+        if (selector(**it)) {
+            it = this->tickets.erase(it);
+            removed_any = true;
+        }
+    }
+    return removed_any;
 }
