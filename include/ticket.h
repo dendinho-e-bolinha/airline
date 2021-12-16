@@ -1,17 +1,25 @@
 #ifndef AIRLINE_TICKET_H
 #define AIRLINE_TICKET_H
 
+class Ticket;
+
+#include <list>
 #include "flight.h"
+#include "luggage.h"
 
 class Ticket {
 private:
     Flight &flight;
     unsigned int seat_number;
 
+    std::list<Luggage*> luggage;
+
 public:
     Ticket(Flight &flight, unsigned int seat_number);
-    unsigned int get_seat_number() const;
-    Flight &get_flight() const;
+    unsigned int getSeatNumber() const;
+    Flight &getFlight();
+
+    void add_luggage(Luggage *luggage);
 };
 
 #endif // AIRLINE_TICKET_H
