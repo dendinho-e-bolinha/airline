@@ -74,6 +74,14 @@ public:
      * @return true, if a service was completed; false, if there were no services scheduled for the plane
      */
     bool completeService();
+
+    /**
+     * @brief Displays data from a Plane instance
+     * @param out Ostream
+     * @param p Plane instance
+     * @return Returns the reference to the ostream
+     */
+    std::ostream &operator << (std::ostream &out, const Plane &p)
 };
 
 #endif //AIRLINE_PLANE_H

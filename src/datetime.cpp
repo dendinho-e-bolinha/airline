@@ -1,5 +1,6 @@
 #include "datetime.h"
 #include <stdexcept>
+#include <string>
 
 using namespace std;
 
@@ -91,4 +92,59 @@ unsigned int Time::getSecond() const {
     return this->second;
 }
 
+std::string Time::toString(const Time &time) {
+    return std::to_string(time.getHour()) + ':'
+    + std::to_string(time.getMinute()) + ':'
+    + std::to_string(time.getSecond());
+}
+
+Time Time::toTime(std::string &time) {
+    unsigned hour, minute, second;
+    char delim = ':';
+    unsigned long pos = time.find(delim);
+    hour = stoi(time.substr(0, pos));
+    time.erase(0, pos + 1);
+
+    pos = time.find(delim);
+    minute = stoi(time.substr(0, pos));
+    time.erase(0, pos + 1);
+
+    second = stoi(time);
+
+    return {hour, minute, second};
+}
+
 Datetime::Datetime(unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute, unsigned int second) : Date(day, month, year), Time(hour, minute, second) {}
+
+std::string Datetime::toString(const Datetime &datetime) {
+    return std::to_string(datetime.getDay()) + '-' + std::to_string(datetime.getMonth())
+    + '-' + std::to_string(datetime.getYear()) + '-' + std::to_string(datetime.getHour())
+    + '-' + std::to_string(datetime.getMinute()) + '-' + std::to_string(datetime.getSecond());
+}
+
+Datetime Datetime::toDatetime(string &datetime) {
+    unsigned year, month, day, hour, minute, second;
+    char delim = '-';
+    unsigned long pos = datetime.find(delim);
+    year = stoi(datetime.substr(0, pos));
+    datetime.erase(0, pos + 1);
+
+    pos = datetime.find(delim);
+    month = stoi(datetime.substr(0, pos));
+    datetime.erase(0, pos + 1);
+
+    pos = datetime.find(delim);
+    day = stoi(datetime.substr(0, pos));
+    datetime.erase(0, pos + 1);
+
+    pos = datetime.find(delim);
+    hour = stoi(datetime.substr(0, pos + 1));
+    datetime.erase(0, pos + 1);
+
+    pos = datetime.find(delim);
+    minute = stoi(datetime.substr(0, pos));
+    datetime.erase(0, pos + 1);
+
+    second = stoi(datetime);
+    return {year, month, day, hour, minute, second};
+}

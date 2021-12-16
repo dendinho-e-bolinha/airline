@@ -12,7 +12,7 @@ enum ServiceType {
 
 class Service {
     ServiceType type;
-    Date date;
+    Datetime datetime;
     std::string worker;
     Plane& plane;
 
@@ -25,11 +25,19 @@ public:
      * @param worker The worker that will perform the service
      * @param plane The plane where the service will take place
      */
-    Service(const ServiceType &type, const Date &date, const std::string &worker, Plane &plane);
+    Service(const ServiceType &type, const Datetime &datetime, const std::string &worker, Plane &plane);
     ServiceType getType() const;
-    Date getDate() const;
+    Datetime getDatetime() const;
     std::string getWorker() const;
     Plane& getPlane() const;
+
+    /**
+     * @brief Displays data from a Service instance
+     * @param out Ostream
+     * @param s Service instance
+     * @return Returns the reference to the ostream
+     */
+    std::ostream &operator << (std::ostream &out, const Service &s);
 };
 
 #endif //AIRLINE_MAINTENANCE_H

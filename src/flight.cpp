@@ -1,4 +1,6 @@
 #include "flight.h"
+#include <iomanip>
+#include <ostream>
 
 using namespace std;
 
@@ -56,7 +58,7 @@ bool Flight::removeTicket(const int &ticket) {
     return false;
 }
 
-bool Flight::removeFirstTicket(const std::function<bool(const int &)> &selector) {
+bool Flight::removeFirstTicket(const function<bool(const int &)> &selector) {
     for (auto it = tickets.begin(), end = tickets.end(); it != end; it++) {
         if (selector(**it)) {
             it = this->tickets.erase(it);
@@ -66,7 +68,7 @@ bool Flight::removeFirstTicket(const std::function<bool(const int &)> &selector)
     return false;
 }
 
-bool Flight::removeAllTickets(const std::function<bool(const int &)> &selector) {
+bool Flight::removeAllTickets(const function<bool(const int &)> &selector) {
     bool removed_any = false;
     for (auto it = tickets.begin(), end = tickets.end(); it != end; it++) {
         if (selector(**it)) {
@@ -75,4 +77,15 @@ bool Flight::removeAllTickets(const std::function<bool(const int &)> &selector) 
         }
     }
     return removed_any;
+}
+
+ostream &Flight::operator << (ostream &out) {  // faltam ids de referencia paraos planes, passar como argumento?
+    out << '5' << setw(5) << setfill(' ')
+        << Datetime::toString(this->getDepartureTime()) << ' '
+        << Time::toString(this->getDuration()) << ' '
+        << this->getFlightId() << ' '
+        << toString(this->getOrigin()) << ' '
+        << toString(this->getDestination()) << endl;
+
+    return out;
 }

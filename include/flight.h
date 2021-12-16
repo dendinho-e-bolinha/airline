@@ -69,6 +69,13 @@ public:
      * @return true, if at least one ticket was removed; false, if no tickets were removed
      */
     bool removeAllTickets(const std::function <bool (const Ticket&)> &selector);
+
+    /**
+     * @brief Displays data from a Flight instance
+     * @param f Flight instance
+     * @return Returns the reference to the ostream
+     */
+    std::ostream &operator << (ostream &out);
 };
 
 #endif //AIRLINE_FLIGHT_H

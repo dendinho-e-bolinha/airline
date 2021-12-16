@@ -1,5 +1,7 @@
 #include "plane.h"
 #include <algorithm>
+#include <iostream>
+#include <iomanip>
 
 using namespace std;
 
@@ -78,4 +80,13 @@ bool Plane::completeService() {
     this->finished_services.push_back(this->scheduled_services.front());
     this->scheduled_services.pop();
     return true;
+}
+
+ostream &Plane::operator<<(ostream &out, const Plane &p) {
+    out << '3' << setw(5) << setfill(' ')  //mudar numero para numero de planes no airport
+        << p.getPlate() << ' '
+        << p.getCapacity() << ' '
+        << p.getType() << endl;
+
+    return out;
 }
