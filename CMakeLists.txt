@@ -11,7 +11,7 @@ add_executable(airline main.cpp
         include/service.h src/service.cpp
         include/ticket.h src/ticket.cpp
         include/luggage.h src/luggage.cpp
-        include/handling_cart.h src/handling_cart.cpp
+        include/handling_car.h src/handling_car.cpp
         include/airport.h src/airport.cpp
         include/customer.h src/customer.cpp)
 
