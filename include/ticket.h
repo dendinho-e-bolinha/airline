@@ -6,20 +6,24 @@ class Ticket;
 #include <list>
 #include "flight.h"
 #include "luggage.h"
+#include "customer.h"
 
 class Ticket {
 private:
     Flight &flight;
+    Customer &customer;
     unsigned int seat_number;
 
-    std::list<Luggage*> luggage;
-
 public:
-    Ticket(Flight &flight, unsigned int seat_number);
+    /**
+     * Creates a ticket for a given flight
+     * @param flight The flight this ticket has been issued for
+     * @param customer The customer that has bought this ticket
+     * @param seat_number The seat number for this ticket
+     */
+    Ticket(Flight &flight, Customer &customer, unsigned int seat_number);
     unsigned int getSeatNumber() const;
     Flight &getFlight();
-
-    void addLuggage(Luggage *luggage);
 };
 
 #endif // AIRLINE_TICKET_H

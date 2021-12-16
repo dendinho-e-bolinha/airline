@@ -29,118 +29,125 @@ unsigned int HandlingCar::getLuggagePerStack() const {
     return this->luggage_per_stack;
 }
 
-Carriage *HandlingCar::getFrontCarriage() {
+Carriage *HandlingCar::getBackCarriage() {
     if (this->carriages.empty())
         return nullptr;
 
-    return &this->carriages.front();
+    return &this->carriages.back();
 }
 
-Carriage const *HandlingCar::getFrontCarriage() const {
+Carriage const *HandlingCar::getBackCarriage() const {
     if (this->carriages.empty())
         return nullptr;
 
-    return &this->carriages.front();
+    return &this->carriages.back();
 }
 
-LuggageStack *HandlingCar::getFrontLuggageStack() {
-    Carriage *frontCarriage = this->getFrontCarriage();
-    if (frontCarriage == nullptr || frontCarriage->empty())
+LuggageStack *HandlingCar::getBackLuggageStack() {
+    Carriage *backCarriage = this->getBackCarriage();
+    if (backCarriage == nullptr || backCarriage->empty())
         return nullptr;
 
-    return &frontCarriage->front();
+    return &backCarriage->front();
 }
 
-LuggageStack const *HandlingCar::getFrontLuggageStack() const {
-    Carriage const *frontCarriage = this->getFrontCarriage();
-    if (frontCarriage == nullptr || frontCarriage->empty())
+LuggageStack const *HandlingCar::getBackLuggageStack() const {
+    Carriage const *backCarriage = this->getBackCarriage();
+    if (backCarriage == nullptr || backCarriage->empty())
         return nullptr;
 
-    return &frontCarriage->front();
+    return &backCarriage->front();
 }
 
 Luggage *HandlingCar::getNextLuggage() const {
-    LuggageStack const *frontLuggageStack = this->getFrontLuggageStack();
+    LuggageStack const *backLuggageStack = this->getBackLuggageStack();
 
-    if (frontLuggageStack == nullptr || frontLuggageStack->empty())
+    if (backLuggageStack == nullptr || backLuggageStack->empty())
         return nullptr;
 
-    return frontLuggageStack->top();
+    return backLuggageStack->top();
 }
 
 Luggage *HandlingCar::unloadNextLuggage() {
-    LuggageStack *frontLuggageStack = this->getFrontLuggageStack();
+    LuggageStack *backLuggageStack = this->getBackLuggageStack();
 
-    if (frontLuggageStack == nullptr || frontLuggageStack->empty())
+    if (backLuggageStack == nullptr || backLuggageStack->empty())
         return nullptr;
 
-    Luggage &luggage = *frontLuggageStack->top();
-    frontLuggageStack->pop();
+    Luggage &luggage = *backLuggageStack->top();
+    backLuggageStack->pop();
+
+    Carriage *backCarriage = this->getBackCarriage();
+    if (backLuggageStack->empty())
+        backCarriage->pop_back();
+
+    if (backCarriage->empty())
+        this->carriages.pop_back();
 
     return &luggage;
 }
 
-Carriage *HandlingCar::ensureFrontCarriageExists() {
-    Carriage *frontCarriage = this->getFrontCarriage();
+Carriage *HandlingCar::ensureBackCarriageExists() {
+    Carriage *backCarriage = this->getBackCarriage();
 
     // If there is no front carriage, we need to create one
-    if (frontCarriage == nullptr) {
+    if (backCarriage == nullptr) {
         Carriage carriage;
-        this->carriages.push(carriage);
+        this->carriages.push_back(carriage);
     }
 
-    frontCarriage = this->getFrontCarriage();
-    if (frontCarriage == nullptr)
+    backCarriage = this->getBackCarriage();
+    if (backCarriage == nullptr)
         throw logic_error("There is no front carriage");
 
-    return frontCarriage;
+    return backCarriage;
 }
 
-LuggageStack *HandlingCar::ensureFrontLuggageStackExists() {
-    Carriage *frontCarriage = ensureFrontCarriageExists();
-    LuggageStack *frontLuggageStack = this->getFrontLuggageStack();
+LuggageStack *HandlingCar::ensureBackLuggageStackExists() {
+    Carriage *backCarriage = ensureBackCarriageExists();
+    LuggageStack *backLuggageStack = this->getBackLuggageStack();
 
-    if (frontLuggageStack == nullptr) {
+    if (backLuggageStack == nullptr) {
         LuggageStack luggageStack;
-        frontCarriage->push(luggageStack);
+        backCarriage->push_back(luggageStack);
     }
 
-    frontLuggageStack = this->getFrontLuggageStack();
-    if (frontLuggageStack == nullptr)
+    backLuggageStack = this->getBackLuggageStack();
+    if (backLuggageStack == nullptr)
         throw logic_error("There is no front luggage stack");
 
-    return frontLuggageStack;
+    return backLuggageStack;
 }
 
-bool HandlingCar::addLuggage(Luggage *luggage) {
+bool HandlingCar::addLuggage(Luggage &luggage) {
     // Now, we just need to verify if the limits aren't exceeded
     // Limits:
     //      - A carriage cannot have more than stacks_per_carriage LuggageStacks
     //      - A stack cannot have more than luggage_per_stack Luggage*
 
-    LuggageStack *frontLuggageStack = this->ensureFrontLuggageStackExists();
-    if (frontLuggageStack->size() < this->luggage_per_stack) {
-        frontLuggageStack->push(luggage);
+    LuggageStack *backLuggageStack = this->ensureBackLuggageStackExists();
+    if (backLuggageStack->size() < this->luggage_per_stack) {
+        backLuggageStack->push(&luggage);
         return true;
     }
 
     // We need to create a new stack and add it to a carriage
     LuggageStack new_stack;
-    new_stack.push(luggage);
+    new_stack.push(&luggage);
 
-    Carriage *frontCarriage = this->ensureFrontCarriageExists();
-    if (frontCarriage->size() < this->stacks_per_carriage) {
-        frontCarriage->push(new_stack);
+    Carriage *backCarriage = this->ensureBackCarriageExists();
+    if (backCarriage->size() < this->stacks_per_carriage) {
+        backCarriage->push_back(new_stack);
         return true;
     }
 
     // We need to create a new carriage and add it to the car
     Carriage new_carriage;
-    new_carriage.push(new_stack);
+    new_carriage.push_back(new_stack);
 
     if (this->carriages.size() >= this->number_of_carriages)
         return false;
 
-    this->carriages.push(new_carriage);
+    this->carriages.push_back(new_carriage);
     return true;
 }

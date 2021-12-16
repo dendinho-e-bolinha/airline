@@ -16,7 +16,7 @@ Date::Date(unsigned int day, unsigned int month,unsigned int year) {
 Date::Date(const Date &date) {
     this->year = date.year;
     this->month = date.month;
-    this.day = date.day;
+    this->day = date.day;
 }
 
 void Date::setDay(unsigned int day) {

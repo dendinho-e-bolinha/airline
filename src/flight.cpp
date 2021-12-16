@@ -52,6 +52,7 @@ bool Flight::removeTicket(const Ticket &ticket) {
 }
 
 bool Flight::removeFirstTicket(const std::function<bool(const Ticket &)> &selector) {
+    // FIXME
     for (auto it = tickets.begin(), end = tickets.end(); it != end; it++) {
         if (selector(**it)) {
             it = this->tickets.erase(it);
@@ -62,6 +63,7 @@ bool Flight::removeFirstTicket(const std::function<bool(const Ticket &)> &select
 }
 
 bool Flight::removeAllTickets(const std::function<bool(const Ticket &)> &selector) {
+    // FIXME
     bool removed_any = false;
     for (auto it = tickets.begin(), end = tickets.end(); it != end; it++) {
         if (selector(**it)) {

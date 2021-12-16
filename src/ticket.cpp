@@ -1,6 +1,6 @@
 #include "ticket.h"
 
-Ticket::Ticket(Flight &flight, unsigned int seat_number) : flight(flight), seat_number(seat_number) {}
+Ticket::Ticket(Flight &flight, Customer &customer, unsigned int seat_number) : flight(flight), seat_number(seat_number), customer(customer) {}
 
 Flight &Ticket::getFlight() {
     return this->flight;
