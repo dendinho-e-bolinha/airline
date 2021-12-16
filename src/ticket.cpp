@@ -10,6 +10,6 @@ unsigned int Ticket::getSeatNumber() const {
     return this->seat_number;
 }
 
-void Ticket::add_luggage(Luggage *luggage) {
+void Ticket::addLuggage(Luggage *luggage) {
     this->luggage.push_back(luggage);
 }

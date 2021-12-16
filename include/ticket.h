@@ -19,7 +19,7 @@ public:
     unsigned int getSeatNumber() const;
     Flight &getFlight();
 
-    void add_luggage(Luggage *luggage);
+    void addLuggage(Luggage *luggage);
 };
 
 #endif // AIRLINE_TICKET_H
