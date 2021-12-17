@@ -1,12 +1,17 @@
 #ifndef AIRLINE_FLIGHT_H
 #define AIRLINE_FLIGHT_H
 
+class Flight;
+
 #include <string>
 #include <vector>
 #include "datetime.h"
 #include "plane.h"
 #include "ticket.h"
+#include "airport.h"
+#include "luggage.h"
 #include <functional>
+#include <algorithm>
 
 class Flight {
     Plane& plane;
@@ -16,6 +21,8 @@ class Flight {
     Airport& origin;
     Airport& destination;
     std::vector<Ticket*> tickets;
+
+    std::vector<Luggage*> luggage;
 
 public:
     /**
@@ -28,7 +35,7 @@ public:
      * @param destination The flight's destination
      * @param plane A flight performed by the plane
      */
-    Flight(std::string &id, Datetime &departure_time, Time &duration, Airport &origin, Airport &destination, Plane& plane);
+    Flight(const std::string &id, const Datetime &departure_time, const Time &duration, Airport &origin, Airport &destination, Plane& plane);
 
     std::string getFlightId() const;
     Datetime getDepartureTime() const;
@@ -36,7 +43,7 @@ public:
     Airport& getOrigin() const;
     Airport& getDestination() const;
     std::vector<Ticket*> getTickets() const;
-    PLane& getPlane() const;
+    Plane& getPlane() const;
 
     /**
      * @brief Adds a ticket to the flight's purchased tickets
@@ -44,7 +51,7 @@ public:
      *
      * @return true, if there was room on the flight for another passenger; false, otherwise
      */
-    bool addTicket(Ticket& ticket);
+    bool addTicket(Ticket &ticket);
 
     /**
      * @brief Removes a ticket from the flight's purchased tickets
@@ -52,7 +59,7 @@ public:
      *
      * @return true, if the ticket was on this flight's purchased tickets; false otherwise
      */
-    bool removeTicket(const Ticket& ticket);
+    bool removeTicket(const Ticket &ticket);
 
     /**
      * @brief Removes the first ticket already purchased for the flight that fulfills the removal condition

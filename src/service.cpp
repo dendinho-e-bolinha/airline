@@ -4,11 +4,10 @@
 
 using namespace std;
 
-Service::Service(const ServiceType &type, const Datetime &datetime, const string &worker, Plane& plane) {
+Service::Service(const ServiceType &type, const Datetime &datetime, const string &worker, Plane& plane) : date(date), plane(plane) {
     this->type = type;
     this->datetime = datetime;
     this->worker = worker;
-    this->plane = plane;
 }
 
 ServiceType Service::getType() const {

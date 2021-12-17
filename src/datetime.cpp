@@ -14,6 +14,12 @@ Date::Date(unsigned int day, unsigned int month,unsigned int year) {
     this->year = year;
 }
 
+Date::Date(const Date &date) {
+    this->year = date.year;
+    this->month = date.month;
+    this->day = date.day;
+}
+
 void Date::setDay(unsigned int day) {
     if (0 < day  && day < 32)
         this->day= day;
@@ -57,6 +63,12 @@ Time::Time(unsigned int hour, unsigned int minute, unsigned int second) {
         this->second = second;
     else
         throw invalid_argument("Second value must be between 0 and 59");
+}
+
+Time::Time(const Time &time) {
+    this->hour = time.hour;
+    this->minute = time.minute;
+    this->second = time.second;
 }
 
 void Time::setHour(unsigned int hour) {
@@ -115,11 +127,12 @@ Time Time::toTime(std::string &time) {
 }
 
 Datetime::Datetime(unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute, unsigned int second) : Date(day, month, year), Time(hour, minute, second) {}
+Datetime::Datetime(const Datetime &datetime) : Datetime(datetime.getYear(), datetime.getMonth(), datetime.getDay(), datetime.getHour(), datetime.getMinute(), datetime.getSecond()) {};
 
-std::string Datetime::toString(const Datetime &datetime) {
-    return std::to_string(datetime.getDay()) + '-' + std::to_string(datetime.getMonth())
-    + '-' + std::to_string(datetime.getYear()) + '-' + std::to_string(datetime.getHour())
-    + '-' + std::to_string(datetime.getMinute()) + '-' + std::to_string(datetime.getSecond());
+string Datetime::toString(const Datetime &datetime) {
+    return to_string(datetime.getDay()) + '-' + to_string(datetime.getMonth())
+    + '-' + to_string(datetime.getYear()) + '-' + to_string(datetime.getHour())
+    + '-' + to_string(datetime.getMinute()) + '-' + to_string(datetime.getSecond());
 }
 
 Datetime Datetime::toDatetime(string &datetime) {
