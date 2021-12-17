@@ -92,3 +92,51 @@ unsigned int Time::getSecond() const {
 }
 
 Datetime::Datetime(unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute, unsigned int second) : Date(day, month, year), Time(hour, minute, second) {}
+<<<<<<< HEAD
+=======
+
+std::string Datetime::toString(const Datetime &datetime) {
+    return std::to_string(datetime.getDay()) + '-' + std::to_string(datetime.getMonth())
+    + '-' + std::to_string(datetime.getYear()) + '-' + std::to_string(datetime.getHour())
+    + '-' + std::to_string(datetime.getMinute()) + '-' + std::to_string(datetime.getSecond());
+}
+
+Datetime Datetime::toDatetime(string &datetime) {
+    unsigned year, month, day, hour, minute, second;
+    char delim = '-';
+    unsigned long pos = datetime.find(delim);
+    year = stoi(datetime.substr(0, pos));
+    datetime.erase(0, pos + 1);
+
+    pos = datetime.find(delim);
+    month = stoi(datetime.substr(0, pos));
+    datetime.erase(0, pos + 1);
+
+    pos = datetime.find(delim);
+    day = stoi(datetime.substr(0, pos));
+    datetime.erase(0, pos + 1);
+
+    pos = datetime.find(delim);
+    hour = stoi(datetime.substr(0, pos + 1));
+    datetime.erase(0, pos + 1);
+
+    pos = datetime.find(delim);
+    minute = stoi(datetime.substr(0, pos));
+    datetime.erase(0, pos + 1);
+
+    second = stoi(datetime);
+    return {year, month, day, hour, minute, second};
+}
+
+bool Datetime::operator<(const Datetime &rhs) const {
+    if (this->getYear() != rhs.getYear())
+        return this->getYear() < rhs.getYear();
+    else if (this->getMonth() != rhs.getMonth())
+        return this->getMonth() < rhs.getMonth();
+    else if (this->getHour() != rhs.getHour())
+        return this->getHour() < rhs.getHour();
+    else if (this->getMinute() != rhs.getMinute())
+        return this->getMinute() < rhs.getMinute();
+    return this->getSecond() < rhs.getSecond();
+}
+>>>>>>> a688dc1 (feat: adds class Airport)

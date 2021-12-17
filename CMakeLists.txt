@@ -4,7 +4,10 @@ project(airline)
 set(CMAKE_CXX_STANDARD 11)
 include_directories(include)
 
+<<<<<<< HEAD
 add_executable(airline main.cpp include/flight.h include/plane.h include/datetime.h include/service.h src/flight.cpp src/plane.cpp src/service.cpp src/datetime.cpp)
+=======
+add_executable(airline main.cpp include/flight.h include/plane.h include/files.h src/files.cpp include/datetime.h include/service.h src/flight.cpp src/plane.cpp src/service.cpp src/datetime.cpp src/airport.cpp include/airport.h)
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
