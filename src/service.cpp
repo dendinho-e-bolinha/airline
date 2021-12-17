@@ -4,9 +4,8 @@
 
 using namespace std;
 
-Service::Service(const ServiceType &type, const Datetime &datetime, const string &worker, Plane& plane) : date(date), plane(plane) {
+Service::Service(const ServiceType &type, const Datetime &datetime, const string &worker, Plane& plane) : datetime(datetime), plane(plane) {
     this->type = type;
-    this->datetime = datetime;
     this->worker = worker;
 }
 
