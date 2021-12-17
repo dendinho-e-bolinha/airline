@@ -13,6 +13,12 @@ Date::Date(unsigned int day, unsigned int month,unsigned int year) {
     this->year = year;
 }
 
+Date::Date(const Date &date) {
+    this->year = date.year;
+    this->month = date.month;
+    this->day = date.day;
+}
+
 void Date::setDay(unsigned int day) {
     if (0 < day  && day < 32)
         this->day= day;
@@ -58,6 +64,12 @@ Time::Time(unsigned int hour, unsigned int minute, unsigned int second) {
         throw invalid_argument("Second value must be between 0 and 59");
 }
 
+Time::Time(const Time &time) {
+    this->hour = time.hour;
+    this->minute = time.minute;
+    this->second = time.second;
+}
+
 void Time::setHour(unsigned int hour) {
     if (0 <= hour && hour < 24)
         this->hour = hour;
@@ -92,3 +104,4 @@ unsigned int Time::getSecond() const {
 }
 
 Datetime::Datetime(unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute, unsigned int second) : Date(day, month, year), Time(hour, minute, second) {}
+Datetime::Datetime(const Datetime &datetime) : Datetime(datetime.getYear(), datetime.getMonth(), datetime.getDay(), datetime.getHour(), datetime.getMinute(), datetime.getSecond()) {};

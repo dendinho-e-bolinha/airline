@@ -1,10 +1,8 @@
 #include "service.h"
 
-Service::Service(const ServiceType &type, const Date &date, const std::string &worker, Plane& plane) {
+Service::Service(const ServiceType &type, const Date &date, const std::string &worker, Plane& plane): date(date), plane(plane) {
     this->type = type;
-    this->date = date;
     this->worker = worker;
-    this->plane = plane;
 }
 
 ServiceType Service::getType() const {
