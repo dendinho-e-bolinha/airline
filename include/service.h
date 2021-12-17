@@ -1,11 +1,14 @@
 #ifndef AIRLINE_MAINTENANCE_H
 #define AIRLINE_MAINTENANCE_H
 
+class Service;
+enum class ServiceType;
+
 #include <string>
 #include "datetime.h"
 #include "plane.h"
 
-enum ServiceType {
+enum class ServiceType {
     MAINTENANCE,
     CLEANING
 };

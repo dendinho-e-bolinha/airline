@@ -1,14 +1,16 @@
 #include "airport.h"
 
-const std::set<TransportPlace> &Airport::getTransportPlaceInfo() const {
+using namespace std;
+
+const set<TransportPlace> &Airport::getTransportPlaceInfo() const {
     return transportPlaceInfo;
 }
 
-void Airport::setTransportPlaceInfo(const std::set<TransportPlace> &transportPlaceInfo) {
+void Airport::setTransportPlaceInfo(const set<TransportPlace> &transportPlaceInfo) {
     Airport::transportPlaceInfo = transportPlaceInfo;
 }
 
-Airport::Airport(const std::set<TransportPlace> &transportPlaceInfo) : transportPlaceInfo(transportPlaceInfo) {}
+Airport::Airport(const set<TransportPlace> &transportPlaceInfo) : transportPlaceInfo(transportPlaceInfo) {}
 
 bool TransportPlace::operator<(const TransportPlace &rhs) const {
     if (this->transportType == rhs.transportType) {

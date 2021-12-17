@@ -1,12 +1,15 @@
 #ifndef AIRLINE_PLANE_H
 #define AIRLINE_PLANE_H
 
+class Plane;
+
 #include <string>
 #include <vector>
 #include <queue>
+#include <list>
+#include <functional>
 #include "flight.h"
 #include "service.h"
-#include <functional>
 
 class Plane {
     std::string plate;
@@ -17,7 +20,6 @@ class Plane {
     std::vector<Service*> finished_services;
 
 public:
-
     /**
      * @brief Creates an object of type Plane with the given attributes
      * @param plate The plane's license plate
@@ -29,7 +31,7 @@ public:
     std::string getPlate() const;
     std::string getType() const;
     unsigned int getCapacity() const;
-    std::vector<Flight*> getFlights() const;
+    std::list<Flight*> getFlights() const;
     std::queue<Service*> getScheduledServices() const;
     std::vector<Service*> getFinishedServices() const;
 

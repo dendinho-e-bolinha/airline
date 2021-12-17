@@ -21,7 +21,7 @@ unsigned int Plane::getCapacity() const {
     return this->capacity;
 }
 
-vector<Flight*> Plane::getFlights() const {
+list<Flight*> Plane::getFlights() const {
     return this->flights;
 }
 
@@ -47,7 +47,8 @@ bool Plane::removeFlight(const Flight &flight) {
 }
 
 bool Plane::removeFirstFlight(const std::function<bool(const Flight &)>& selector) {
-    for (auto it = tickets.begin(), end = tickets.end(); it != end; it++) {
+    // FIXME
+    for (auto it = flights.begin(), end = flights.end(); it != end; it++) {
         if (selector(**it)) {
             it = this->flights.erase(it);
             return true;
@@ -57,8 +58,9 @@ bool Plane::removeFirstFlight(const std::function<bool(const Flight &)>& selecto
 }
 
 bool Plane::removeAllFlights(const function<bool(const Flight&)>& selector) {
+    // FIXME
     bool removed_any = false;
-    for (auto it = tickets.begin(), end = tickets.end(); it != end; it++) {
+    for (auto it = flights.begin(), end = flights.end(); it != end; it++) {
         if (selector(**it)) {
             it = this->flights.erase(it);
             removed_any = true;
