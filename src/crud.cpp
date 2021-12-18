@@ -244,11 +244,14 @@ namespace crud {
         GetLine type;
         unsigned int capacity;
 
-        read_value<string>("License plate: ", "Please insert a valid license plate", name, [](string value) {
+        read_value<string>("Name: ", "Please insert a valid license plate", name, [](string value) {
             for (const Airport *airport: data::airports) {
-                std::set<TransportPlace>
-                if (airport->getTransportPlaceInfo().find() == value)
-                    throw "A plane with that license plate already exists";
+                std::set<TransportPlace> airps = airport->getTransportPlaceInfo();
+                auto it = find_if(airps.begin(), airps.end(), [name](Airport &airport1){
+                    return airport1.getName() == name;
+                })
+                if (it == airps.end())
+                    throw "An airport with that name already exists";
             }
 
             return true;
@@ -266,22 +269,22 @@ namespace crud {
         Menu menu("Select one of the following operations:");
 
         MenuBlock create;
-        create.addOption("Create a new airport", createPlane);
+        create.addOption("Create a new airport", createAirport);
 
         MenuBlock read;
-        read.addOption("Read one plane", readOnePlane);
-        read.addOption("Read all planes", readAllPlanes);
-        read.addOption("Read all planes with filters", readAllPlanesWithFilters);
+        read.addOption("Read one airport", readOnePlane);
+        read.addOption("Read all airports", readAllPlanes);
+        read.addOption("Read all airports with filters", readAllPlanesWithFilters);
 
         MenuBlock update;
-        update.addOption("Update one plane", updateOnePlane);
-        update.addOption("Update all planes", updateAllPlanes);
-        update.addOption("Update all planes with filter", updateAllPlanesWithFilter);
+        update.addOption("Update one airport", updateOnePlane);
+        update.addOption("Update all airports", updateAllPlanes);
+        update.addOption("Update all airports with filter", updateAllPlanesWithFilter);
 
         MenuBlock remove;
-        remove.addOption("Delete one plane", deleteOnePlane);
-        remove.addOption("Delete all planes", deleteAllPlanes);
-        remove.addOption("Delete all planes with filter", deleteAllPlanesWithFilter);
+        remove.addOption("Delete one airport", deleteOnePlane);
+        remove.addOption("Delete all airports", deleteAllPlanes);
+        remove.addOption("Delete all airports with filters", deleteAllPlanesWithFilter);
 
         bool is_running = true;
         MenuBlock special_block;

@@ -23,3 +23,11 @@ bool TransportPlace::operator<(const TransportPlace &rhs) const {
 
     return this->transportType < rhs.transportType;
 }
+
+const std::string &Airport::getName() const {
+    return name;
+}
+
+void Airport::setName(std::string name) {
+   this->name = name;
+}

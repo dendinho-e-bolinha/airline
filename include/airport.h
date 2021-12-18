@@ -29,6 +29,7 @@ struct TransportPlace {
 
 
 class Airport {
+    std::string name;
     std::set<TransportPlace> transportPlaceInfo;
 public:
 
@@ -39,11 +40,9 @@ public:
      */
     const std::set<TransportPlace> &getTransportPlaceInfo() const;
 
+    const std::string &getName() const;
 
-    /**
-     * @return Returns a set containing each transport of the
-     */
-    void setTransportPlaceInfo(const std::set<TransportPlace> &transportPlaceInfo);
+    void setName(std::string name);
 
     /**
      * @brief Adds a TransportPlace to `transportPlaceInfo`
