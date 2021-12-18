@@ -1,5 +1,6 @@
 #include "plane.h"
 #include <algorithm>
+#include <sstream>
 
 using namespace std;
 
@@ -31,6 +32,14 @@ queue<Service*> Plane::getScheduledServices() const {
 
 vector<Service*> Plane::getFinishedServices() const {
     return this->finished_services;
+}
+
+void Plane::setType(const string &type) {
+    this->type = type;
+}
+
+void Plane::setCapacity(const unsigned int &capacity) {
+    this->capacity = capacity;
 }
 
 void Plane::addFlight(Flight &flight) {
@@ -73,16 +82,25 @@ void Plane::scheduleService(Service& service) {
     this->scheduled_services.push(&service);
 }
 
+string Plane::str() const {
+    ostringstream out;
+    out << "Plate: " << this->license_plate << endl
+        << "Type: " << this->type << endl
+        << "Capacity: " << this->capacity;
+
+    return out.str();
+}
+
 bool Plane::completeService() {
-    if (this->scheduled_services.empty()) {
+    if (this->scheduled_services.empty())
         return false;
-    }
+
     this->finished_services.push_back(this->scheduled_services.front());
     this->scheduled_services.pop();
     return true;
 }
 
 ostream &operator<<(ostream &os, const Plane &plane) {
-    os << "plate: " << plane.license_plate << " type: " << plane.type << " capacity: " << plane.capacity;
+    os << plane.str();
     return os;
 }

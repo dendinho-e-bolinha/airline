@@ -73,12 +73,9 @@ MenuOption const &Menu::getSelectedOption() const {
     prompt_stream << "]: ";
 
     string prompt = prompt_stream.str();
-    function<bool(size_t)> is_option = [num_options](size_t value) {
+    size_t selected_option = readValue<size_t>(prompt, "Please input a number from the list", [num_options](const size_t &value) {
         return value >= 1 && value <= num_options;
-    };
-
-    size_t selected_option;
-    read_value(prompt, "Please input a number from the list", selected_option, is_option);
+    });
 
     for (const MenuBlock &block : this->blocks) {
         if (selected_option > block.getOptions().size()) {
@@ -111,6 +108,24 @@ void waitForInput() {
 void Menu::show() const {
     cout << "\x1B[2J\x1B[;H"
          << title << '\n' << endl;
+
+    if (this->blocks.empty()) {
+        cout << "Spooky... There is nothing to see here..." << endl;
+        return;
+    }
+
+    this->printOptions();
+    MenuOption  const &option = this->getSelectedOption();
+    cout << endl;
+
+    option.second();
+}
+
+void Menu::show(const string &subtitle) const {
+    cout << "\x1B[2J\x1B[;H"
+         << title << '\n' << endl;
+
+    cout << subtitle << '\n' << endl;
 
     if (this->blocks.empty()) {
         cout << "Spooky... There is nothing to see here..." << endl;

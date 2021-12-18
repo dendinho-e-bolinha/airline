@@ -36,6 +36,11 @@ public:
     std::queue<Service*> getScheduledServices() const;
     std::vector<Service*> getFinishedServices() const;
 
+    void setType(const std::string &type);
+    void setCapacity(const unsigned int &capacity);
+
+    std::string str() const;
+
     /**
      * @brief Adds a flight to the planes scheduled flights
      * @param flight A flight performed by the plane

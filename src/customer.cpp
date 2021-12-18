@@ -1,7 +1,3 @@
-//
-// Created by lima on 12/15/21.
-//
-
 #include "customer.h"
 
 using namespace std;

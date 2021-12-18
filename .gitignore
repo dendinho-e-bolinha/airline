@@ -45,7 +45,12 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 cmake-build-*
+build
 
 ### IDEA
 .idea
+
+### VS Code
+.vscode
+
 

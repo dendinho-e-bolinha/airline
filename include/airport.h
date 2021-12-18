@@ -33,7 +33,8 @@ class Airport {
     std::set<TransportPlace> transportPlaceInfo;
 public:
 
-    Airport(const std::set<TransportPlace> &transportPlaceInfo);
+    Airport(const std::string &name);
+
 
     /**
      * @return Returns a set containing each transport of the
@@ -51,6 +52,15 @@ public:
     void addTransportPlaceInfo(TransportPlace transportPlace) {
         this->transportPlaceInfo.insert(transportPlace);
     }
+
+    /**
+     * @overload Displays a plane
+     * @param os
+     * @param airport
+     * @return
+     */
+    friend std::ostream &operator<<(std::ostream &os, const Airport &airport);
+
 };
 
 

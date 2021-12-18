@@ -1,6 +1,8 @@
 #ifndef AIRLINE_DATETIME_H
 #define AIRLINE_DATETIME_H
 
+#include <ostream>
+
 class Date {
     unsigned int day;
     unsigned int month;
@@ -59,6 +61,8 @@ public:
      */
     Datetime(unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute, unsigned int second);
     Datetime(const Datetime &datetime);
+
+    friend std::ostream &operator<<(std::ostream &os, const Datetime &datetime);
 };
 
 #endif //AIRLINE_DATETIME_H

@@ -1,9 +1,6 @@
 #ifndef AIRLINE_CRUD_H
 #define AIRLINE_CRUD_H
 
-#include "interact.h"
-#include "state.h"
-
 namespace crud {
     void managePlanes();
 

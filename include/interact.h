@@ -36,6 +36,7 @@ public:
     void addBlock(const MenuBlock &block);
     void setSpecialBlock(const MenuBlock &block);
     void show() const;
+    void show(const std::string& subtitle) const;
 };
 
 class GetLine {
@@ -49,7 +50,9 @@ public:
 void waitForInput();
 
 template <typename T>
-void read_value(const std::string prompt, const std::string warning, T &result, const std::function<bool(T)> validator = [](T) { return true; }) noexcept(false) {
+T readValue(const std::string prompt, const std::string warning, const std::function<bool(const T&)> validator = [](const T&) { return true; }) noexcept(false) {
+    T result;
+
     std::cout << "\x1B[1;33m?\x1B[0m " << prompt << std::flush;
     while (true) {
         // Is true if, and only if, all the content present on the line is of the type T
@@ -71,7 +74,7 @@ void read_value(const std::string prompt, const std::string warning, T &result, 
 
         if (is_input_valid) {
             std::cout << "\x1B[F\x1B[G\x1B[32m✓\x1B[0m\x1B[" << prompt.length() + 3 << "G\x1B[K" << result << "\n\x1B[K" << std::flush;
-            return;
+            return result;
         } else {
             if (!std::cin.eof())
                 std::cout << "\x1B[31m>>\x1B[0m " << error << "\x1B[K\x1B[F";
