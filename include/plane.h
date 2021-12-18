@@ -8,11 +8,12 @@ class Plane;
 #include <queue>
 #include <list>
 #include <functional>
+#include <ostream>
 #include "flight.h"
 #include "service.h"
 
 class Plane {
-    std::string plate;
+    std::string license_plate;
     std::string type;
     unsigned int capacity;
     std::list<Flight*> flights;
@@ -22,13 +23,13 @@ class Plane {
 public:
     /**
      * @brief Creates an object of type Plane with the given attributes
-     * @param plate The plane's license plate
+     * @param license_plate The plane's license plate
      * @param type The plane's type
      * @param capacity The plane's capacity
      */
-    Plane(const std::string &plate, const std::string &type, const unsigned int capacity);
+    Plane(const std::string &license_plate, const std::string &type, const unsigned int capacity);
 
-    std::string getPlate() const;
+    std::string getLicensePlate() const;
     std::string getType() const;
     unsigned int getCapacity() const;
     std::list<Flight*> getFlights() const;
@@ -76,6 +77,14 @@ public:
      * @return true, if a service was completed; false, if there were no services scheduled for the plane
      */
     bool completeService();
+
+    /**
+     * @overload Displays
+     * @param os
+     * @param plane
+     * @return
+     */
+    friend std::ostream &operator<<(std::ostream &os, const Plane &plane);
 };
 
 #endif //AIRLINE_PLANE_H

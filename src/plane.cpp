@@ -3,14 +3,14 @@
 
 using namespace std;
 
-Plane::Plane(const string &plate, const string &type, const unsigned int capacity) {
-    this->plate = plate;
+Plane::Plane(const string &license_plate, const string &type, const unsigned int capacity) {
+    this->license_plate = license_plate;
     this->type= type;
     this->capacity = capacity;
 }
 
-string Plane::getPlate() const {
-    return this->plate;
+string Plane::getLicensePlate() const {
+    return this->license_plate;
 }
 
 string Plane::getType() const {
@@ -80,4 +80,9 @@ bool Plane::completeService() {
     this->finished_services.push_back(this->scheduled_services.front());
     this->scheduled_services.pop();
     return true;
+}
+
+ostream &operator<<(ostream &os, const Plane &plane) {
+    os << "plate: " << plane.license_plate << " type: " << plane.type << " capacity: " << plane.capacity;
+    return os;
 }

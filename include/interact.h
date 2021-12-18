@@ -38,6 +38,16 @@ public:
     void show() const;
 };
 
+class GetLine {
+    std::string buffer;
+public:
+    friend std::istream& operator>>(std::istream& in, GetLine &value);
+    friend std::ostream& operator<<(std::ostream& out, const GetLine &value);
+    std::string operator()() const;
+};
+
+void waitForInput();
+
 template <typename T>
 void read_value(const std::string prompt, const std::string warning, T &result, const std::function<bool(T)> validator = [](T) { return true; }) noexcept(false) {
     std::cout << "\x1B[1;33m?\x1B[0m " << prompt << std::flush;

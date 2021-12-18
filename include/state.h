@@ -7,9 +7,7 @@
 
 namespace data {
     static std::vector<Plane*> planes;
-
     static std::vector<Airport*> airports;
-
 
 }
 

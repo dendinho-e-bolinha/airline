@@ -92,6 +92,22 @@ MenuOption const &Menu::getSelectedOption() const {
     return this->special_block.getOptions().at(selected_option - 1);
 }
 
+
+/**
+ * @brief Waits for any user input
+ */
+void waitForInput() {
+    if (!cin) {
+        if (cin.eof())
+            throw end_of_file_exception();
+
+        return;
+    }
+
+    cout << endl << "Press ENTER to continue..." << endl;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+}
+
 void Menu::show() const {
     cout << "\x1B[2J\x1B[;H"
          << title << '\n' << endl;
@@ -106,4 +122,19 @@ void Menu::show() const {
     cout << endl;
 
     option.second();
+}
+
+istream &operator>>(istream &in, GetLine &value) {
+    while (in && in.peek() != '\n')
+        value.buffer.push_back(in.get());
+
+    return in;
+}
+
+ostream &operator<<(ostream &out, const GetLine &value) {
+    return out << value();
+}
+
+std::string GetLine::operator()() const {
+    return this->buffer;
 }
