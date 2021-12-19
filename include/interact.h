@@ -28,14 +28,41 @@ class Menu {
     std::list<MenuBlock> blocks;
     MenuBlock special_block;
 
+    /**
+    * @brief Displays all the options on the console according to the menu
+    */
     void printOptions() const;
+
+    /**
+    * @brief Reads user's selected option by input
+    * @return The selected option, if valid
+    */
     MenuOption const &getSelectedOption() const;
 
 public:
     explicit Menu(const std::string &title);
+
+    /**
+    * @brief Adds the given block to the menu
+    * @param block The block to add to the menu
+    */
     void addBlock(const MenuBlock &block);
+
+    /**
+    * @brief Adds the given special block to the menu
+    * @param block The block to add to the menu
+    */
     void setSpecialBlock(const MenuBlock &block);
+
+    /**
+    * @brief Display's the menu's title and options, if they exist
+    */
     void show() const;
+
+    /**
+    * @brief Display's the menu's title and subtitle and options, if they exist
+    * @param subtitle The menu's subtitle
+    */
     void show(const std::string& subtitle) const;
 };
 
@@ -44,6 +71,9 @@ public:
     friend std::istream& operator>>(std::istream& in, GetLine &value);
 };
 
+/**
+ * @brief Waits for any user input
+ */
 void waitForInput();
 
 template <typename T>

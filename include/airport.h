@@ -37,7 +37,7 @@ public:
 
 
     /**
-     * @return Returns a set containing each transport of the
+     * @return Returns a set containing each means of transport on the airport
      */
     const std::set<TransportPlace> &getTransportPlaceInfo() const;
 
@@ -46,8 +46,8 @@ public:
     void setName(std::string name);
 
     /**
-     * @brief Adds a TransportPlace to `transport_place_info`
-     * @param transportPlace TransportPlace
+     * @brief Adds the given TransportPlace to `transport_place_info`
+     * @param transportPlace A TransportPlac instance
      */
     void addTransportPlaceInfo(TransportPlace transportPlace) {
         this->transport_place_info.insert(transportPlace);

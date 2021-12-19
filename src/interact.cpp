@@ -89,10 +89,6 @@ MenuOption const &Menu::getSelectedOption() const {
     return this->special_block.getOptions().at(selected_option - 1);
 }
 
-
-/**
- * @brief Waits for any user input
- */
 void waitForInput() {
     if (!cin) {
         if (cin.eof())
@@ -115,7 +111,7 @@ void Menu::show() const {
     }
 
     this->printOptions();
-    MenuOption  const &option = this->getSelectedOption();
+    MenuOption const &option = this->getSelectedOption();
     cout << endl;
 
     option.second();
@@ -133,7 +129,7 @@ void Menu::show(const string &subtitle) const {
     }
 
     this->printOptions();
-    MenuOption  const &option = this->getSelectedOption();
+    MenuOption const &option = this->getSelectedOption();
     cout << endl;
 
     option.second();

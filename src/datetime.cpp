@@ -115,3 +115,23 @@ ostream &operator<<(ostream &os, const Datetime &datetime) {
 
     return os;
 }
+
+bool Datetime::operator<(const Datetime &datetime) {
+    if (this->getYear() != datetime.getYear())
+        return this->getYear() < datetime.getYear();
+    if (this->getMonth() != datetime.getMonth())
+        return this->getMonth() < datetime.getMonth();
+    if (this->getDay() != datetime.getDay())
+        return this->getDay() < datetime.getDay();
+    if (this->getHour() != datetime.getHour())
+        return this->getHour() < datetime.getHour();
+    if (this->getMinute() != datetime.getMinute())
+        return this->getMinute() < datetime.getMinute();
+    if (this->getSecond() != datetime.getSecond())
+        return this->getSecond() < datetime.getSecond();
+}
+
+
+bool Datetime::operator==(const Datetime &datetime) {
+    return !(this < datetime) && !(datetime < this);
+}

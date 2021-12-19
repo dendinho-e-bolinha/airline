@@ -21,7 +21,6 @@ class Flight {
     Airport& origin;
     Airport& destination;
     std::vector<Ticket*> tickets;
-
     std::vector<Luggage*> luggage;
 
 public:

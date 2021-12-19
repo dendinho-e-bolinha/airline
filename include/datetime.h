@@ -63,6 +63,9 @@ public:
     Datetime(const Datetime &datetime);
 
     friend std::ostream &operator<<(std::ostream &os, const Datetime &datetime);
+
+    bool operator<(const Datetime &datetime);
+    bool operator==(const Datetime &datetime);
 };
 
 #endif //AIRLINE_DATETIME_H
