@@ -56,10 +56,10 @@ bool Plane::removeFlight(const Flight &flight) {
 }
 
 bool Plane::removeFirstFlight(const std::function<bool(const Flight &)>& selector) {
-    // FIXME
     for (auto it = flights.begin(), end = flights.end(); it != end; it++) {
         if (selector(**it)) {
             it = this->flights.erase(it);
+            it--;
             return true;
         }
     }
@@ -67,11 +67,11 @@ bool Plane::removeFirstFlight(const std::function<bool(const Flight &)>& selecto
 }
 
 bool Plane::removeAllFlights(const function<bool(const Flight&)>& selector) {
-    // FIXME
     bool removed_any = false;
     for (auto it = flights.begin(), end = flights.end(); it != end; it++) {
         if (selector(**it)) {
             it = this->flights.erase(it);
+            it--;
             removed_any = true;
         }
         return removed_any;
@@ -86,7 +86,7 @@ string Plane::str() const {
     ostringstream out;
     out << "Plate: " << this->license_plate << endl
         << "Type: " << this->type << endl
-        << "Capacity: " << this->capacity;
+        << "Capacity: " << this->capacity << endl;
 
     return out.str();
 }

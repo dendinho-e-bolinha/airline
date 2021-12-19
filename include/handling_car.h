@@ -9,6 +9,7 @@ using LuggageStack = std::stack<Luggage*>;
 using Carriage = std::deque<LuggageStack>;
 
 class HandlingCar {
+    unsigned int id;
     unsigned int number_of_carriages, stacks_per_carriage, luggage_per_stack;
     std::deque<Carriage> carriages;
 
@@ -57,6 +58,7 @@ public:
      */
     HandlingCar(const unsigned int number_of_carriages, const unsigned int stacks_per_carriage, const unsigned int luggage_per_stack);
 
+    unsigned int getID();
     unsigned int getNumberOfCarriages() const;
     unsigned int getStacksPerCarriage() const;
     unsigned int getLuggagePerStack() const;

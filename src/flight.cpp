@@ -1,4 +1,5 @@
 #include "flight.h"
+#include "utils.h"
 
 using namespace std;
 
@@ -26,7 +27,7 @@ Airport &Flight::getDestination() const {
     return this->destination;
 }
 
-vector<Ticket *> Flight::getTickets() const {
+vector<Ticket *>& Flight::getTickets() {
     return this->tickets;
 }
 
@@ -36,9 +37,14 @@ Plane &Flight::getPlane() const {
 
 bool Flight::addTicket(Ticket &ticket) {
     if (this->tickets.size() < this->plane.getCapacity()) {
-        this->tickets.push_back(&ticket);
+        auto it = utils::lowerBound<Ticket*, unsigned int>(this->tickets, ticket.getSeatNumber(), [](Ticket* ticket) {
+            return ticket->getSeatNumber();
+        });
+
+        this->tickets.insert(it, &ticket);
         return true;
     }
+
     return false;
 }
 

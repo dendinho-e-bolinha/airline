@@ -41,7 +41,7 @@ public:
     Time getDuration() const;
     Airport& getOrigin() const;
     Airport& getDestination() const;
-    std::vector<Ticket*> getTickets() const;
+    std::vector<Ticket*>& getTickets();
     Plane& getPlane() const;
 
     /**
@@ -76,7 +76,7 @@ public:
      */
     bool removeAllTickets(const std::function <bool (const Ticket&)> &selector);
 
-
+    friend std::ostream& operator<<(std::ostream &out, const Flight &flight);
 };
 
 #endif //AIRLINE_FLIGHT_H

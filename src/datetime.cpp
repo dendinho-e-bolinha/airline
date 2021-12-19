@@ -1,5 +1,6 @@
 #include "datetime.h"
 #include <stdexcept>
+#include <iomanip>
 
 using namespace std;
 
@@ -108,15 +109,17 @@ Datetime::Datetime(const Datetime &datetime) : Datetime(datetime.getYear(), date
 
 
 ostream &operator<<(ostream &os, const Datetime &datetime) {
-    os << datetime.getYear() << datetime.getMonth()
-       << datetime.getHour() << datetime.getDay()
-       << datetime.getHour() << datetime.getMinute()
-       << datetime.getSecond();
+    os << datetime.getYear() << '-'
+       << setw(2) << setfill('0') << datetime.getMonth() << '-'
+       << setw(2) << setfill('0') << datetime.getDay() << ' '
+       << setw(2) << setfill('0') << datetime.getHour() << ':'
+       << setw(2) << setfill('0') << datetime.getMinute() << ':'
+       << setw(2) << setfill('0') << datetime.getSecond();
 
     return os;
 }
 
-bool Datetime::operator<(const Datetime &datetime) {
+bool Datetime::operator<(const Datetime &datetime) const {
     if (this->getYear() != datetime.getYear())
         return this->getYear() < datetime.getYear();
     if (this->getMonth() != datetime.getMonth())
@@ -127,11 +130,11 @@ bool Datetime::operator<(const Datetime &datetime) {
         return this->getHour() < datetime.getHour();
     if (this->getMinute() != datetime.getMinute())
         return this->getMinute() < datetime.getMinute();
-    if (this->getSecond() != datetime.getSecond())
-        return this->getSecond() < datetime.getSecond();
+
+    return this->getSecond() < datetime.getSecond();
 }
 
 
-bool Datetime::operator==(const Datetime &datetime) {
-    return !(this < datetime) && !(datetime < this);
+bool Datetime::operator==(const Datetime &datetime) const {
+    return !(*this < datetime) && !(datetime < (*this));
 }

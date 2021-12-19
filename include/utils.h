@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <vector>
+#include <algorithm>
 
 namespace utils {
 
@@ -40,6 +41,28 @@ namespace utils {
             return *pos;
 
         return nullptr;  
+    }
+
+    template<typename T, typename V>
+    void sort(std::vector<T> &pool, const std::function<V(const T&)> &mapper) {
+        std::stable_sort(pool.begin(), pool.end(), [&mapper](const T &t1, const T &t2) {
+            return mapper(t1) < mapper(t2);
+        });
+    }
+
+    template<typename T>
+    void reverse(std::vector<T> &pool) {
+        auto left = pool.begin();
+        auto right = --pool.end();
+
+        while (left < right) {
+            T temp = *left;
+            *left = *right;
+            *right = temp;
+
+            left++;
+            right--;
+        }
     }
 }
 

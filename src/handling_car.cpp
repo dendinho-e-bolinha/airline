@@ -7,6 +7,9 @@ HandlingCar::HandlingCar(const unsigned int number_of_carriages, const unsigned 
         : number_of_carriages(number_of_carriages), stacks_per_carriage(stacks_per_carriage),
           luggage_per_stack(luggage_per_stack) {
 
+    static unsigned int counter = 1;
+    this->id = counter++;
+
     if (number_of_carriages == 0)
         throw invalid_argument("Number of carriages must be greater than 0");
 
@@ -15,6 +18,10 @@ HandlingCar::HandlingCar(const unsigned int number_of_carriages, const unsigned 
 
     if (luggage_per_stack == 0)
         throw invalid_argument("Number of luggage per stack must be greater than 0");
+}
+
+unsigned int HandlingCar::getID() {
+    return this->id;
 }
 
 unsigned int HandlingCar::getNumberOfCarriages() const {

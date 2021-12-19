@@ -97,7 +97,7 @@ void waitForInput() {
         return;
     }
 
-    cout << endl << "Press ENTER to continue..." << endl;
+    cout << "Press ENTER to continue..." << endl;
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
 
@@ -105,7 +105,7 @@ void Menu::show() const {
     cout << "\x1B[2J\x1B[;H"
          << title << '\n' << endl;
 
-    if (this->blocks.empty()) {
+    if (this->blocks.empty() && this->special_block.getOptions().empty()) {
         cout << "Spooky... There is nothing to see here..." << endl;
         return;
     }
@@ -121,9 +121,9 @@ void Menu::show(const string &subtitle) const {
     cout << "\x1B[2J\x1B[;H"
          << title << '\n' << endl;
 
-    cout << subtitle << '\n' << endl;
+    cout << subtitle << endl;
 
-    if (this->blocks.empty()) {
+    if (this->blocks.empty() && this->special_block.getOptions().empty()) {
         cout << "Spooky... There is nothing to see here..." << endl;
         return;
     }
