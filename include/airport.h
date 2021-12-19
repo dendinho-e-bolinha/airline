@@ -15,8 +15,8 @@ enum TransportType {
 struct TransportPlace {
     std::string name;
     float latitude, longitude;
-    TransportType transportType;
-    float airportDistance;
+    TransportType transport_type;
+    float airport_distance;
     std::set<Datetime> schedule;
 
     /**
@@ -30,7 +30,7 @@ struct TransportPlace {
 
 class Airport {
     std::string name;
-    std::set<TransportPlace> transportPlaceInfo;
+    std::set<TransportPlace> transport_place_info;
 public:
 
     Airport(const std::string &name);
@@ -46,11 +46,11 @@ public:
     void setName(std::string name);
 
     /**
-     * @brief Adds a TransportPlace to `transportPlaceInfo`
+     * @brief Adds a TransportPlace to `transport_place_info`
      * @param transportPlace TransportPlace
      */
     void addTransportPlaceInfo(TransportPlace transportPlace) {
-        this->transportPlaceInfo.insert(transportPlace);
+        this->transport_place_info.insert(transportPlace);
     }
 
     /**

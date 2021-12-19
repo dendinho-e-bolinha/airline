@@ -141,15 +141,7 @@ void Menu::show(const string &subtitle) const {
 
 istream &operator>>(istream &in, GetLine &value) {
     while (in && in.peek() != '\n')
-        value.buffer.push_back(in.get());
+        value.push_back(in.get());
 
     return in;
-}
-
-ostream &operator<<(ostream &out, const GetLine &value) {
-    return out << value();
-}
-
-std::string GetLine::operator()() const {
-    return this->buffer;
 }

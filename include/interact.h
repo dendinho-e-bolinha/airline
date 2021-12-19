@@ -39,12 +39,9 @@ public:
     void show(const std::string& subtitle) const;
 };
 
-class GetLine {
-    std::string buffer;
+class GetLine : public std::string {
 public:
     friend std::istream& operator>>(std::istream& in, GetLine &value);
-    friend std::ostream& operator<<(std::ostream& out, const GetLine &value);
-    std::string operator()() const;
 };
 
 void waitForInput();
