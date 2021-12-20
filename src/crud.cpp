@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <sstream>
 
-// #define EVERYTHING
+#define EVERYTHING
 
 using namespace std;
 
@@ -395,6 +395,22 @@ namespace crud {
         menu.show();
     }
 
+    void slicePlaneVectorFromBeginWithUserInput(vector<Plane*> &pool) {
+        size_t number = readValue<size_t>("#: ", "Please provide a valid number of elements");
+        auto last = pool.begin() + number - 1;
+        for (auto it = pool.end() - 1; it > last ; it--)
+            pool.erase(it);
+    }
+
+    void slicePlaneVectorFromEndWithUserInput(vector<Plane*> &pool) {
+        size_t number = readValue<size_t>("#: ", "Please provide a valid number of elements");
+        auto first = pool.end() - number;
+        for (auto it = pool.begin(), cursor = first; it < first; it++, cursor++)
+            *it = *cursor;
+
+        pool.resize(number);
+    }
+
     void readAllPlanesWithUserInput() {
         vector<Plane*> pool = data::planes;
 
@@ -403,6 +419,9 @@ namespace crud {
         ops.addOption("Sort", [&pool]() { orderPlanesWithUserInput(pool); });
 
         MenuBlock other_ops;
+        other_ops.addOption("Keep the first # planes", [&pool]() { slicePlaneVectorFromBeginWithUserInput(pool); });
+        other_ops.addOption("Keep the last # planes", [&pool]() { slicePlaneVectorFromEndWithUserInput(pool); });
+
         other_ops.addOption("Reverse the current order", [&pool]() {
             utils::reverse(pool);
         });
@@ -491,18 +510,60 @@ namespace crud {
     }
 
     void deleteAllPlanesWithFilters() {
-        ostringstream repr;
-        auto filter = createPlaneFilter(repr);
+        vector<Plane*> pool = data::planes;
 
-        cout << "\x1B[2J\x1B[;H\x1B[32m✓\x1B[0m " << repr.str() << '\n' << endl;
-        waitForInput();
+        MenuBlock ops;
+        ops.addOption("Filter", [&pool]() { filterPlanesWithUserInput(pool); });
+        ops.addOption("Sort", [&pool]() { orderPlanesWithUserInput(pool); });
 
-        for (auto it = data::planes.begin(); it != data::planes.end();) {
-            if (!filter(*it)) {
-                delete *it;
-                it = data::planes.erase(it);
-            } else
-                it++;
+        MenuBlock other_ops;
+        other_ops.addOption("Keep the first # planes", [&pool]() { slicePlaneVectorFromBeginWithUserInput(pool); });
+        other_ops.addOption("Keep the last # planes", [&pool]() { slicePlaneVectorFromEndWithUserInput(pool); });
+
+        other_ops.addOption("Reverse the current order", [&pool]() {
+            utils::reverse(pool);
+        });
+
+        MenuBlock erase;
+        erase.addOption("Delete all planes in this selection", [&pool]() {
+            vector<Plane*> new_planes;
+            
+            for (Plane *plane1 : data::planes) {
+                bool was_selected = false;
+
+                for (Plane *plane2 : pool) {
+                    if (plane1 == plane2)
+                        was_selected = true;
+                }
+
+                if (was_selected)
+                    delete plane1;
+                else
+                    new_planes.push_back(plane1);
+            }
+
+            data::planes = pool = vector<Plane*>(new_planes);
+        });
+
+        bool is_running = true;
+        MenuBlock special_block;
+        special_block.addOption("Go Back", [&is_running]() { is_running = false; });
+
+        while (is_running) {
+            Menu menu("Your current selection:");
+
+            if (!pool.empty()) {
+                menu.addBlock(ops);
+                menu.addBlock(other_ops);
+                menu.addBlock(erase);
+            }
+
+            menu.setSpecialBlock(special_block);
+
+            if (pool.empty())
+                menu.show("\x1B[31m>>\x1B[0m There are no planes left!\n");
+            else
+                menu.show(getPlanesRepresentation(pool));
         }
     }
 
@@ -537,7 +598,7 @@ namespace crud {
         MenuBlock remove;
         remove.addOption("Delete one plane", allowWhenPlanesExist(deleteOnePlane));
         remove.addOption("Delete all planes", allowWhenPlanesExist(deleteAllPlanes));
-        remove.addOption("Delete all planes with filters", allowWhenPlanesExist(deleteAllPlanesWithFilters));
+        remove.addOption("Delete all planes with filters and sort", allowWhenPlanesExist(deleteAllPlanesWithFilters));
 
         bool is_running = true;
         MenuBlock special_block;
@@ -551,8 +612,6 @@ namespace crud {
         while (is_running)
             menu.show();
     }
-
-
 
 #ifndef EVERYTHING
 
@@ -671,7 +730,7 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
     /**
      * @brief Displays a plane specified by the user
      */
-    void readOnePlane() {
+    void readOneFlight() {
         const Flight &flight = findFlight();
         cout << flight << endl;
         waitForInput();
@@ -680,7 +739,7 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
     /**
      * @brief Displays all the existing planes
      */
-    void readAllPlanes() {
+    void readAllFlights() {
         for (const Flight *flight : data::flights) {
             cout << "-----------------------" << endl;
             cout << *flight << endl;
@@ -697,7 +756,7 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
         cout << endl;
 
         repr << operand2;
-
+        
         return [operand2, mapper, filter](const T& operand1) { 
             const V mapped = mapper(operand1);
             return filter(mapped, operand2);
@@ -767,18 +826,24 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
      * @brief Updates one Plane instance
      */
     void updateFlight() {
-        Plane &plane = findPlane();
+        Flight &flight = findFlight();
         Menu menu("Please select what you want to update:");
 
         MenuBlock choice;
-        choice.addOption("Type", [&plane](){
-            string type = readValue<GetLine>("Type: ", "Please insert a valid plane type");
-            plane.setType(type);
+        choice.addOption("Flight ID", [&flight]() {
+            string flight_id = readValue<string>("Flight ID: ", "Please insert a valid flight ID");
+            Flight *new_flight = new Flight(flight_id, flight.getDepartureTime(), flight.getDuration(), flight.getOrigin(), flight.getDestination(), flight.getTickets(), flight.getPlane());
         });
 
-        choice.addOption("Capacity", [&plane](){
-            unsigned int capacity = readValue<unsigned int>("Type: ", "Please insert a valid plane capacity");
-            plane.setCapacity(capacity);
+        choice.addOption("Departure time", [&flight](){
+            string departure = readValue<GetLine>("Departure time(YYYY-MM-DD-HH-MM-SS): ", "Please insert a valid departure time");
+            departure = Datetime::toDatetime(departure);
+            Flight *new_flight = new Flight(flight.getFlightID(), departure, flight.getDuration(), flight.getOrigin(), flight.getDestination(), flight.getTickets(), flight.getplane());
+        });
+
+        choice.addOption("Duration", [&plane](){
+            string duration = readValue<string>("Duration(HH:MM:SS): ", "Please insert a valid duration");
+            duration = T
         });
 
         // MenuBlock flights;
