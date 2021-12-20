@@ -47,6 +47,7 @@ namespace crud {
             return *data::planes.at(0);
 
         string license_plate = askUsedLicensePlate();
+
         cout << endl;
 
         Plane *plane = findPlaneByLicensePlate(license_plate);
@@ -660,6 +661,11 @@ namespace crud {
         string id = readValue<string>("Flight ID: ", "Please insert a valid flight id");
         
         Flight *flight = findFlightById(id);
+
+        if (flight == nullptr) {
+            throw "That ID doesn't belong to any plane";
+        }
+        return true;
         
 
         
@@ -677,7 +683,7 @@ namespace crud {
     
     string askUsedFlightKey() {
         return readValue<string>("Flight ID: ", "Please insert a valid flight id", [](const string &value) {
-            Flight *flight = findFlightByFlightId(value);
+            Flight *flight = findFlightById(value);
             if (flight == nullptr)
                 throw "That flight id doesn't belong to any plane";
 
@@ -693,11 +699,11 @@ namespace crud {
             return *data::flights.at(0);
 
         string flight_id = askUsedFlightKey();
-        Datetime departure_time = as
+        string datetime = readValue<string>("Datetime (YYYY-MM-DD): ", "Please insert a valid date");
 
         cout << endl;
 
-        Flight *flight = findFlightByFlightkey(flight_id);
+        Flight *flight = findFlightByFlightkey(flight_id, Datetime::toDatetime(datetime));
         if (flight == nullptr)
             throw logic_error("No flight found");
 
@@ -705,25 +711,22 @@ namespace crud {
     }
 
     /**
-     * @brief Creates a Plane instance
+     * @brief Creates a Flight instance
      */
-    void createFlight() {
-        string flight_id = askUnusedFlightId();
+    void createFlight(Airport &airport) {
+        string flight_id = askUnusedFlightKey();
         string type = readValue<GetLine>("Type: ", "Please insert a valid flight id");
-        unsigned int capacity = readValue<unsigned int>("Capacity: ", "Please insert a valid capacity");
+        string departure = readValue<string>("Departure (YYYY-MM-DD-HH-MM-SS): ", "Please insert a valid departure time");
+        string duration = readValue<string>("Duration (HH--MM-SS): ", "Please insert a valid time");
 
-        Plane *plane = new Plane(license_plate, type, capacity);
-        auto 
+        cout << endl;
 
-
-
-
-
-pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* plane) {
-            return plane->getLicensePlate();
+        Flight *flight = new Flight(flight_id, Datetime::toDatetime(departure), Time::toTime(duration), airport.getName());
+        auto pos = utils::lowerBound<Flight*, string>(data::flights, id, [](Flight* flight) {
+            return flight->getFlightId();
         });
 
-        data::planes.insert(pos, plane);
+        data::flights.insert(pos, flight);
         waitForInput();
     }
 
@@ -736,16 +739,26 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
         waitForInput();
     }
 
+    string getFlightsRepresentation(const vector<Flight*> &vec) {
+        ostringstream repr;
+
+        bool is_empty = true;
+        for (const Flight *flight : vec) {
+            if (!is_empty) {
+                repr << "\n";
+            }
+            repr << *flight;
+            is_empty = false;
+        }
+
+        return repr.str();
+    }
+
     /**
      * @brief Displays all the existing planes
      */
     void readAllFlights() {
-        for (const Flight *flight : data::flights) {
-            cout << "-----------------------" << endl;
-            cout << *flight << endl;
-        }
-        cout << "-----------------------" << endl;
-
+        cout << getFlightsRepresentation(data::flights) << endl;
         waitForInput();
     }
 
@@ -836,14 +849,15 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
         });
 
         choice.addOption("Departure time", [&flight](){
-            string departure = readValue<GetLine>("Departure time(YYYY-MM-DD-HH-MM-SS): ", "Please insert a valid departure time");
+            string departure = readValue<GetLine>("Departure time(YYYY-MM-DD HH:MM:SS): ", "Please insert a valid departure time");
             departure = Datetime::toDatetime(departure);
             Flight *new_flight = new Flight(flight.getFlightID(), departure, flight.getDuration(), flight.getOrigin(), flight.getDestination(), flight.getTickets(), flight.getplane());
         });
 
-        choice.addOption("Duration", [&plane](){
+        choice.addOption("Duration", [&flight](){
             string duration = readValue<string>("Duration(HH:MM:SS): ", "Please insert a valid duration");
-            duration = T
+            duration = Time::toTime(duration);
+            Flight *new_flight = new Flight(flight.getFlightId(), flight.getDepartureTime(), duration, flight.getOrigin(), flight.getDestination(), flight.getPlane());
         });
 
         // MenuBlock flights;
@@ -858,42 +872,40 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
         menu.setSpecialBlock(special_block);
     
         while (is_running) {
-            menu.show(plane.str());
+            menu.show(flight.str());
         }
     }
-
     
     /**
      * @brief Deletes one Plane instance specified by the user
      */
-    void deleteOnePlane() {
-        Plane const &plane = findPlane();
-        for (auto it = data::planes.begin(), end = data::planes.end(); it != end; it++) {
-            if (*it == &plane) {
-                data::planes.erase(it);
-                delete &plane;
+    void deleteOneFlight() {
+        Flight const &flight = findFlight();
+        for (auto it = data::flights.begin(), end = data::flights.end(); it != end; it++) {
+            if (*it == &flight) {
+                data::flights.erase(it);
+                delete &flight;
                 waitForInput();
                 return;
             }
         }
 
-        delete &plane;
+        delete &flight;
         throw logic_error("No planes were deleted");
     }
 
     /**
      * @brief Deletes every Plane instance
      */
-    void deleteAllPlanes() {
-        for (const Plane *plane : data::planes)
-            delete plane;
+    void deleteAllFlights() {
+        for (const Flight *flight : data::flights)
+            delete flight;
 
-        data::planes.clear();
+        data::flights.clear();
     }
 
     void manageFlights() {
         Menu menu("Flights");
-
 
         Menu menu("Select one of the following operations:");
 
@@ -933,8 +945,6 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
 
         while (is_running)
             menu.show();
-
-
 
         MenuBlock block;
     }
@@ -989,7 +999,7 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
 
     Ticket* findTicketByFlightAndCustomer(Flight* flight, const string &name) {
         for (Ticket* ticket : flight->getTickets()) {
-            if (ticket->getCustomer().getName() == name) {
+            if (ticket->getCustomerName() == name) {
                 return ticket;
             }
         }
@@ -1058,7 +1068,7 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
     }
 
     void readAllTickets(Flight *flight) {
-        cout << getTicketRepresentation(flight->getTickets()) << endl;
+        cout << getTicketRepresentation(flight) << endl;
         waitForInput();
     }
 
@@ -1164,7 +1174,7 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
         return readValue<GetLine>("Airport name: ", "Please insert a valid airport name",[](const string &value) {
             Airport *airport = findAirportByName(value);
             if (airport != nullptr) {
-                throw "That name is already being used"
+                throw "That name is already being used";
             }
             return true;
         });
@@ -1172,8 +1182,9 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
     
     string askUsedName() {
         return readValue<GetLine>("Airport name: ", "Please insert a valid airport name", [](const string &value) {
+            Airport *airport = findAirportByName(value);
             if (airport == nullptr) {
-                throw "That name isn't being used"
+                throw "That name isn't being used";
             }
             return true;
         });
@@ -1192,7 +1203,7 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
         cout << endl;
 
         Airport *airport = findAirportByName(name);
-        if (name == nullptr)
+        if (airport == nullptr)
             throw logic_error("No airport found");
 
         return *airport;
@@ -1289,7 +1300,7 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
             string name = readValue<GetLine>("Name: ", "Please insert a valid name");
             float longitude = readValue<float>("Longitude: ", "Please insert a valid longitude");
             float latitude = readValue<float>("Latitude", "Please insert a valid latitude");
-            TransportType transport_type = readValue<unsigned int>("Transport Type (0-subway, 1-bus, 2-train): ", "Please insert a valid trasnportation method");
+            unsigned int transport_type = readValue<unsigned int>("Transport Type (0-subway, 1-bus, 2-train): ", "Please insert a valid trasnportation method");
             float airport_distance = readValue<float>("Airport distance: ", "Please insert a valid distance");
             unsigned schedule_number = readValue<unsigned>("How many times it passes by: ", "Please insert a valid number");
             set<Datetime> schedule;
@@ -1298,22 +1309,31 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
                 schedule.insert(Datetime::toString(datetime));
             }
 
-            airport.addTransportPlaceInfo(new TransportPlace(name, latitude, longitude, transport_type, airport_distance, schedule));
+            TransportType tt;
+            if (transport_type == 0) tt = SUBWAY;
+            else if (transport_type == 1) tt = BUS;
+            else tt = TRAIN;
+
+            airport.addTransportPlaceInfo(new TransportPlace(name, latitude, longitude, tt, airport_distance, schedule));
         });
 
         choice.addOption("Remove stop", [&airport]() {
             string name = readValue<GetLine>("Name: ", "Please insert a valid name");
-            for (auto it : airport.getTransportPlaceInfo()) {
-                if (*it.name == name) {
-                    airport.getTransportPlaceInfo().delete(it);
+            for (auto it = airport.getTransportPlaceInfo().begin(), end = airport.getTransportPlaceInfo().end(); it != end; it++) {
+                if ((*it).name == name) {
+                    airport.getTransportPlaceInfo().erase(it);
                 }
             }
         });
         
         choice.addOption("Remove all stops", [&airport]() {
-            for (auto it : airport.getTransportPlaceInfo()) {
-                delete(it);
+            for (const TransportPlace tp : airport.getTransportPlaceInfo()) {
+                delete &tp;
             }
+        });
+
+        choice.addOption("Remove all stops with user input", [&airport]() {
+            
         });
 
         bool is_running = true;
@@ -1330,10 +1350,33 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
     }
 
     void deleteAllStops() {
-        Airport const &airport = findAirport();
-        for (const TransportPlace *transport : data::airports) {
-            delete transport;
+        Airport &airport = findAirport();
+        for (const TransportPlace transport : airport.getTransportPlaceInfo()) {
+            delete &transport;
         }
+    }
+
+    void deleteOneAirport() {
+        Airport const &airport = findAirport();
+        for (auto it = data::airports.begin(), end = data::airports.end(); it != end; it++) {
+            if (*it == &airport) {
+                data::airports.erase(it);
+                delete &airport;
+                waitForInput();
+                return;
+            }
+        }
+
+        delete &airport;
+        throw logic_error("No airports were deleted");
+    }
+
+    void deleteAllAirports() {
+        for (const Airport *airport : data::airports) {
+            delete airport;
+        }
+
+        data::airports.clear();
     }
 
     void manageAirports() {
@@ -1358,13 +1401,13 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
         normal.addOption("Update airport", allowWhenAirportExists(updateAirport));
 
         MenuBlock ohno;
-        ohno.addOption("Read one airport", allowWhenAirportExists(readOneAirport()));
-        ohno.addOption("Read all flights", allowWhenAirportExists(readAllAirports()));
+        ohno.addOption("Read one airport", allowWhenAirportExists(readOneAirport));
+        ohno.addOption("Read all flights", allowWhenAirportExists(readAllAirports));
         ohno.addOption("Read all airports with filters", allowWhenAirportExists(readAllAirportsWithUserInput));
 
         MenuBlock remove;
         remove.addOption("Delete one airport", allowWhenAirportExists(deleteOneAirport));
-        remove.addOption("Delete all airports", allowWhenAirportExists(deleteAllAirport));
+        remove.addOption("Delete all airports", allowWhenAirportExists(deleteAllAirports));
 
         bool is_running = true;
         MenuBlock special_block;
@@ -1667,12 +1710,13 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
         HandlingCar &car = findCar();
         Menu menu("Please select what you want to update:");
 
-        Menublock choice;
+        MenuBlock choice;
         choice.addOption("Number of carriages", [&car]() {
             unsigned int number_of_carriages = readValue<unsigned>("Number of carriages: ", "Please input a valid number");
             car.setNumber ?
-        })    void updateHandlingCar() {
-
+        });
+        
+    void updateHandlingCar() {}
 
 
     void readOneCar() {
@@ -1713,17 +1757,17 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
         throw logic_error("No cars were deleted");
     }
 
-    void deleteAllCars() {
+    void deleteAllHandlingCars() {
         for (const HandlingCar *car : data::handlingCars)
-            delete plane;
+            delete car;
 
         data::handlingCars.clear();
-    }    }
+    } 
     
     void manageHandlingCars() {
         Menu menu("Select one of the following operations:");
 
-        auto allowWhenCartsExist = [](const function<void()> &f) {
+        auto allowWhenCarsExist = [](const function<void()> &f) {
             return [f]() {
                 if (data::handlingCars.empty()) {
                     cout << "There are no hadling cars in the database" << endl;
@@ -1736,14 +1780,16 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
 
         MenuBlock normal;
         normal.addOption("Create a new handling car", createHandlingCar);
-        normal.addOption("Update an handling car", allowWhenPlanesExist(updateHandlingCar));
+        normal.addOption("Update an handling car", allowWhenCarsExist(updateHandlingCar));
 
-        ohno.addOption("Read one handling car", allowWhenPlanesExist(readOneHandlingCar));
-        ohno.addOption("Read all handling cars", allowWhenPlanesExist(readAllHandlingCars));
-        ohno.addOption("Read all handling cars with filters", allowWhenPlanesExist(readAllHandlingCarsWithFilters));
+        MenuBlock ohno;
+        ohno.addOption("Read one handling car", allowWhenCarsExist(readOneHandlingCar));
+        ohno.addOption("Read all handling cars", allowWhenCarsExist(readAllHandlingCars));
+        ohno.addOption("Read all handling cars with filters", allowWhenCarsExist(readAllHandlingCarsWithFilters));
 
-        remove.addOption("Delete one handling car", allowWhenPlanesExist(deleteOneHandlingCar));
-        remove.addOption("Delete all handling cars", allowWhenPlanesExist(deleteAllHandlingCars));
+        MenuBlock remove;
+        remove.addOption("Delete one handling car", allowWhenCarsExist(deleteOneHandlingCar));
+        remove.addOption("Delete all handling cars", allowWhenCarsExist(deleteAllHandlingCars));
 
         bool is_running = true;
         MenuBlock special_block;
@@ -1754,9 +1800,7 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
 
         while (is_running)
             menu.show();
- 
- 
-  }
+    }
 
 
   #endif

@@ -45,6 +45,8 @@ public:
     unsigned int getHour() const;
     unsigned int getMinute() const;
     unsigned int getSecond() const;
+
+    friend std::ostream &operator<<(std::ostream &os, const Time &time);
 };
 
 class Datetime: public Date, public Time {

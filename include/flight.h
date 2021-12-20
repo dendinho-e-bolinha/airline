@@ -44,6 +44,8 @@ public:
     std::vector<Ticket*>& getTickets();
     Plane& getPlane() const;
 
+    std::string str() const;
+
     /**
      * @brief Adds a ticket to the flight's purchased tickets
      * @param ticket A flight's ticket

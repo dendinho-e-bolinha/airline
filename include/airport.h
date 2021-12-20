@@ -53,6 +53,8 @@ public:
         this->transport_place_info.insert(transportPlace);
     }
 
+    std::string str() const;
+
     /**
      * @overload Displays a plane
      * @param os

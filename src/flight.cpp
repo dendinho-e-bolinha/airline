@@ -1,5 +1,6 @@
 #include "flight.h"
 #include "utils.h"
+#include <sstream>
 
 using namespace std;
 
@@ -78,4 +79,13 @@ bool Flight::removeAllTickets(const std::function<bool(const Ticket &)> &selecto
         }
     }
     return removed_any;
+
+    string Flight::str() const {
+        ostringstream out;
+        out << "ID: " << this->getFlightId() << endl
+            << "Departure time: " << this->getDepartureTime()
+            << "Duration: " << this->getDuration();
+
+        return out.str();
+    }
 }

@@ -104,6 +104,14 @@ unsigned int Time::getSecond() const {
     return this->second;
 }
 
+ostream &operator<<(ostream &os, const Time &time) {
+    os << time.getHour() << '-'
+       << setw(2) << setfill('0') << time.getMinute() << '-'
+       << setw(2) << setfill('0') << time.getSecond();
+
+    return os;
+}
+
 Datetime::Datetime(unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute, unsigned int second) : Date(day, month, year), Time(hour, minute, second) {}
 Datetime::Datetime(const Datetime &datetime) : Datetime(datetime.getYear(), datetime.getMonth(), datetime.getDay(), datetime.getHour(), datetime.getMinute(), datetime.getSecond()) {};
 
