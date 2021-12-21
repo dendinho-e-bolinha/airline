@@ -39,9 +39,13 @@ unsigned int HandlingCar::getLuggagePerStack() const {
 
 string HandlingCar::str() const {
     ostringstream out;
-    out << "Number of carriages: " << to_string(this->getNumberOfCarriages()) << endl
-        <<"Number of stacks per carriage: " << to_string(this->getStacksPerCarriage()) << endl
-        << "Number of luggage per stack: " << to_string(this->getLuggagePerStack()) << endl;
+    out << "ID: " << this->id << endl
+        << "Number of carriages: " << this->number_of_carriages << endl
+        << "Number of stacks per carriage: " << this->stacks_per_carriage << endl
+        << "Number of luggage per stack: " << this->luggage_per_stack;
+
+    if (this->flight != nullptr)
+        out << "\nCurrently serving flight: " << this->flight->getFlightId();
 
     return out.str();
 }
@@ -182,12 +186,5 @@ deque<Carriage> HandlingCar::getCarriages() const {
 }
 
 ostream& operator<<(ostream &out, const HandlingCar &car) {
-    out << "Number of carriages: " << car.number_of_carriages << endl
-        << "Number of stacks per carriage: " << car.stacks_per_carriage << endl
-        << "Number of luggage per stack: " << car.luggage_per_stack << endl;
-
-    if (car.flight != nullptr)
-        out << "Currently serving flight: " << car.flight->getFlightId() << endl;
-
-    return out;
+    return out << car.str() << endl;
 }

@@ -1249,7 +1249,7 @@ namespace crud {
         MenuBlock ohno;
         ohno.addOption("Read one flight", allowWhenFlightsExist(readOneFlight));
         ohno.addOption("Read all flights", allowWhenFlightsExist(readAllFlights));
-        ohno.addOption("Read all flights with filters and sort", allowWhenFlightsExist(readAllFlights));
+        ohno.addOption("Read all flights with filters and sort", allowWhenFlightsExist(readAllFlightsWithUserInput));
 
         MenuBlock remove;
         remove.addOption("Delete one flight", allowWhenFlightsExist(deleteOneFlight));
@@ -1644,9 +1644,10 @@ namespace crud {
                 bool was_selected = false;
 
                 for (Ticket *ticket2 : pool) {
-                    if (ticket1 == ticket2)
+                    if (ticket1 == ticket2) {
                         was_selected = true;
                         break;
+                    }
                 }
 
                 if (was_selected)
@@ -1656,6 +1657,7 @@ namespace crud {
             }
 
             pool = new_tickets;
+            flight.clearTickets();
             
             for (Ticket* ticket : new_tickets) {
                 if (!flight.addTicket(*ticket))
@@ -2245,7 +2247,8 @@ namespace crud {
         unsigned int number_of_carriages = readValue<unsigned>("Number of carriages: ", "Please input a valid number", [](const unsigned int &value) { return value > 0; });
         unsigned int stacks_per_carriage = readValue<unsigned>("Number of stacks in each carriage: ", "Please input a valid number", [](const unsigned int &value) { return value > 0; });
         unsigned int luggage_per_stack = readValue<unsigned>("Number of luggage per stack: ", "Please insert a valid number", [](const unsigned int &value) { return value > 0; });
-        
+        cout << endl;
+
         HandlingCar *car = new HandlingCar(number_of_carriages, stacks_per_carriage, luggage_per_stack);
         auto pos = utils::lowerBound<HandlingCar*, unsigned int>(data::handlingCars, car->getId(), [](HandlingCar *car) {
             return car->getId();
@@ -2291,7 +2294,7 @@ namespace crud {
         menu.setSpecialBlock(special_block);
 
         while (is_running) {
-            menu.show(car.str());
+            menu.show(car.str() + '\n');
         }
     }
 

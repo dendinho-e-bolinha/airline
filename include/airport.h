@@ -48,12 +48,21 @@ public:
 
     /**
      * @brief Adds the given TransportPlace to `transport_place_info`
-     * @param transportPlace A TransportPlac instance
+     * @param transportPlace A TransportPlace instance
      */
     void addTransportPlaceInfo(TransportPlace transportPlace);
 
+
+    /**
+     * @brief Removes all elements from the transport_place_info
+     */
     void removeAllTransportPlaceInfo();
 
+    /**
+     * @brief Removes all elements with a certain name from transport_place_info
+     * 
+     * @param name The name of the transport place infos to be removed
+     */
     void removeTransportPlaceInfo(const std::string &name);
 
     /**
