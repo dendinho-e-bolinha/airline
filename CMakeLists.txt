@@ -13,9 +13,9 @@ add_executable(airline main.cpp
         include/luggage.h src/luggage.cpp
         include/handling_car.h src/handling_car.cpp
         include/airport.h src/airport.cpp
-        include/customer.h src/customer.cpp
         include/interact.h src/interact.cpp
         include/crud.h src/crud.cpp
+        include/files.h src/files.cpp
         include/state.h)
 
 find_package(Doxygen)

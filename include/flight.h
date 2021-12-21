@@ -47,6 +47,16 @@ public:
     std::vector<Luggage*> getLuggage() const;
     Plane& getPlane() const;
 
+    // Setters
+
+    void setDepartureTime(Datetime &datetime);
+    void setDuration(Time &duration);
+    void setOrigin(Airport &origin);
+    void setDestination(Airport &destination);
+    void addLuggage(Luggage &luggage);
+
+    std::string str() const;
+
     /**
      * @brief Adds a ticket to the flight's purchased tickets
      * @param ticket A flight's ticket

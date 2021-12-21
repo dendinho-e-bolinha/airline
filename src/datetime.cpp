@@ -107,8 +107,8 @@ ostream &operator<<(ostream &os, const Datetime &datetime) {
 string Date::str() const {
     ostringstream out;
 
-    out << this->getYear() << '-'
-        << setw(2) << setfill('0') << this->getMonth() << '-'
+    out << this->getYear() << '/'
+        << setw(2) << setfill('0') << this->getMonth() << '/'
         << setw(2) << setfill('0') << this->getDay();
 
     return out.str();
@@ -175,6 +175,31 @@ Datetime Datetime::readFromString(const string &str) {
 
     try {
         return Datetime(year, month, day, hour, minute);
+    } catch (invalid_argument exception) {
+        throw invalid_date;
+    }
+}
+
+Date Date::readFromString(const string &str) {
+    static validation_error invalid_date = validation_error("The provided date is not in the correct format (YYYY/MM/dd)");
+    
+    istringstream in(str);
+    unsigned int year, month, day, hour, minute;
+
+    in >> year;
+    if (!in || in.get() != '/')
+        throw invalid_date;
+
+    in >> month;
+    if (!in || in.get() != '/')
+        throw invalid_date;
+
+    in >> day;
+    if (!in || !in.eof())
+        throw invalid_date;
+
+    try {
+        return Date(year, month, day);
     } catch (invalid_argument exception) {
         throw invalid_date;
     }

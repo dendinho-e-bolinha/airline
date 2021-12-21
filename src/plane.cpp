@@ -74,8 +74,8 @@ bool Plane::removeAllFlights(const function<bool(const Flight&)>& selector) {
             it--;
             removed_any = true;
         }
-        return removed_any;
     }
+    return removed_any;
 }
 
 void Plane::scheduleService(Service& service) {

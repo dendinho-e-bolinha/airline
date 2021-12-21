@@ -1,9 +1,20 @@
+class Flight;
+
 #include "ticket.h"
+#include "flight.h"
 #include <sstream>
 
 using namespace std;
 
-Ticket::Ticket(Flight &flight, const string &customer_name, unsigned int customer_age, unsigned int seat_number) : flight(flight), seat_number(seat_number), customer_name(customer_name), customer_age(customer_age) {}
+Ticket::Ticket(Flight &flight, const string &customer_name, unsigned int customer_age, unsigned int seat_number) : flight(flight) {
+    if (seat_number >= flight.getPlane().getCapacity()) {
+        throw "Not a valid ticket number";
+    } else {
+        this->customer_name = customer_name;
+        this->customer_age = customer_age;
+        this->seat_number = seat_number;
+    }
+}
 
 Flight &Ticket::getFlight() const {
     return this->flight;
@@ -19,6 +30,14 @@ std::string Ticket::getCustomerName() const {
 
 unsigned int Ticket::getCustomerAge() const {
     return this->customer_age;
+}
+
+void Ticket::setCustomerName(string name) {
+    this->customer_name = name;
+}
+
+void Ticket::setCustomerAge(unsigned int age) {
+    this->customer_age = age;
 }
 
 string Ticket::str() const {

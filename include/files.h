@@ -48,7 +48,7 @@ namespace files {
                 
         ifstream file(PATH);
         if (!file.is_open())
-            throw runtime_error("Could not open file");
+            return;
 
         unsigned int N1;
         file >> N1;
@@ -69,7 +69,7 @@ namespace files {
                 float info_lat, info_lon, info_dist;
 
                 getline(file, info_name);
-                file >> info_lat >> info_lon >> info_dist; >> info_type;
+                file >> info_lat >> info_lon >> info_dist >> info_type;
 
                 TransportType tt;
                 if (info_type == "bus")
@@ -89,8 +89,8 @@ namespace files {
                     .name = info_name,
                     .latitude = info_lat,
                     .longitude = info_lon,
-                    .airport_distance = info_dist,
-                    .transport_type = tt
+                    .transport_type = tt,
+                    .airport_distance = info_dist
                 };
 
                 for (int k = 0; k < N3; k++) {
@@ -109,7 +109,7 @@ namespace files {
         unsigned int N4;
         file >> N4;
 
-        for (unsigned int j = 0; j < N3; j++) {
+        for (unsigned int j = 0; j < N4; j++) {
             string licensePlate, type;
             unsigned int capacity;
             file >> licensePlate;
@@ -125,9 +125,9 @@ namespace files {
             file.ignore(numeric_limits<streamsize>::max(), '\n');
 
             for (unsigned int k = 0; k < N5; k++) {
-                string worker, date, type;
+                string worker, datetime, type;
                 getline(file, worker);
-                getline(file, date);
+                getline(file, datetime);
                 getline(file, type);
 
                 ServiceType st;
@@ -138,7 +138,7 @@ namespace files {
                 else
                     throw runtime_error("Unknown service type");
 
-                Service *service = new Service(st, Date::readFromString(date), worker);
+                Service *service = new Service(st, Datetime::readFromString(datetime), worker, *plane);
                 plane->scheduleService(*service);
                 plane->completeService();
             }
@@ -148,9 +148,9 @@ namespace files {
             file.ignore(numeric_limits<streamsize>::max(), '\n');
 
             for (unsigned int k = 0; k < N6; k++) {
-                string worker, date, type;
+                string worker, datetime, type;
                 getline(file, worker);
-                getline(file, date);
+                getline(file, datetime);
                 getline(file, type);
 
                 ServiceType st;
@@ -161,7 +161,7 @@ namespace files {
                 else
                     throw runtime_error("Unknown service type");
 
-                Service *service = new Service(st, Date::readFromString(date), worker);
+                Service *service = new Service(st, Datetime::readFromString(datetime), worker, *plane);
                 plane->scheduleService(*service);
             }
 
@@ -196,7 +196,7 @@ namespace files {
                 if (originAirport == nullptr || destinationAirport == nullptr)
                     throw runtime_error("Unknown origin or destination airports");
 
-                Flight *flight = new Flight(flightId, Datetime::readFromString(departureTime), Time::readFromString(duration), *originAirport, *destinationAirport);
+                Flight *flight = new Flight(flightId, Datetime::readFromString(departureTime), Time::readFromString(duration), *originAirport, *destinationAirport, *plane);
 
                 unsigned int N8;
                 file >> N8;
@@ -205,7 +205,7 @@ namespace files {
                 for (unsigned int m = 0; m < N8; m++) {
                     string customerName;
                     unsigned int customerAge, seatNumber;
-                    getline(file, customerAge);
+                    getline(file, customerName);
                     file >> customerAge >> seatNumber;
 
                     Ticket *ticket = new Ticket(*flight, customerName, customerAge, seatNumber);
@@ -221,32 +221,62 @@ namespace files {
                     float weight;
                     file >> index >> weight;
 
-                    Luggage *luggage = new Luggage(flight->getTickets.at(index), weight);
+                    Luggage *luggage = new Luggage(*flight->getTickets().at(index), weight);
                     flight->addLuggage(*luggage);
                 }
 
-                plane->addFlight(flight);
+                plane->addFlight(*flight);
                 data::flights.push_back(flight);
             }
-
 
             data::planes.push_back(plane);
         }
 
-
         unsigned int N10 ;
         file >> N10;
             
-        for (unsigned int j = 0; j < N11; j++) {
-            unsigned int number_of_carriages, stacks_per_carriage, luggage_per_stack, N12;
-            file >> number_of_carriages >> stacks_per_carriage >> luggage_per_stack >> N12;
+        for (unsigned int j = 0; j < N10; j++) {
+            unsigned int number_of_carriages, stacks_per_carriage, luggage_per_stack;
+            file >> number_of_carriages >> stacks_per_carriage >> luggage_per_stack;
 
-            for (unsigned int k = 0; k < N12; k++) {
-                
+            HandlingCar *car = new HandlingCar(number_of_carriages, stacks_per_carriage, luggage_per_stack);
+
+            string flightId;
+            file >> flightId;
+            file.ignore(numeric_limits<streamsize>::max(), '\n');
+
+            if (flightId == "none")
+                continue;
+
+            string datetime;
+            getline(file, datetime);
+
+            Datetime dt = Datetime::readFromString(datetime);
+
+            for (const auto &flight : data::flights) {
+                if (flight->getFlightId() == flightId && flight->getDepartureTime() == dt) {
+                    car->setFlight(*flight);
+                    break;
+                }
             }
 
+            if (car->getFlight() == nullptr)
+                throw runtime_error("No flight found");
 
-            data::handlingCars.push_back(handlingCar);
+            
+            unsigned int N12;
+            file >> N12;
+
+            for (unsigned int k = 0; k < N12; k++) {
+                unsigned int index;
+                float weight;
+
+                file >> index >> weight;
+                Luggage *luggage = new Luggage(*car->getFlight()->getTickets().at(index), weight);
+                car->addLuggage(*luggage);
+            }
+
+            data::handlingCars.push_back(car);
         }
     }
 
@@ -304,7 +334,7 @@ namespace files {
             file << plane->getFinishedServices().size() << '\n';
             for (const auto &service : plane->getFinishedServices()) {
                 file << service->getWorker() << '\n'
-                     << service->getDate().str() << '\n';
+                     << service->getDatetime().str() << '\n';
 
                 switch (service->getType()) {
                     case ServiceType::CLEANING:
@@ -326,7 +356,7 @@ namespace files {
                 Service *service = scheduled_services.front();
 
                 file << service->getWorker() << '\n'
-                     << service->getDate().str() << '\n';
+                     << service->getDatetime().str() << '\n';
 
                 switch (service->getType()) {
                     case ServiceType::CLEANING:
@@ -383,6 +413,13 @@ namespace files {
                  << handlingCar->getStacksPerCarriage() << '\n'
                  << handlingCar->getLuggagePerStack() << '\n';
 
+            if (handlingCar->getFlight() == nullptr) {
+                file << "none" << '\n';
+                continue;
+            }
+
+            file << handlingCar->getFlight()->getFlightId() << '\n' << handlingCar->getFlight()->getDepartureTime() << '\n';
+
             size_t occ = handlingCar->getCarriages().size() - 1;
             size_t ocs = handlingCar->getCarriages().back().size() - 1;
             size_t ocl = handlingCar->getCarriages().back().back().size();
@@ -391,6 +428,8 @@ namespace files {
                 + ocs * handlingCar->getLuggagePerStack() + ocl;
 
             file << numLuggage << '\n';
+
+            vector<Ticket*> tickets = handlingCar->getFlight()->getTickets();
 
             deque<Carriage> carriages = handlingCar->getCarriages();
             while (!carriages.empty()) {
@@ -406,7 +445,20 @@ namespace files {
                     }
 
                     while (!reversed.empty()) {
-                        file << reversed.top()->getWeight() << '\n';
+                        Luggage *luggage = reversed.top();
+
+                        int index = -1;
+                        for (index = 0; index < tickets.size(); index++) {
+                            if (tickets.at(index) == &luggage->getTicket()) 
+                                break;
+                        }
+                        
+                        if (index == -1)
+                            throw runtime_error("Owner of luggage doesn't have a ticket");
+
+                        file << index << '\n'
+                            << luggage->getWeight() << '\n';
+
                         reversed.pop();
                     }
 
@@ -414,12 +466,6 @@ namespace files {
                 }
                 
                 carriages.pop_front();
-            }
-            
-            if (handlingCar->getFlight() == nullptr)
-                file << "none" << '\n';
-            else {
-                file << handlingCar->getFlight()->getFlightId() << ' ' << handlingCar->getFlight()->getDepartureTime() << '\n';
             }
         }
     }

@@ -40,6 +40,11 @@ public:
      * @brief Converts a Date instance to a String
      */
     std::string str() const;
+
+    /**
+    * @brief Converts a string into a Date intance
+    */
+    static Date readFromString(const std::string &str);
 };
 
 class Time {
@@ -73,8 +78,7 @@ public:
     static Time readFromString(const std::string &str);
 
     /**
-     * @overload 
-     *
+     * @overload Relational operator overload
      */
     bool operator<(const Time &time) const;
 };

@@ -4,13 +4,26 @@
 
 using namespace std;
 
-const set<TransportPlace> &Airport::getTransportPlaceInfo() const {
+set<TransportPlace> Airport::getTransportPlaceInfo() const {
     return transport_place_info;
 }
 
-// void Airport::settransport_place_info(const set<TransportPlace> &transport_place_info) {
-    // Airport::transport_place_info = transport_place_info;
-// }
+void Airport::addTransportPlaceInfo(TransportPlace transportPlace)  {
+    this->transport_place_info.insert(transportPlace);
+}
+
+void Airport::removeAllTransportPlaceInfo() {
+    this->transport_place_info.clear();
+}
+
+void Airport::removeTransportPlaceInfo(const string &name) {
+    for (auto it = this->transport_place_info.begin(); it != this->transport_place_info.end(); it++) {
+        if (it->name == name) {
+            this->transport_place_info.erase(it);
+            break;
+        }
+    }
+}
 
 Airport::Airport(const string &name): name(name) {}
 
@@ -30,11 +43,6 @@ const std::string &Airport::getName() const {
     return name;
 }
 
-void Airport::setName(std::string name) {
-   this->name = name;
-}
-
-
 ostream &operator<<(ostream &os, const Airport &airport) {
     os << airport.str() << endl;
     
@@ -43,25 +51,7 @@ ostream &operator<<(ostream &os, const Airport &airport) {
 
 string Airport::str() const {
     ostringstream os;
-
-    auto aux = this->getTransportPlaceInfo();
-    os << "Name:" << this->getName() << endl;
-    os << '{' << endl;
-
-    bool is_first = true;
-    for (const auto &c : aux) {
-        if (!is_first)
-            cout << '\n';
-
-        os << "\tDistance: " << c.airport_distance
-             << "\tCoordinates: (" << c.latitude << ", " << c.longitude << ")" << endl
-             << "\tName: " << c.name
-             << "\tTransport type: " << c.transport_type << endl;
-
-        is_first = false;
-    }
-
-    os << '}';
+    os << "Name: " << this->name;
 
     return os.str();
 }

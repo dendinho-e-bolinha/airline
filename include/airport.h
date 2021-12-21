@@ -41,20 +41,20 @@ public:
 
     // Getters
 
-    const std::set<TransportPlace> &getTransportPlaceInfo() const;
+    std::set<TransportPlace> getTransportPlaceInfo() const;
     const std::string &getName() const;
 
     // Setters
-
-    void setName(std::string name);
 
     /**
      * @brief Adds the given TransportPlace to `transport_place_info`
      * @param transportPlace A TransportPlac instance
      */
-    void addTransportPlaceInfo(TransportPlace transportPlace) {
-        this->transport_place_info.insert(transportPlace);
-    }
+    void addTransportPlaceInfo(TransportPlace transportPlace);
+
+    void removeAllTransportPlaceInfo();
+
+    void removeTransportPlaceInfo(const std::string &name);
 
     /**
      * @overload Displays a plane

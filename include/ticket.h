@@ -5,9 +5,10 @@ class Ticket;
 
 #include <list>
 #include <ostream>
+#include <string>
+
 #include "flight.h"
 #include "luggage.h"
-#include "customer.h"
 
 class Ticket {
 private:
@@ -32,6 +33,11 @@ public:
     std::string getCustomerName() const;
     unsigned int getCustomerAge() const;
     unsigned int getSeatNumber() const;
+
+    // Setters
+
+    void setCustomerName(std::string name);
+    void setCustomerAge(unsigned int age);
 
     /**
      * @brief Converts a Ticket instance into a string

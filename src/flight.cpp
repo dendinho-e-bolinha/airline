@@ -1,5 +1,6 @@
 #include "flight.h"
 #include "utils.h"
+#include <sstream>
 
 using namespace std;
 
@@ -35,6 +36,29 @@ Plane &Flight::getPlane() const {
     return this->plane;
 }
 
+void Flight::addLuggage(Luggage &luggage) {
+    this->luggage.push_back(&luggage);
+}
+
+vector<Luggage*> Flight::getLuggage() const {
+    return this->luggage;
+}
+
+string Flight::str() const {
+    ostringstream out;
+    out << "Flight ID: " << this->getFlightId() << '\n'  
+        << "At: " << this->getDepartureTime().str() << '\n'
+        << "Duration: " << this->getDuration().str() << '\n'
+        << "From " << this->getOrigin().getName() << " to " << this->getDestination().getName();
+
+    return out.str();
+}
+
+ostream& operator<<(ostream &out, const Flight &flight) {
+    return out << flight.str() << endl;
+}
+
+
 bool Flight::addTicket(Ticket &ticket) {
     if (this->tickets.size() < this->plane.getCapacity()) {
         auto it = utils::lowerBound<Ticket*, unsigned int>(this->tickets, ticket.getSeatNumber(), [](Ticket* ticket) {
@@ -66,6 +90,23 @@ bool Flight::removeFirstTicket(const std::function<bool(const Ticket &)> &select
         }
     }
     return false;
+}
+
+
+void Flight::setDepartureTime(Datetime &datetime) {
+    this->departure_time = datetime;
+}
+
+void Flight::setDuration(Time &duration) {
+    this->duration = duration;
+}
+
+void Flight::setOrigin(Airport &origin) {
+    this->origin = origin;
+}
+
+void Flight::setDestination(Airport &destination) {
+    this->destination = destination;
 }
 
 void Flight::clearTickets() {

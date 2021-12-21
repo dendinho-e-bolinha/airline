@@ -142,6 +142,8 @@ void Menu::show(const string &subtitle) const {
 }
 
 istream &operator>>(istream &in, GetLine &value) {
+    value.clear();
+
     while (in && in.peek() != '\n')
         value.push_back(in.get());
 

@@ -66,6 +66,8 @@ public:
     unsigned int getStacksPerCarriage() const;
     unsigned int getLuggagePerStack() const;
 
+    std::string str() const;
+
     /**
      * @brief Get the next luggage to be unloaded
      * @return The top piece of luggage of the last stack of the last carriage

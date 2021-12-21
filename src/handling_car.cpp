@@ -1,4 +1,5 @@
 #include "handling_car.h"
+#include <sstream>
 #include <stdexcept>
 
 using namespace std;
@@ -34,6 +35,15 @@ unsigned int HandlingCar::getStacksPerCarriage() const {
 
 unsigned int HandlingCar::getLuggagePerStack() const {
     return this->luggage_per_stack;
+}
+
+string HandlingCar::str() const {
+    ostringstream out;
+    out << "Number of carriages: " << to_string(this->getNumberOfCarriages()) << endl
+        <<"Number of stacks per carriage: " << to_string(this->getStacksPerCarriage()) << endl
+        << "Number of luggage per stack: " << to_string(this->getLuggagePerStack()) << endl;
+
+    return out.str();
 }
 
 Carriage *HandlingCar::getBackCarriage() {
@@ -165,6 +175,10 @@ Flight* HandlingCar::getFlight() const {
 
 void HandlingCar::setFlight(Flight &flight) {
     this->flight = &flight;
+}
+
+deque<Carriage> HandlingCar::getCarriages() const {
+    return this->carriages;
 }
 
 ostream& operator<<(ostream &out, const HandlingCar &car) {

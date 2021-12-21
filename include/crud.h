@@ -25,7 +25,7 @@ namespace crud {
     /**
     * @brief Displays a menu where the user can choose options regarding deletion, addition or update of tickets
     */
-    void manageTickets();
+    void manageTickets(Flight &flight);
 
     /**
     * @brief Displays a menu where the user can choose options regarding deletion, addition or update the airport

@@ -8,6 +8,10 @@
 using namespace std;
 
 namespace crud {
+
+    Airport* findAirportByName(const string name);
+    string askUnusedName();
+    string askUsedName();
     /*----------PLANES----------*/
 
     Plane* findPlaneByLicensePlate(const string &license_plate) {
@@ -77,6 +81,25 @@ namespace crud {
     void readOnePlane() {
         const Plane &plane = findPlane();
         cout << plane << endl;
+
+        queue<Service*> scheduled_services = plane.getScheduledServices();
+
+        if (!scheduled_services.empty()) {
+            cout << "\nScheduled services:\n";
+            while(!scheduled_services.empty()) {
+                cout << '\n' << *scheduled_services.front() << '\n';
+                scheduled_services.pop();
+            }
+        }
+        
+        if (!plane.getFinishedServices().empty()) {
+            cout << "\nFinished services:\n";
+            for (const auto &service: plane.getFinishedServices()) {
+                cout << '\n' << *service << '\n';
+            }
+        }
+
+        cout << flush;
         waitForInput();
     }
 
@@ -282,6 +305,9 @@ namespace crud {
 
             auto serviceFilter = createServiceFilter(repr);
             filter = [serviceFilter](const Plane* const &plane) {
+                if (plane->getScheduledServices().empty())
+                    return false;
+
                 return serviceFilter(plane->getScheduledServices().front());
             };
         });
@@ -442,12 +468,46 @@ namespace crud {
         });
 
         choice.addOption("Capacity", [&plane]() {
-            unsigned int capacity = readValue<unsigned int>("Type: ", "Please insert a valid plane capacity");
+            unsigned int capacity = readValue<unsigned int>("Capacity: ", "Please insert a valid plane capacity");
             plane.setCapacity(capacity);
         });
 
-        // MenuBlock flights;
-        // flights.addOption("Add a flight to this plane")
+        choice.addOption("Schedule a new service", [&plane]() {
+            Datetime datetime = Datetime::readFromString(
+                readValue<GetLine>("Date and time of service: ", "Please insert a valid date and time", [](const string &value) {
+                    Datetime::readFromString(value);
+                    return true;
+                })
+            );
+            
+            string worker = readValue<GetLine>("Worker's name: ", "Please insert a valid name");
+
+            Menu serviceType("Please choose a type of service:");
+            
+            MenuBlock services;
+            services.addOption("Maintenance", [&plane, &datetime, &worker]() {
+                Service *service = new Service(ServiceType::MAINTENANCE, datetime, worker, plane);
+                plane.scheduleService(*service);
+            });
+
+            services.addOption("Cleaning", [&plane, &datetime, &worker]() {
+                Service *service = new Service(ServiceType::CLEANING, datetime, worker, plane);
+                plane.scheduleService(*service);
+            });
+
+            serviceType.addBlock(services);
+            serviceType.show();
+        });
+
+        choice.addOption("Complete the next service", [&plane] {
+            if (plane.completeService()) {
+                cout << "The next service was marked as completed!\n" << endl;
+            } else {    
+                cout << "There are no scheduled services!\n" << endl;
+            }
+
+            waitForInput();
+        });
 
         bool is_running = true;
         
@@ -576,7 +636,7 @@ namespace crud {
         MenuBlock ohno;
         ohno.addOption("Read one plane", allowWhenPlanesExist(readOnePlane));
         ohno.addOption("Read all planes", allowWhenPlanesExist(readAllPlanes));
-        ohno.addOption("Read all planes with filter and sort", allowWhenPlanesExist(readAllPlanesWithUserInput));
+        ohno.addOption("Read all planes with filters and sort", allowWhenPlanesExist(readAllPlanesWithUserInput));
 
         MenuBlock remove;
         remove.addOption("Delete one plane", allowWhenPlanesExist(deleteOnePlane));
@@ -604,8 +664,13 @@ namespace crud {
         });
 
         vector<Flight*> result;
+        if (it == data::flights.end())
+            return result;
+
         while ((*it)->getFlightId() == flight_id && it != data::flights.end())
             result.push_back(*(it++));
+
+        return result;
     }
 
     Flight* findFlightByKey(const string &flight_id, const Datetime &departure) {
@@ -673,19 +738,49 @@ namespace crud {
      * @brief Creates a Plane instance
      */
     void createFlight() {
+        if (data::airports.size() < 2) {
+            cout << "There must be at least 2 airports to create a new flight\n" << endl;
+            waitForInput();
+            return;
+        }
+
         pair<string, Datetime> flight_key = askUnusedFlightKey();
-        
-        string type = readValue<GetLine>("Type: ", "Please insert a valid flight id");
-        unsigned int capacity = readValue<unsigned int>("Capacity: ", "Please insert a valid capacity");
+        Plane &plane = findPlane();
 
-        Plane *plane = new Plane(license_plate, type, capacity);
-        auto 
+        Time duration = Time::readFromString(
+            readValue<string>("Flight duration: ", "Please insert a valid flight duration", [](const string &value) {
+                Time::readFromString(value);
+                return true;
+            })
+        );
 
-        pos = utils::lowerBound<Flight*, string>(data::planes, license_plate, [](Plane* plane) {
-            return plane->getLicensePlate();
+        Airport &origin = *findAirportByName(
+            readValue<GetLine>("Origin airport name: ", "Please provid a valid airport name", [](const string &value) {
+                Airport *airport = findAirportByName(value);
+                return airport != nullptr;
+            })
+        );
+
+        Airport &destination = *findAirportByName(
+            readValue<GetLine>("Destination airport name: ", "Please provid a valid airport name", [&origin](const string &value) {
+                if (value == origin.getName())
+                    throw validation_error("Destination airport must not be the same as the origin airport");
+
+                Airport *airport = findAirportByName(value);
+                return airport != nullptr;
+            })
+        );
+
+        Flight *flight = new Flight(flight_key.first, flight_key.second, duration, origin, destination, plane);
+        plane.addFlight(*flight);
+
+        auto pos = utils::lowerBound<Flight*, string>(data::flights, flight->getFlightId(), [](const Flight* flight) {
+            return flight->getFlightId();
         });
 
         data::flights.insert(pos, flight);
+
+        cout << endl;
         waitForInput();
     }
 
@@ -949,28 +1044,85 @@ namespace crud {
      */
     void updateFlight() {
         Flight &flight = findFlight();
+
         Menu menu("Please select what you want to update:");
 
         MenuBlock choice;
-        choice.addOption("Flight ID", [&flight]() {
-            string flight_id = readValue<string>("Flight ID: ", "Please insert a valid flight ID");
-            Flight *new_flight = new Flight(flight_id, flight.getDepartureTime(), flight.getDuration(), flight.getOrigin(), flight.getDestination(), flight.getTickets(), flight.getPlane());
-        });
-
-        choice.addOption("Departure time", [&flight](){
+        choice.addOption("Departure time", [&flight]() {
             Datetime datetime = Datetime::readFromString(
-                // readValue<GetLine>("Please")
-            )
-            Flight *new_flight = new Flight(flight.getFlightID(), , flight.getDuration(), flight.getOrigin(), flight.getDestination(), flight.getTickets(), flight.getplane());
+                readValue<GetLine>("Date and time of departure: ", "Please insert a valid date and time", [&flight](const string &value) {
+                    Datetime datetime = Datetime::readFromString(value);
+                    Flight *flight2 = findFlightByKey(flight.getFlightId(), datetime);
+
+                    if (flight2 != nullptr)
+                        throw validation_error("There is already a plane with that flight ID scheduled to depart at that time");
+
+                    return true;
+                })
+            );
+            
+            flight.setDepartureTime(datetime);
         });
 
-        choice.addOption("Duration", [&plane](){
-            string duration = readValue<string>("Duration (HH:MM:SS): ", "Please insert a valid duration");
-            duration = T
+        choice.addOption("Duration", [&flight]() {
+            Time duration = Time::readFromString(
+                readValue<GetLine>("Duration of the flight: ", "Please insert a valid time", [](const string &value) {
+                    Time::readFromString(value);
+                    return true;  
+                })
+            );
+
+            flight.setDuration(duration);
         });
 
-        // MenuBlock flights;
-        // flights.addOption("Add a flight to this plane")
+        choice.addOption("Origin airport", [&flight]() {
+            if (data::airports.size() <= 2) {
+                cout << "You must have 3 or more airports to change this flight's destination airport\n" << endl;
+                waitForInput();
+                return;
+            }
+
+            Airport &airport = *findAirportByName(
+                readValue<GetLine>("Airport name: ", "Please provide a valid airport name", [&flight](const string &value) {
+                    Airport *airport = findAirportByName(value);
+                    if (airport == nullptr)
+                        return false;
+
+                    if (value == flight.getDestination().getName())
+                        throw validation_error("You can't choose the destination airport for origin airport");
+                })
+            );
+
+            flight.setOrigin(airport);
+        });
+        
+        choice.addOption("Destination airport", [&flight]() {
+            if (data::airports.size() <= 2) {
+                cout << "You must have 3 or more airports to change this flight's destination airport\n" << endl;
+                waitForInput();
+                return;
+            }
+
+            Airport &airport = *findAirportByName(
+                readValue<GetLine>("Airport name: ", "Please provide a valid airport name", [&flight](const string &value) {
+                    Airport *airport = findAirportByName(value);
+                    if (airport == nullptr)
+                        return false;
+                        
+                    if(value == flight.getOrigin().getName())
+                        throw validation_error("You can't choose the origin airport for destination airport");
+
+                    return true;
+                })
+            );
+
+            flight.setDestination(airport);
+        });
+
+        MenuBlock tickets;
+        tickets.addOption("Manage tickets", [&flight]() {
+            manageTickets(flight);
+        });
 
         bool is_running = true;
         
@@ -978,10 +1130,11 @@ namespace crud {
         special_block.addOption("Go Back", [&is_running]() { is_running = false; });
 
         menu.addBlock(choice);
+        menu.addBlock(tickets);
         menu.setSpecialBlock(special_block);
     
         while (is_running) {
-            menu.show(plane.str());
+            menu.show(flight.str() + '\n');
         }
     }
 
@@ -1080,7 +1233,7 @@ namespace crud {
         auto allowWhenFlightsExist = [](const function<void()> &func) {
             return [func]() {
                 if (data::flights.empty()) {
-                    cout << "There are no flights in the database" << endl;
+                    cout << "There are no flights in the database\n" << endl;
                     waitForInput();
                     return;
                 }
@@ -1118,15 +1271,18 @@ namespace crud {
 
     /*----------TICKETS----------*/
 
-    Ticket* findTicketsBySeatNumber(Flight* flight, unsigned int seat_number) {
-        vector<Ticket*> tickets = flight->getTickets();
+    Ticket* findTicketsBySeatNumber(Flight &flight, unsigned int seat_number) {
+        if (seat_number >= flight.getPlane().getCapacity())
+            throw validation_error("Seat number must be smaller than the plane's capacity");
+
+        vector<Ticket*> tickets = flight.getTickets();
         return utils::binarySearch<Ticket*, unsigned int>(tickets, seat_number, [](Ticket* ticket) {
             return ticket->getSeatNumber();
         });
     }
 
-    Ticket* findTicketByFlightAndCustomer(Flight* flight, const string &name) {
-        for (Ticket* ticket : flight->getTickets()) {
+    Ticket* findTicketByFlightAndCustomer(Flight &flight, const string &name) {
+        for (Ticket* ticket : flight.getTickets()) {
             if (ticket->getCustomerName() == name) {
                 return ticket;
             }
@@ -1135,25 +1291,25 @@ namespace crud {
         return nullptr;
     }
 
-    unsigned int askUnusedSeatNumber(Flight* flight) {
+    unsigned int askUnusedSeatNumber(Flight &flight) {
         return readValue<unsigned int>("Seat number: ", "Please insert a valid seat number", [&flight](const unsigned int seat_number) {
             return findTicketsBySeatNumber(flight, seat_number) == nullptr;
         });
     }
 
-    unsigned int askUsedSeatNumber(Flight* flight) {
+    unsigned int askUsedSeatNumber(Flight &flight) {
         return readValue<unsigned int>("Seat number: ", "Please insert a valid seat number", [&flight](const unsigned int &seat_number) {
             return findTicketsBySeatNumber(flight, seat_number) != nullptr;
         });
     }
 
-    Ticket &findTicket(Flight* flight) {
-        if (flight->getTickets().empty()) {
+    Ticket &findTicket(Flight &flight) {
+        if (flight.getTickets().empty()) {
             throw logic_error("No tickets found");
         }
 
-        if (flight->getTickets().size() == 1) {
-            return *flight->getTickets().at(0);
+        if (flight.getTickets().size() == 1) {
+            return *flight.getTickets().at(0);
         }
 
         unsigned int seat_number = askUsedSeatNumber(flight);
@@ -1166,18 +1322,54 @@ namespace crud {
         return *ticket;
     }
 
-    void createTicket(Flight* flight) {
+    void createTicket(Flight &flight) {
         string name = readValue<GetLine>("Name: ","Please insert a valid name");
         unsigned int age = readValue<unsigned int>("Age: ", "Please insert a valid age");
         unsigned int seat_number = askUnusedSeatNumber(flight);
+        cout << endl;
         
-        Ticket *ticket = new Ticket(*flight, name, age, seat_number);
-        flight->addTicket(*ticket);
-        
+        Ticket *ticket = new Ticket(flight, name, age, seat_number);
+
+        unsigned int number_luggage = readValue<unsigned int>("Number of luggage pieces: ", "Please provide a valid number of luggage pieces");
+        cout << endl;
+
+        for (unsigned int i = 0; i < number_luggage; i++) {
+            float weight = readValue<float>("Weight of piece of luggage #" + to_string(i + 1) + ": ", "Please provide a valid weight", [](const float &value) {
+                return value > 0;
+            });
+
+            Menu aproval("Submit luggage to automatic check-in?");
+            
+            MenuBlock choice;
+            choice.addOption("Yes", [&flight, &ticket, &weight]() {
+                Luggage *luggage = new Luggage(*ticket, weight);
+                for (const auto &car : data::handlingCars) {
+                    if (car->getFlight() == &flight) {
+                        if (car->addLuggage(*luggage)) {
+                            cout << "The luggage was sucessfuly loaded into Car #" << car->getId() << '\n' << endl;
+                            waitForInput();
+                            return;
+                        }
+                    }
+                }
+
+                cout << "There are no cars with space for the luggage piece!\n" << endl;
+                waitForInput();
+
+                delete luggage;
+            });
+
+            choice.addOption("No", []() {});
+
+            aproval.addBlock(choice);
+            aproval.show();
+        }
+
+        flight.addTicket(*ticket);
         waitForInput();
     }
     
-    void readOneTicket(Flight *flight) {
+    void readOneTicket(Flight &flight) {
         const Ticket &ticket = findTicket(flight);
         cout << ticket << endl;
         waitForInput();
@@ -1198,8 +1390,8 @@ namespace crud {
         return repr.str();
     }
 
-    void readAllTickets(Flight *flight) {
-        cout << getTicketRepresentation(flight->getTickets()) << endl;
+    void readAllTickets(Flight &flight) {
+        cout << getTicketRepresentation(flight.getTickets()) << endl;
         waitForInput();
     }
 
@@ -1322,8 +1514,8 @@ namespace crud {
         menu.show();
     }
 
-    void readAllTicketsWithUserInput(Flight *flight) {
-        vector<Ticket*> pool = flight->getTickets();
+    void readAllTicketsWithUserInput(Flight &flight) {
+        vector<Ticket*> pool = flight.getTickets();
 
         MenuBlock ops;
         ops.addOption("Filter", [&pool]() { filterTicketsWithUserInput(pool); });
@@ -1358,26 +1550,40 @@ namespace crud {
         }
     }
 
-    void updateTicket(Flight *flight) {
+    void updateTicket(Flight &flight) {
         Ticket &ticket = findTicket(flight);
+
         Menu menu("Please select what you want to update:");
 
         MenuBlock choice;
-        choice.addOption("Seat mumber", [&ticket, &flight]() {
-            unsigned int seat = askUsedSeatNumber(flight);
-            Ticket* new_ticket = new Ticket(ticket.getFlight(), ticket.getCustomerName(), ticket.getCustomerAge(), seat);
+        choice.addOption("Seat number", [&ticket, &flight]() {
+            unsigned int seat_number = readValue<unsigned int>("Seat number: ", "Please insert a valid seat number", [&flight](const unsigned int &number) {
+                return number < flight.getPlane().getCapacity();
+            });
 
-            if (!flight->removeTicket(ticket)) {
+            Ticket* new_ticket = new Ticket(ticket.getFlight(), ticket.getCustomerName(), ticket.getCustomerAge(), seat_number);
+
+            if (!flight.removeTicket(ticket)) {
                 delete &ticket;
                 throw logic_error("No ticket was removed");
             }
 
             delete &ticket;
 
-            if (!flight->addTicket(*new_ticket)) {
+            if (!flight.addTicket(*new_ticket)) {
                 delete new_ticket;
                 throw logic_error("No ticket was added");
             }
+        });
+
+        choice.addOption("Customer name", [&ticket, &flight](){
+            string name = readValue<GetLine>("Customer name: ", "Please insert a valid customer name");
+            ticket.setCustomerName(name);
+        });
+
+        choice.addOption("Customer age", [&ticket, &flight]() {
+            unsigned int age = readValue<unsigned int>("Customer age: ", "Please insert a valid customer age");
+            ticket.setCustomerAge(age);
         });
 
         bool is_running = true;
@@ -1393,10 +1599,10 @@ namespace crud {
         }
     }
 
-    void deteleOneTicket(Flight *flight) {
+    void deleteOneTicket(Flight &flight) {
         Ticket const &ticket = findTicket(flight);
 
-        if (flight->removeTicket(ticket)) {
+        if (flight.removeTicket(ticket)) {
             delete &ticket;
 
             waitForInput();
@@ -1407,16 +1613,16 @@ namespace crud {
         throw logic_error("No tickets were deleted");
     }
 
-    void deleteAllTickets(Flight *flight) {
-        for (const Ticket *ticket : flight->getTickets()) {
+    void deleteAllTickets(Flight &flight) {
+        for (const Ticket *ticket : flight.getTickets()) {
             delete ticket;
         }
 
-        flight->clearTickets();
+        flight.clearTickets();
     }
 
-    void deleteAllTicketsWithUserInput(Flight *flight) {
-        vector<Ticket*> pool = flight->getTickets();
+    void deleteAllTicketsWithUserInput(Flight &flight) {
+        vector<Ticket*> pool = flight.getTickets();
 
         MenuBlock ops;
         ops.addOption("Filter", [&pool]() { filterTicketsWithUserInput(pool); });
@@ -1434,7 +1640,7 @@ namespace crud {
         erase.addOption("Delete all tickets in this selection", [&pool, &flight]() {
             vector<Ticket*> new_tickets;
             
-            for (Ticket *ticket1 : flight->getTickets()) {
+            for (Ticket *ticket1 : flight.getTickets()) {
                 bool was_selected = false;
 
                 for (Ticket *ticket2 : pool) {
@@ -1452,7 +1658,7 @@ namespace crud {
             pool = new_tickets;
             
             for (Ticket* ticket : new_tickets) {
-                if (!flight->addTicket(*ticket))
+                if (!flight.addTicket(*ticket))
                     throw logic_error("No ticket was added");
             }
         });
@@ -1479,8 +1685,52 @@ namespace crud {
         }
     }
 
-    void manageTickets() {
+    void manageTickets(Flight &flight) {
+        Menu menu("Select one of the following operations:");
 
+        auto allowWhenTicketsExist = [&flight](const function<void()> &func) {
+            return [&flight, func]() {
+                if (flight.getTickets().empty()) {
+                    cout << "There are no tickets for this flight\n" << endl;
+                    waitForInput();
+                    return;
+                }
+
+                func();
+            };
+        };
+
+        auto callWithFlight = [](Flight &flight, const function<void(Flight&)> &func) {
+            return [&flight, func]() {
+                func(flight);
+            };
+        };
+
+        MenuBlock normal;
+        normal.addOption("Create a new ticket", callWithFlight(flight, createTicket));
+        normal.addOption("Update ticket", allowWhenTicketsExist(callWithFlight(flight, updateTicket)));
+
+        MenuBlock ohno;
+        ohno.addOption("Read one ticket", allowWhenTicketsExist(callWithFlight(flight, readOneTicket)));
+        ohno.addOption("Read all tickets", allowWhenTicketsExist(callWithFlight(flight, readAllTickets)));
+        ohno.addOption("Read all tickets with filters and sort", allowWhenTicketsExist(callWithFlight(flight, readAllTicketsWithUserInput)));
+
+        MenuBlock remove;
+        remove.addOption("Delete one ticket", allowWhenTicketsExist(callWithFlight(flight, deleteOneTicket)));
+        remove.addOption("Delete all tickets", allowWhenTicketsExist(callWithFlight(flight, deleteAllTickets)));
+        remove.addOption("Delete all tickets with filters and sort", allowWhenTicketsExist(callWithFlight(flight, deleteAllTicketsWithUserInput)));
+
+        bool is_running = true;
+        MenuBlock special_block;
+        special_block.addOption("Go back", [&is_running]() { is_running = false; });
+
+        menu.addBlock(normal);
+        menu.addBlock(ohno);
+        menu.addBlock(remove);
+        menu.setSpecialBlock(special_block);
+
+        while (is_running)
+            menu.show();
     }
 
     /*----------AIRPORTS----------*/
@@ -1545,6 +1795,43 @@ namespace crud {
     void readOneAirport() {
         const Airport &airport = findAirport();
         cout << airport << endl;
+
+        set<TransportPlace> transportinfo = airport.getTransportPlaceInfo();
+
+        if (!transportinfo.empty()) {
+            cout << "\nTransport Info:\n";
+            for (const auto &info : transportinfo) {
+                switch (info.transport_type) {
+                    case TransportType::SUBWAY:
+                        cout << '\n' << "Type: Subway" << '\n';
+                        break;
+                    
+                    case TransportType::BUS:
+                        cout << '\n' << "Type: Bus" << '\n';
+                        break;
+                        
+                    case TransportType::TRAIN:
+                        cout << '\n' << "Type: Train" << '\n'; 
+                        break;
+                    
+                    default:
+                        throw runtime_error("Unknown transportation type");
+                }
+
+                cout << "Name: " << info.name << '\n'
+                     << "Airport distance: " << info.airport_distance << " km\n"
+                     << "Location: " << info.latitude << ", " << info.longitude << '\n';
+                             
+                cout << "Schedule:\n";
+                for (auto time : info.schedule) {
+                    cout << "  " << time.str() << '\n';
+                }
+                        
+                cout << endl;
+            }
+        }
+
+        cout << flush;
         waitForInput();
     }
 
@@ -1702,63 +1989,95 @@ namespace crud {
 
     void updateAirport() {
         Airport &airport = findAirport();
+        
         Menu menu("Please select what you want to update:");
 
         MenuBlock choice;
-        choice.addOption("Name", [&airport](){
-            string name = readValue<GetLine>("Name: ", "Please inserta valid name");
-            airport.setName(name);
-        });
-
         choice.addOption("Add transportation stop", [&airport]() {
             string name = readValue<GetLine>("Name: ", "Please insert a valid name");
-            float longitude = readValue<float>("Longitude: ", "Please insert a valid longitude");
-            float latitude = readValue<float>("Latitude", "Please insert a valid latitude");
-            TransportType transport_type = readValue<unsigned int>("Transport Type (0-subway, 1-bus, 2-train): ", "Please insert a valid trasnportation method");
-            float airport_distance = readValue<float>("Airport distance: ", "Please insert a valid distance");
-            unsigned schedule_number = readValue<unsigned>("How many times it passes by: ", "Please insert a valid number");
-            set<Datetime> schedule;
-            for (int i = 0; i < schedule_number; i++) {
-                string datetime = readValue<string>("Time " + to_string(i) + "(YYYY-MM-DD-HH-MM-SS): ", "Please insert a valid date");
-                schedule.insert(Datetime::toString(datetime));
+            
+            float latitude = readValue<float>("Latitude: ", "Please insert a valid latitude", [](const float &value) {
+                return value >= -90 && value <= 90;
+            });
+
+            
+            float longitude = readValue<float>("Longitude: ", "Please insert a valid longitude", [](const float &value) {
+                return value >= -180 && value <= 180;
+            });
+            
+            float airport_distance = readValue<float>("Distance to airport (in km): ", "Please insert a valid distance", [](const float &value)  {
+                return value > 0;
+            });
+            
+            set<Time> schedule;
+
+            unsigned schedule_size = readValue<unsigned int>("How many entries you want to add to the schedule: ", "Please insert a valid number");
+            for (int i = 0; i < schedule_size; i++) {
+                Time time = Time::readFromString(
+                    readValue<string>("Time " + to_string(i + 1) + ": ", "Please insert a valid time", [&schedule](const string &value) {
+                        Time time = Time::readFromString(value);
+                        if (schedule.find(time) != schedule.end())
+                            throw validation_error("An entry with that timestamp already exists");
+
+                        return true;
+                    })
+                );
+                
+                schedule.insert(time);
             }
 
-            airport.addTransportPlaceInfo(new TransportPlace(name, latitude, longitude, transport_type, airport_distance, schedule));
+            TransportType type;
+
+            Menu transportTypeMenu("Please select a transportation type:");
+
+            MenuBlock block;
+            block.addOption("Bus", [&type]() { type = TransportType::BUS; });
+            block.addOption("Subway", [&type]() { type = TransportType::SUBWAY; });
+            block.addOption("Train", [&type]() { type = TransportType::TRAIN; });
+
+            transportTypeMenu.addBlock(block);
+            transportTypeMenu.show();
+
+            TransportPlace place = { name, latitude, longitude, type, airport_distance, schedule };
+            airport.addTransportPlaceInfo(place);
         });
 
         choice.addOption("Remove stop", [&airport]() {
-            string name = readValue<GetLine>("Name: ", "Please insert a valid name");
-            for (auto it : airport.getTransportPlaceInfo()) {
-                if (it.name == name) {
-                    airport.getTransportPlaceInfo().erase(it);
-                }
+            if (airport.getTransportPlaceInfo().size() == 0) {
+                cout << "There are no stops to remove\n" << endl;
+                waitForInput();
+                return;
             }
+
+            if (airport.getTransportPlaceInfo().size() == 1) {
+                airport.removeAllTransportPlaceInfo();
+                return;
+            }
+
+            string name = readValue<GetLine>("Name: ", "Please insert a valid name", [&airport](const string &value) {
+                for (const auto &info : airport.getTransportPlaceInfo()) {
+                    if (info.name == value)
+                        return true;
+                }
+
+                throw validation_error("There are no stops with that name");
+            });
+
+            airport.removeTransportPlaceInfo(name);
         });
         
-        choice.addOption("Remove all stops", [&airport]() {
-            for (auto it : airport.getTransportPlaceInfo()) {
-                delete it;
-            }
-        });
+        choice.addOption("Remove all stops", [&airport]() { airport.removeAllTransportPlaceInfo(); });
 
         bool is_running = true;
-
         MenuBlock special_block;
-        special_block.addOption("Go Back", [&is_running]() {is_running = false});
+        special_block.addOption("Go Back", [&is_running]() {is_running = false;});
 
         menu.addBlock(choice);
         menu.setSpecialBlock(special_block);
 
         while (is_running) {
-            menu.show(airport.str());
+            menu.show(airport.str() + '\n');
         }
-    }
-
-    void deleteAllStops() {
-        Airport const &airport = findAirport();
-        for (const TransportPlace *transport : data::airports) {
-            delete transport;
-        }        
     }
 
     void deleteOneAirport() {
@@ -1849,7 +2168,7 @@ namespace crud {
         auto allowWhenAirportsExist = [](const function<void()> &func) {
             return [func]() {
                 if (data::airports.empty()) {
-                    cout<< "There are no airports in the database";
+                    cout << "There are no airports in the database\n" << endl;
                     waitForInput();
                     return;
                 }
@@ -1864,13 +2183,13 @@ namespace crud {
 
         MenuBlock ohno;
         ohno.addOption("Read one airport", allowWhenAirportsExist(readOneAirport));
-        ohno.addOption("Read all flights", allowWhenAirportsExist(readAllAirports));
+        ohno.addOption("Read all airports", allowWhenAirportsExist(readAllAirports));
         ohno.addOption("Read all airports with filters and sort", allowWhenAirportsExist(readAllAirportsWithUserInput));
 
         MenuBlock remove;
         remove.addOption("Delete one airport", allowWhenAirportsExist(deleteOneAirport));
         remove.addOption("Delete all airports", allowWhenAirportsExist(deleteAllAirports));
-        remove.addOption("Delete all airports with filters and sort", allowWhenAirportsExist(deleteAllAirports));
+        remove.addOption("Delete all airports with filters and sort", allowWhenAirportsExist(deleteAllAirportsWithUserInput));
 
 
         bool is_running = true;
@@ -1940,11 +2259,40 @@ namespace crud {
         HandlingCar &car = findCar();
         Menu menu("Please select what you want to update:");
 
-        Menublock choice;
-        choice.addOption("Number of carriages", [&car]() {
-            unsigned int number_of_carriages = readValue<unsigned>("Number of carriages: ", "Please input a valid number");
-            car.setNumber ?
-        }); 
+        MenuBlock choice;
+        choice.addOption("Change flight to load luggage into", [&car]() {
+            Flight &flight = findFlight();
+            car.setFlight(flight);
+
+            cout << "Successfully set the flight to load luggage into\n" << endl;
+            waitForInput();
+        });
+
+        choice.addOption("Unload handling car", [&car]() {
+            if (car.getFlight() == nullptr) {
+                cout << "This handling car does not have a flight to load luggage into\n" << endl;
+                waitForInput();
+                return;
+            }
+
+            Luggage *luggage;
+            while((luggage = car.unloadNextLuggage()) != nullptr)
+                car.getFlight()->addLuggage(*luggage);
+
+            cout << "Every piece of luggage was unloaded into the plane\n" << endl;
+            waitForInput();
+        });
+        
+        bool is_running = true;
+        MenuBlock special_block;
+        special_block.addOption("Go Back", [&is_running]() { is_running = false; });
+
+        menu.addBlock(choice);
+        menu.setSpecialBlock(special_block);
+
+        while (is_running) {
+            menu.show(car.str());
+        }
     }
 
     void readOneCar() {
@@ -2220,7 +2568,7 @@ namespace crud {
         auto allowWhenCarsExist = [](const function<void()> &f) {
             return [f]() {
                 if (data::handlingCars.empty()) {
-                    cout << "There are no handling cars in the database" << endl;
+                    cout << "There are no handling cars in the database\n" << endl;
                     waitForInput();
                     return;
                 }
@@ -2284,7 +2632,7 @@ namespace crud {
         directAttributes.addOption(repr.str() + "date", [&filter, &repr]() {
             repr << "date ";
             filter = createFilter<const Service*, string>(repr, [](const Service* const &value) {
-                return value->getDate().str();
+                return value->getDatetime().str();
             });
         });
 

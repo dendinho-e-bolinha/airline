@@ -91,10 +91,7 @@ public:
     bool completeService();
 
     /**
-     * @overload Displays
-     * @param os
-     * @param plane
-     * @return
+     * @overload Displays a Plane instance
      */
     friend std::ostream &operator<<(std::ostream &os, const Plane &plane);
 };
