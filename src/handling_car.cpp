@@ -20,7 +20,7 @@ HandlingCar::HandlingCar(const unsigned int number_of_carriages, const unsigned 
         throw invalid_argument("Number of luggage per stack must be greater than 0");
 }
 
-unsigned int HandlingCar::getID() {
+unsigned int HandlingCar::getId() {
     return this->id;
 }
 
@@ -157,4 +157,23 @@ bool HandlingCar::addLuggage(Luggage &luggage) {
 
     this->carriages.push_back(new_carriage);
     return true;
+}
+
+Flight* HandlingCar::getFlight() const {
+    return this->flight;
+}
+
+void HandlingCar::setFlight(Flight &flight) {
+    this->flight = &flight;
+}
+
+ostream& operator<<(ostream &out, const HandlingCar &car) {
+    out << "Number of carriages: " << car.number_of_carriages << endl
+        << "Number of stacks per carriage: " << car.stacks_per_carriage << endl
+        << "Number of luggage per stack: " << car.luggage_per_stack << endl;
+
+    if (car.flight != nullptr)
+        out << "Currently serving flight: " << car.flight->getFlightId() << endl;
+
+    return out;
 }

@@ -1,6 +1,8 @@
 #include "datetime.h"
+#include "interact.h"
 #include <stdexcept>
 #include <iomanip>
+#include <sstream>
 
 using namespace std;
 
@@ -31,7 +33,7 @@ void Date::setMonth(unsigned int month) {
     if (0 < month && month < 13)
         this->month = month;
     else
-        throw std::invalid_argument("Month value must be between 1 and 12");
+        throw invalid_argument("Month value must be between 1 and 12");
 }
 
 void Date::setYear(unsigned int year) {
@@ -50,7 +52,7 @@ unsigned int Date::getYear() const {
     return this->year;
 }
 
-Time::Time(unsigned int hour, unsigned int minute, unsigned int second) {
+Time::Time(unsigned int hour, unsigned int minute) {
     if (0 <= hour && hour < 24)
         this->hour = hour;
     else
@@ -59,16 +61,11 @@ Time::Time(unsigned int hour, unsigned int minute, unsigned int second) {
         this->minute = minute;
     else
         throw invalid_argument("Minute value must be between 0 and 59");
-    if (0 <= second && second < 60)
-        this->second = second;
-    else
-        throw invalid_argument("Second value must be between 0 and 59");
 }
 
 Time::Time(const Time &time) {
     this->hour = time.hour;
     this->minute = time.minute;
-    this->second = time.second;
 }
 
 void Time::setHour(unsigned int hour) {
@@ -85,13 +82,6 @@ void Time::setMinute(unsigned int minute) {
         throw invalid_argument("Minute value must be between 0 and 59");
 }
 
-void Time::setSecond(unsigned int second) {
-    if (0 <= second && second < 60)
-        this->second = second;
-    else
-        throw invalid_argument("Second value must be between 0 and 59");
-}
-
 unsigned int Time::getHour() const {
     return this->hour;
 }
@@ -100,23 +90,44 @@ unsigned int Time::getMinute() const {
     return this->minute;
 }
 
-unsigned int Time::getSecond() const {
-    return this->second;
+Datetime::Datetime(unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute) : Date(day, month, year), Time(hour, minute) {}
+Datetime::Datetime(const Datetime &datetime) : Datetime(datetime.getYear(), datetime.getMonth(), datetime.getDay(), datetime.getHour(), datetime.getMinute()) {};
+
+string Datetime::str() const {
+    ostringstream out;
+    out << Date::str() << ' ' << Time::str();
+
+    return out.str();
 }
 
-Datetime::Datetime(unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute, unsigned int second) : Date(day, month, year), Time(hour, minute, second) {}
-Datetime::Datetime(const Datetime &datetime) : Datetime(datetime.getYear(), datetime.getMonth(), datetime.getDay(), datetime.getHour(), datetime.getMinute(), datetime.getSecond()) {};
-
-
 ostream &operator<<(ostream &os, const Datetime &datetime) {
-    os << datetime.getYear() << '-'
-       << setw(2) << setfill('0') << datetime.getMonth() << '-'
-       << setw(2) << setfill('0') << datetime.getDay() << ' '
-       << setw(2) << setfill('0') << datetime.getHour() << ':'
-       << setw(2) << setfill('0') << datetime.getMinute() << ':'
-       << setw(2) << setfill('0') << datetime.getSecond();
+    return os << datetime.str() << '\n';
+}
 
-    return os;
+string Date::str() const {
+    ostringstream out;
+
+    out << this->getYear() << '-'
+        << setw(2) << setfill('0') << this->getMonth() << '-'
+        << setw(2) << setfill('0') << this->getDay();
+
+    return out.str();
+}
+
+string Time::str() const {
+    ostringstream out;
+
+    out << setw(2) << setfill('0') << this->getHour() << ':'
+        << setw(2) << setfill('0') << this->getMinute();
+
+    return out.str();
+}
+
+bool Time::operator<(const Time &time) const {
+    if (this->getHour() != time.getHour())
+        return this->getHour() < time.getHour();
+
+    return this->getMinute() < time.getMinute();
 }
 
 bool Datetime::operator<(const Datetime &datetime) const {
@@ -128,13 +139,64 @@ bool Datetime::operator<(const Datetime &datetime) const {
         return this->getDay() < datetime.getDay();
     if (this->getHour() != datetime.getHour())
         return this->getHour() < datetime.getHour();
-    if (this->getMinute() != datetime.getMinute())
-        return this->getMinute() < datetime.getMinute();
 
-    return this->getSecond() < datetime.getSecond();
+    return this->getMinute() < datetime.getMinute();
 }
-
 
 bool Datetime::operator==(const Datetime &datetime) const {
     return !(*this < datetime) && !(datetime < (*this));
+}
+
+Datetime Datetime::readFromString(const string &str) {
+    static validation_error invalid_date = validation_error("The provided date is not in the correct format (YYYY/MM/dd HH:mm)");
+    
+    istringstream in(str);
+    unsigned int year, month, day, hour, minute;
+
+    in >> year;
+    if (!in || in.get() != '/')
+        throw invalid_date;
+
+    in >> month;
+    if (!in || in.get() != '/')
+        throw invalid_date;
+
+    in >> day;
+    if (!in || in.get() != ' ')
+        throw invalid_date;
+
+    in >> hour;
+    if (!in || in.get() != ':')
+        throw invalid_date;
+
+    in >> minute;
+    if (!in || !in.eof())
+        throw invalid_date;
+
+    try {
+        return Datetime(year, month, day, hour, minute);
+    } catch (invalid_argument exception) {
+        throw invalid_date;
+    }
+}
+
+Time Time::readFromString(const string &str) {
+    static validation_error invalid_date = validation_error("The provided time is not in the correct format (HH:mm)");
+    
+    istringstream in(str);
+    unsigned int hour, minute;
+
+    in >> hour;
+    if (!in || in.get() != ':')
+        throw invalid_date;
+
+    in >> minute;
+    if (!in || !in.eof())
+        throw invalid_date;
+
+    try {
+        return Time(hour, minute);
+    } catch (invalid_argument exception) {
+        throw invalid_date;
+    }
 }

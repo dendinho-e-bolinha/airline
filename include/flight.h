@@ -36,12 +36,15 @@ public:
      */
     Flight(const std::string &id, const Datetime &departure_time, const Time &duration, Airport &origin, Airport &destination, Plane& plane);
 
+    // Getters
+
     std::string getFlightId() const;
     Datetime getDepartureTime() const;
     Time getDuration() const;
     Airport& getOrigin() const;
     Airport& getDestination() const;
-    std::vector<Ticket*>& getTickets();
+    std::vector<Ticket*> getTickets() const;
+    std::vector<Luggage*> getLuggage() const;
     Plane& getPlane() const;
 
     /**
@@ -69,13 +72,13 @@ public:
     bool removeFirstTicket(const std::function <bool (const Ticket&)> &selector);
 
     /**
-     * @brief Removes all the tickets already purchased for a flight that fulfill the removal condition
-     * @param selector A selection method to choose the tickets to remove
-     *
-     * @return true, if at least one ticket was removed; false, if no tickets were removed
+     * @brief Removes all existing tickets
      */
-    bool removeAllTickets(const std::function <bool (const Ticket&)> &selector);
+    void clearTickets();
 
+    /**
+     * @overload Displays a Flight instance
+     */
     friend std::ostream& operator<<(std::ostream &out, const Flight &flight);
 };
 

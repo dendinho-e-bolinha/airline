@@ -1,5 +1,6 @@
 #include "airport.h"
 #include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -35,15 +36,32 @@ void Airport::setName(std::string name) {
 
 
 ostream &operator<<(ostream &os, const Airport &airport) {
-    auto aux = airport.getTransportPlaceInfo();
-    os << "Name:" << airport.getName() << endl;
-
-    for (const auto &c : airport.transport_place_info) {
-        os << "Distance: " << c.airport_distance
-             << "Coordinates: (" << c.latitude << ", " << c.longitude << ")" << endl
-             << "Name: " << c.name
-             << "Transport type: " << c.transport_type << endl;
-    }
+    os << airport.str() << endl;
     
     return os;
+}
+
+string Airport::str() const {
+    ostringstream os;
+
+    auto aux = this->getTransportPlaceInfo();
+    os << "Name:" << this->getName() << endl;
+    os << '{' << endl;
+
+    bool is_first = true;
+    for (const auto &c : aux) {
+        if (!is_first)
+            cout << '\n';
+
+        os << "\tDistance: " << c.airport_distance
+             << "\tCoordinates: (" << c.latitude << ", " << c.longitude << ")" << endl
+             << "\tName: " << c.name
+             << "\tTransport type: " << c.transport_type << endl;
+
+        is_first = false;
+    }
+
+    os << '}';
+
+    return os.str();
 }

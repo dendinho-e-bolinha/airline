@@ -10,6 +10,12 @@ const char *end_of_file_exception::what() const noexcept {
     return "EOF";
 }
 
+validation_error::validation_error(const char* what) : reason(what) {}
+
+const char *validation_error::what() const noexcept {
+    return this->reason;
+}
+
 void MenuBlock::addOption(const std::string &text, const std::function<void()> &callback) {
     MenuOption option = make_pair(text, callback);
     this->options.push_back(option);

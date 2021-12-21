@@ -17,7 +17,7 @@ struct TransportPlace {
     float latitude, longitude;
     TransportType transport_type;
     float airport_distance;
-    std::set<Datetime> schedule;
+    std::set<Time> schedule;
 
     /**
      * @overload Operator <
@@ -33,15 +33,18 @@ class Airport {
     std::set<TransportPlace> transport_place_info;
 public:
 
+    /**
+     * @brief Creates an Airport instance
+     * @param name Airport name
+     */
     Airport(const std::string &name);
 
+    // Getters
 
-    /**
-     * @return Returns a set containing each means of transport on the airport
-     */
     const std::set<TransportPlace> &getTransportPlaceInfo() const;
-
     const std::string &getName() const;
+
+    // Setters
 
     void setName(std::string name);
 
@@ -55,12 +58,9 @@ public:
 
     /**
      * @overload Displays a plane
-     * @param os
-     * @param airport
-     * @return
      */
     friend std::ostream &operator<<(std::ostream &os, const Airport &airport);
-
+    std::string str() const;
 };
 
 

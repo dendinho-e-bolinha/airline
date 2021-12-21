@@ -4,9 +4,6 @@
 #include "state.h"
 #include <set>
 #include <algorithm>
-#include <sstream>
-
-#define EVERYTHING
 
 using namespace std;
 
@@ -23,7 +20,7 @@ namespace crud {
         return readValue<string>("License plate: ", "Please insert a valid license plate", [](const string &value) {
             Plane *plane = findPlaneByLicensePlate(value);
             if (plane != nullptr)
-                throw "That license plate already belongs to a plane";
+                throw validation_error("That license plate already belongs to a plane");
 
             return true;
         });
@@ -33,7 +30,7 @@ namespace crud {
         return readValue<string>("License plate: ", "Please insert a valid license plate", [](const string &value) {
             Plane *plane = findPlaneByLicensePlate(value);
             if (plane == nullptr)
-                throw "That license plate doesn't belong to any plane";
+                throw validation_error("That license plate doesn't belong to any plane");
 
             return true;
         });
@@ -180,8 +177,8 @@ namespace crud {
         function<bool(const Plane* const&)> filter;
 
         MenuBlock directAttributes;
-        directAttributes.addOption(repr.str() + "licensePlate", [&filter, &repr]() {
-            repr << "licensePlate ";
+        directAttributes.addOption(repr.str() + "license plate", [&filter, &repr]() {
+            repr << "license plate ";
             filter = createFilter<const Plane*, string>(repr, [](const Plane* const &value) {
                 return value->getLicensePlate();
             });
@@ -222,72 +219,72 @@ namespace crud {
             });
         });
 
-        // MenuBlock flights;
-        // flights.addOption(repr.str() + "if all flights have", [&filter, &repr]() {
-        //     repr << "if all flights have ";
+        MenuBlock flights;
+        flights.addOption(repr.str() + "all flights have", [&filter, &repr]() {
+            repr << "all flights have ";
 
-        //     auto flightFilter = createFlightFilter(repr);
-        //     filter = [flightFilter](const Plane* const &plane) {
-        //         for (const Flight* const &flight : plane->getFlights()) {
-        //             if (!flightFilter(flight))
-        //                 return false;
-        //         }
+            auto flightFilter = createFlightFilter(repr);
+            filter = [flightFilter](const Plane* const &plane) {
+                for (const Flight* const &flight : plane->getFlights()) {
+                    if (!flightFilter(flight))
+                        return false;
+                }
 
-        //         return true;
-        //     };
-        // });
+                return true;
+            };
+        });
 
-        // flights.addOption(repr.str() + "if any flights have", [&filter, &repr]() {
-        //     repr << "if any flights have ";
+        flights.addOption(repr.str() + "any flights have", [&filter, &repr]() {
+            repr << "any flights have ";
 
-        //     auto flightFilter = createFlightFilter(repr);
-        //     filter = [flightFilter](const Plane* const &plane) {
-        //         for (const Flight* const &flight : plane->getFlights()) {
-        //             if (flightFilter(flight))
-        //                 return true;
-        //         }
+            auto flightFilter = createFlightFilter(repr);
+            filter = [flightFilter](const Plane* const &plane) {
+                for (const Flight* const &flight : plane->getFlights()) {
+                    if (flightFilter(flight))
+                        return true;
+                }
 
-        //         return false;
-        //     };
-        // });
+                return false;
+            };
+        });
 
-        // MenuBlock services;
-        // services.addOption(repr.str() + "if all finished services have", [&filter, &repr]() {
-        //     repr << "if all finished services have ";
+        MenuBlock services;
+        services.addOption(repr.str() + "all finished services have", [&filter, &repr]() {
+            repr << "all finished services have ";
 
-        //     auto serviceFilter = createServiceFilter(repr);
-        //     filter = [serviceFilter](const Plane* const &plane) {
-        //         for (const Service* const &flight : plane->getFinishedServices()) {
-        //             if (!serviceFilter(flight))
-        //                 return false;
-        //         }
+            auto serviceFilter = createServiceFilter(repr);
+            filter = [serviceFilter](const Plane* const &plane) {
+                for (const Service* const &flight : plane->getFinishedServices()) {
+                    if (!serviceFilter(flight))
+                        return false;
+                }
 
-        //         return true;
-        //     };
-        // });
+                return true;
+            };
+        });
 
-        // services.addOption(repr.str() + "if any finished services have", [&filter, &repr]() {
-        //     repr << "if any finished services have ";
+        services.addOption(repr.str() + "any finished services have", [&filter, &repr]() {
+            repr << "any finished services have ";
 
-        //     auto serviceFilter = createServiceFilter(repr);
-        //     filter = [serviceFilter](const Plane* const &plane) {
-        //         for (const Service* const &service : plane->getFinishedServices()) {
-        //             if (serviceFilter(service))
-        //                 return true;
-        //         }
+            auto serviceFilter = createServiceFilter(repr);
+            filter = [serviceFilter](const Plane* const &plane) {
+                for (const Service* const &service : plane->getFinishedServices()) {
+                    if (serviceFilter(service))
+                        return true;
+                }
 
-        //         return false;
-        //     };
-        // });
+                return false;
+            };
+        });
 
-        // services.addOption(repr.str() + "if the next scheduled service has", [&filter, &repr]() {
-        //     repr << "if the next scheduled service has ";
+        services.addOption(repr.str() + "the next scheduled service has", [&filter, &repr]() {
+            repr << "the next scheduled service has ";
 
-        //     auto serviceFilter = createServiceFilter(repr);
-        //     filter = [serviceFilter](const Plane* const &plane) {
-        //         return serviceFilter(plane->getScheduledServices().front());
-        //     };
-        // });
+            auto serviceFilter = createServiceFilter(repr);
+            filter = [serviceFilter](const Plane* const &plane) {
+                return serviceFilter(plane->getScheduledServices().front());
+            };
+        });
 
         MenuBlock booleanLogic;
         booleanLogic.addOption("not", [&filter, &repr]() {
@@ -325,8 +322,8 @@ namespace crud {
         });
 
         menu.addBlock(directAttributes);
-        // menu.addBlock(flights);
-        // menu.addBlock(services);
+        menu.addBlock(flights);
+        menu.addBlock(services);
         menu.addBlock(booleanLogic);
         menu.show();
 
@@ -395,22 +392,6 @@ namespace crud {
         menu.show();
     }
 
-    void slicePlaneVectorFromBeginWithUserInput(vector<Plane*> &pool) {
-        size_t number = readValue<size_t>("#: ", "Please provide a valid number of elements");
-        auto last = pool.begin() + number - 1;
-        for (auto it = pool.end() - 1; it > last ; it--)
-            pool.erase(it);
-    }
-
-    void slicePlaneVectorFromEndWithUserInput(vector<Plane*> &pool) {
-        size_t number = readValue<size_t>("#: ", "Please provide a valid number of elements");
-        auto first = pool.end() - number;
-        for (auto it = pool.begin(), cursor = first; it < first; it++, cursor++)
-            *it = *cursor;
-
-        pool.resize(number);
-    }
-
     void readAllPlanesWithUserInput() {
         vector<Plane*> pool = data::planes;
 
@@ -419,8 +400,8 @@ namespace crud {
         ops.addOption("Sort", [&pool]() { orderPlanesWithUserInput(pool); });
 
         MenuBlock other_ops;
-        other_ops.addOption("Keep the first # planes", [&pool]() { slicePlaneVectorFromBeginWithUserInput(pool); });
-        other_ops.addOption("Keep the last # planes", [&pool]() { slicePlaneVectorFromEndWithUserInput(pool); });
+        other_ops.addOption("Keep the first # planes", [&pool]() { utils::sliceVectorFromBeginWithUserInput(pool); });
+        other_ops.addOption("Keep the last # planes", [&pool]() { utils::sliceVectorFromEndWithUserInput(pool); });
 
         other_ops.addOption("Reverse the current order", [&pool]() {
             utils::reverse(pool);
@@ -435,7 +416,7 @@ namespace crud {
 
             if (!pool.empty()) {
                 menu.addBlock(ops);
-                menu.addBlock(other_ops);
+                menu.addBlock(other_ops);   
             }
 
             menu.setSpecialBlock(special_block);
@@ -455,12 +436,12 @@ namespace crud {
         Menu menu("Please select what you want to update:");
 
         MenuBlock choice;
-        choice.addOption("Type", [&plane](){
+        choice.addOption("Type", [&plane]() {
             string type = readValue<GetLine>("Type: ", "Please insert a valid plane type");
             plane.setType(type);
         });
 
-        choice.addOption("Capacity", [&plane](){
+        choice.addOption("Capacity", [&plane]() {
             unsigned int capacity = readValue<unsigned int>("Type: ", "Please insert a valid plane capacity");
             plane.setCapacity(capacity);
         });
@@ -490,6 +471,7 @@ namespace crud {
             if (*it == &plane) {
                 data::planes.erase(it);
                 delete &plane;
+
                 waitForInput();
                 return;
             }
@@ -509,7 +491,7 @@ namespace crud {
         data::planes.clear();
     }
 
-    void deleteAllPlanesWithFilters() {
+    void deleteAllPlanesWithUserInput() {
         vector<Plane*> pool = data::planes;
 
         MenuBlock ops;
@@ -517,8 +499,8 @@ namespace crud {
         ops.addOption("Sort", [&pool]() { orderPlanesWithUserInput(pool); });
 
         MenuBlock other_ops;
-        other_ops.addOption("Keep the first # planes", [&pool]() { slicePlaneVectorFromBeginWithUserInput(pool); });
-        other_ops.addOption("Keep the last # planes", [&pool]() { slicePlaneVectorFromEndWithUserInput(pool); });
+        other_ops.addOption("Keep the first # planes", [&pool]() { utils::sliceVectorFromBeginWithUserInput(pool); });
+        other_ops.addOption("Keep the last # planes", [&pool]() { utils::sliceVectorFromEndWithUserInput(pool); });
 
         other_ops.addOption("Reverse the current order", [&pool]() {
             utils::reverse(pool);
@@ -534,6 +516,7 @@ namespace crud {
                 for (Plane *plane2 : pool) {
                     if (plane1 == plane2)
                         was_selected = true;
+                        break;
                 }
 
                 if (was_selected)
@@ -542,7 +525,7 @@ namespace crud {
                     new_planes.push_back(plane1);
             }
 
-            data::planes = pool = vector<Plane*>(new_planes);
+            data::planes = pool = new_planes;
         });
 
         bool is_running = true;
@@ -598,7 +581,7 @@ namespace crud {
         MenuBlock remove;
         remove.addOption("Delete one plane", allowWhenPlanesExist(deleteOnePlane));
         remove.addOption("Delete all planes", allowWhenPlanesExist(deleteAllPlanes));
-        remove.addOption("Delete all planes with filters and sort", allowWhenPlanesExist(deleteAllPlanesWithFilters));
+        remove.addOption("Delete all planes with filters and sort", allowWhenPlanesExist(deleteAllPlanesWithUserInput));
 
         bool is_running = true;
         MenuBlock special_block;
@@ -613,76 +596,60 @@ namespace crud {
             menu.show();
     }
 
-#ifndef EVERYTHING
+    /*----------FLIGHTS----------*/
 
-    void manageAirports() {
-
-    }
-
-    void manageFlights() {
-
-    }
-
-    void manageHandlingCars() {
-
-    }
-
-    void manageTickets() {
-
-    }
-
-#else
-
-// //     /*----------FLIGHTS----------*/
-
-    Flight* findFlightById(const string &flight_id) {
-        return utils::binarySearch<Flight*, string>(data::flights, flight_id, [](Flight *flight){
-            return flight->getFlightId();
-        });
-    }
-
-    Flight* findFlightByFlightkey(const string &flight_id, const Datetime &departure) {
+    vector<Flight*> findFlightsByFlightId(const string &flight_id) {
         auto it = utils::lowerBound<Flight*, string>(data::flights, flight_id, [](Flight *flight) {
             return flight->getFlightId();
         });
 
-        while (!((*it)->getDepartureTime() == departure)) {
-            if (it == data::flights.end())
-                return nullptr;
-
-            it++;
-        }
-
-        return *it;
+        vector<Flight*> result;
+        while ((*it)->getFlightId() == flight_id && it != data::flights.end())
+            result.push_back(*(it++));
     }
 
-    std::pair<string, Datetime> askUnusedFlightKey() {
-        string id = readValue<string>("Flight ID: ", "Please insert a valid flight id");
-        
-        Flight *flight = findFlightById(id);
-        
+    Flight* findFlightByKey(const string &flight_id, const Datetime &departure) {
+        auto flights = findFlightsByFlightId(flight_id);
 
-        
-        /*
-        [](const string &value) {
-            //se existir um plane com o id, devolver as cenas do plane
-            // se existir mais do que um plane com o id, pedir um datetime que não exista com esse id
-            // se não existir nenhum plane com o id, pedir uma datetime qualquer
-            Flight *flight = findFlightByFlightkey(valu, datetimee);
-            if (flight != nullptr)
-                throw "That flight id already belongs to a plane";
+        for (Flight *flight : flights)
+            if (flight->getDepartureTime() == departure)
+                return flight;
 
-            return true;*/
+        return nullptr;
+    }
+
+    pair<string, Datetime> askUnusedFlightKey() {
+        string id = readValue<string>("Flight ID: ", "Please insert a valid flight ID");
+        Datetime datetime = Datetime::readFromString(
+            readValue<GetLine>("Date and time of flight: ", "That date and time are already being used by another flight with the same id", [&id](const string &value) {
+                Datetime datetime = Datetime::readFromString(value);
+                return findFlightByKey(id, datetime) == nullptr;
+            })
+        );
+
+        return make_pair(id, datetime);
     }
     
-    string askUsedFlightKey() {
-        return readValue<string>("Flight ID: ", "Please insert a valid flight id", [](const string &value) {
-            Flight *flight = findFlightByFlightId(value);
-            if (flight == nullptr)
-                throw "That flight id doesn't belong to any plane";
+    pair<string, Datetime> askUsedFlightKey() {
+        string id = readValue<string>("Flight ID: ", "Please insert a valid flight ID", [](const string &value) {
+            if (findFlightsByFlightId(value).size() == 0)
+                throw validation_error("There are no flights with that ID");
 
             return true;
         });
+        
+        vector<Flight*> flights = findFlightsByFlightId(id);
+        if (flights.size() == 1)
+            return make_pair(flights.at(0)->getFlightId(), flights.at(0)->getDepartureTime());
+        
+        Datetime datetime = Datetime::readFromString(
+            readValue<GetLine>("Date and time of flight: ", "That date and time are not being used by any flight with the given id", [&id](const string &value) {
+                Datetime datetime = Datetime::readFromString(value);
+                return findFlightByKey(id, datetime) != nullptr;
+            })
+        );
+
+        return make_pair(id, datetime);
     }
 
     Flight &findFlight() {
@@ -692,12 +659,10 @@ namespace crud {
         if (data::flights.size() == 1)
             return *data::flights.at(0);
 
-        string flight_id = askUsedFlightKey();
-        Datetime departure_time = as
-
+        pair<string, Datetime> flight_key = askUsedFlightKey();
         cout << endl;
 
-        Flight *flight = findFlightByFlightkey(flight_id);
+        Flight *flight = findFlightByKey(flight_key.first, flight_key.second);
         if (flight == nullptr)
             throw logic_error("No flight found");
 
@@ -708,22 +673,19 @@ namespace crud {
      * @brief Creates a Plane instance
      */
     void createFlight() {
-        string flight_id = askUnusedFlightId();
+        pair<string, Datetime> flight_key = askUnusedFlightKey();
+        
         string type = readValue<GetLine>("Type: ", "Please insert a valid flight id");
         unsigned int capacity = readValue<unsigned int>("Capacity: ", "Please insert a valid capacity");
 
         Plane *plane = new Plane(license_plate, type, capacity);
         auto 
 
-
-
-
-
-pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* plane) {
+        pos = utils::lowerBound<Flight*, string>(data::planes, license_plate, [](Plane* plane) {
             return plane->getLicensePlate();
         });
 
-        data::planes.insert(pos, plane);
+        data::flights.insert(pos, flight);
         waitForInput();
     }
 
@@ -736,90 +698,250 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
         waitForInput();
     }
 
+    string getFlightRepresentation(const vector<Flight*> &vec) {
+        ostringstream repr;
+        
+        bool is_empty = true;
+        for (const Flight *flight : vec) {
+            if (!is_empty)
+                repr << '\n';
+
+            repr << *flight;
+            is_empty = false;
+        }
+
+        return repr.str();
+    }
+
     /**
      * @brief Displays all the existing planes
      */
     void readAllFlights() {
-        for (const Flight *flight : data::flights) {
-            cout << "-----------------------" << endl;
-            cout << *flight << endl;
-        }
-        cout << "-----------------------" << endl;
-
+        cout << getFlightRepresentation(data::flights) << endl;
         waitForInput();
     }
 
-
-    template <typename T, typename V, typename P>
-    function<bool(const T&)> createFilter(ostringstream &repr, const function<const V(const T&)> mapper, const function<bool(const V&, const V&)> filter, const function<bool(const P&)> validator = [](const P&) { return true; }) {
-        P operand2 = readValue<P>(repr.str(), "Please specify a valid value", validator);
-        cout << endl;
-
-        repr << operand2;
-        
-        return [operand2, mapper, filter](const T& operand1) { 
-            const V mapped = mapper(operand1);
-            return filter(mapped, operand2);
-        };
-    }
-
-    template <typename T, typename V, typename P = V>
-    function<bool(const T&)> createFilter(ostringstream &repr, const function<const V(const T&)> mapper, const function<bool(const P&)> validator = [](const P&) { return true; }) {
-        Menu menu("Please specify an operator to use in the filter:");
-        function<bool(const T&)> filter;
-
-        MenuBlock block;
-        block.addOption(repr.str() + "=", [&filter, &repr, mapper, validator]() {
-            repr << "= ";
-            filter = createFilter<T, V, P>(repr, mapper, [](const V& lhs, const V& rhs) {
-                return lhs == rhs;
-            }, validator);
-        });
-
-        menu.addBlock(block);
-        menu.show();
-
-        return filter;
-    }
-
-    function<bool(const Plane* const&)> createPlaneFilter(ostringstream &repr) {
+    function<bool(const Flight* const&)> createFlightFilter(ostringstream &repr) {
         Menu menu("Please specify a value to use as a filter:");
-        function<bool(const Plane* const&)> filter;
+        function<bool(const Flight* const&)> filter;
 
         MenuBlock directAttributes;
-        directAttributes.addOption("type", [&filter, &repr]() {
-            repr << "type ";
-            filter = createFilter<const Plane*, string, GetLine>(repr, [](const Plane* const &value) {
-                return value->getType();
+        directAttributes.addOption(repr.str() + "ID", [&filter, &repr]() {
+            repr << "ID ";
+            filter = createFilter<const Flight*, string>(repr, [](const Flight* const &value) {
+                return value->getFlightId();
             });
         });
 
-        menu.addBlock(directAttributes);
-        menu.show();
+        directAttributes.addOption(repr.str() + "departure time", [&filter, &repr]() {
+            repr << "departure time ";
+            filter = createFilter<const Flight*, string>(repr, [](const Flight* const &value) {
+                return value->getDepartureTime().str();
+            });
+        });
 
+        directAttributes.addOption(repr.str() + "duration", [&filter, &repr]() {
+            repr << "duration ";
+            filter = createFilter<const Flight*, string>(repr, [](const Flight* const &value) {
+                return value->getDuration().str();
+            });
+        });
+
+        directAttributes.addOption(repr.str() + "number of tickets", [&filter, &repr]() {
+            repr << "number of tickets ";
+            filter = createFilter<const Flight*, size_t>(repr, [](const Flight* const &value) {
+                return value->getTickets().size();
+            });
+        });
+
+        MenuBlock plane;
+        plane.addOption(repr.str() + "plane has", [&filter, &repr]() {
+            repr << "plane has ";
+            auto planeFilter = createPlaneFilter(repr);
+            filter = [planeFilter](const Flight* const &flight) {
+                return planeFilter(&flight->getPlane());
+            };
+        });
+
+        MenuBlock airports;
+        airports.addOption(repr.str() + "origin airport has ", [&filter, &repr]() {
+            repr << "origin airport has ";
+            auto airportFilter = createAirportFilter(repr);
+            filter = [airportFilter](const Flight* const &flight) {
+                return airportFilter(&flight->getOrigin());
+            };
+        });
+
+        airports.addOption(repr.str() + "destination airport has", [&filter, &repr]() {
+            repr << "destination airport has ";
+            auto airportFilter = createAirportFilter(repr);
+            filter = [airportFilter](const Flight* const &flight) {
+                return airportFilter(&flight->getDestination());
+            };
+        });
+
+        MenuBlock tickets;
+        tickets.addOption(repr.str() + "all tickets have ", [&filter, &repr]() {
+            repr << "all tickets have ";
+            auto ticketFilter = createTicketFilter(repr);
+            filter = [ticketFilter](const Flight* const &flight) {
+                for (const Ticket* const &ticket : flight->getTickets()) {
+                    if (!ticketFilter(ticket))
+                        return false;
+                }
+
+                return true;
+            };
+        });
+
+        tickets.addOption(repr.str() + "any tickets have ", [&filter, &repr]() {
+            repr << "any tickets have ";
+            auto ticketFilter = createTicketFilter(repr);
+            filter = [ticketFilter](const Flight* const &flight) {
+                for (const Ticket* const &ticket : flight->getTickets()) {
+                    if (ticketFilter(ticket))
+                        return true;
+                }
+
+                return false;
+            };
+        });
+
+        MenuBlock booleanLogic;
+        booleanLogic.addOption("not", [&filter, &repr]() {
+            repr << "not (";
+            auto filter1 = createFlightFilter(repr);
+            repr << ')';
+
+            filter = [filter1](const Flight* const &flight) {
+                return !filter1(flight);
+            };
+        });
+
+        booleanLogic.addOption("or", [&filter, &repr]() {
+            repr << '(';
+            auto filter1 = createFlightFilter(repr);
+            repr << ") or (";
+            auto filter2 = createFlightFilter(repr);
+            repr << ')';
+
+            filter = [filter1, filter2](const Flight* const &flight) {
+                return filter1(flight) || filter2(flight);
+            };
+        });
+
+        booleanLogic.addOption("and", [&filter, &repr]() {
+            repr << '(';
+            auto filter1 = createFlightFilter(repr);
+            repr << ") and (";
+            auto filter2 = createFlightFilter(repr);
+            repr << ')';
+
+            filter = [filter1, filter2](const Flight* const &flight) {
+                return filter1(flight) && filter2(flight);
+            };
+        });
+
+        menu.addBlock(directAttributes);
+        menu.addBlock(plane);
+        menu.addBlock(airports);
+        menu.addBlock(tickets);
+        menu.addBlock(booleanLogic);
+
+        menu.show();
         return filter;
     }
     
+    void filterFlightsWithUserInput(vector<Flight*> &pool) {
+        ostringstream filter_repr;
+        function<bool(const Flight* const&)> filter = createFlightFilter(filter_repr);
 
-    /**
-     * @brief Displays all planes with characteristics specified by the user
-     */
-    void readPlanesWithFilters(vector<Plane*> &pool) {
-        ostringstream repr;
+        cout << "\x1B[2J\x1B[;H\x1B[32m✓\x1B[0m " << "Your filter: " << filter_repr.str() << '\n' << endl;
+        waitForInput();
 
-        function<bool(const Plane* const&)> filter = createPlaneFilter(repr);
-        remove_if(pool.begin(), pool.end(), [&filter](const Plane* plane) {
-            return !filter(plane);
+        for (auto it = pool.begin(); it != pool.end();) {
+            if (!filter(*it))
+                it = pool.erase(it);
+            else
+                it++;
+        }
+    }
+
+    void orderFlightsWithUserInput(vector<Flight*> &pool) {
+        Menu menu("Please select an attribute to sort the selected flights:");
+
+        MenuBlock block;
+        block.addOption("Flight ID", [&pool]() {
+            utils::sort<Flight*, string>(pool, [](Flight* const &flight) {
+                return flight->getFlightId();
+            });
+        });
+
+        block.addOption("Departure time", [&pool]() {
+            utils::sort<Flight*, Datetime>(pool, [](Flight* const &flight) {
+                return flight->getDepartureTime();
+            });
+        });
+        
+        block.addOption("Duration", [&pool]() {
+            utils::sort<Flight*, Time>(pool, [](Flight* const &flight) {
+                return flight->getDuration();
+            });
+        });
+
+        block.addOption("Number of tickets", [&pool]() {
+            utils::sort<Flight*, size_t>(pool, [](Flight* const &flight) {
+                return flight->getTickets().size();
+            });
+        });
+
+        block.addOption("Origin airport name", [&pool]() {
+            utils::sort<Flight*, string>(pool, [](Flight* const &flight) {
+                return flight->getOrigin().getName();
+            });
+        });
+
+        block.addOption("Destination airport name", [&pool]() {
+            utils::sort<Flight*, string>(pool, [](Flight* const &flight) {
+                return flight->getDestination().getName();
+            });
         });
     }
 
-    function<void()> readPlanesOrdered(vector<Plane*> &pool) {
-        
-    }
+    void readAllFlightsWithUserInput() {
+        vector<Flight*> pool = data::flights;
 
-    void readAllPlanesWithUserInput() {
-        vector<Plane*> pool = data::planes;
-        readPlanesWithFilters(pool);
+        MenuBlock ops;
+        ops.addOption("Filter", [&pool]() { filterFlightsWithUserInput(pool); });
+        ops.addOption("Sort", [&pool]() { orderFlightsWithUserInput(pool); });
+
+        MenuBlock other_ops;
+        other_ops.addOption("Keep the first # flights", [&pool]() { utils::sliceVectorFromBeginWithUserInput(pool); });
+        other_ops.addOption("Keep the last # flights", [&pool]() { utils::sliceVectorFromEndWithUserInput(pool); });
+
+        other_ops.addOption("Reverse the current order", [&pool]() {
+            utils::reverse(pool);
+        });
+
+        bool is_running = true;
+        MenuBlock special_block;
+        special_block.addOption("Go Back", [&is_running]() { is_running = false; });
+
+        while (is_running) {
+            Menu menu("Your current selection:");
+
+            if (!pool.empty()) {
+                menu.addBlock(ops);
+                menu.addBlock(other_ops);   
+            }
+
+            menu.setSpecialBlock(special_block);
+
+            if (pool.empty())
+                menu.show("\x1B[31m>>\x1B[0m There are no flights left!\n");
+            else
+                menu.show(getFlightRepresentation(pool));
+        }
     }
 
     /**
@@ -836,13 +958,14 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
         });
 
         choice.addOption("Departure time", [&flight](){
-            string departure = readValue<GetLine>("Departure time(YYYY-MM-DD-HH-MM-SS): ", "Please insert a valid departure time");
-            departure = Datetime::toDatetime(departure);
-            Flight *new_flight = new Flight(flight.getFlightID(), departure, flight.getDuration(), flight.getOrigin(), flight.getDestination(), flight.getTickets(), flight.getplane());
+            Datetime datetime = Datetime::readFromString(
+                // readValue<GetLine>("Please")
+            )
+            Flight *new_flight = new Flight(flight.getFlightID(), , flight.getDuration(), flight.getOrigin(), flight.getDestination(), flight.getTickets(), flight.getplane());
         });
 
         choice.addOption("Duration", [&plane](){
-            string duration = readValue<string>("Duration(HH:MM:SS): ", "Please insert a valid duration");
+            string duration = readValue<string>("Duration (HH:MM:SS): ", "Please insert a valid duration");
             duration = T
         });
 
@@ -866,38 +989,95 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
     /**
      * @brief Deletes one Plane instance specified by the user
      */
-    void deleteOnePlane() {
-        Plane const &plane = findPlane();
-        for (auto it = data::planes.begin(), end = data::planes.end(); it != end; it++) {
-            if (*it == &plane) {
-                data::planes.erase(it);
-                delete &plane;
+    void deleteOneFlight() {
+        Flight const &flight = findFlight();
+        for (auto it = data::flights.begin(), end = data::flights.end(); it != end; it++) {
+            if (*it == &flight) {
+                data::flights.erase(it);
+                delete &flight;
+
                 waitForInput();
                 return;
             }
         }
 
-        delete &plane;
-        throw logic_error("No planes were deleted");
+        delete &flight;
+        throw logic_error("No flights were deleted");
     }
 
     /**
      * @brief Deletes every Plane instance
      */
-    void deleteAllPlanes() {
-        for (const Plane *plane : data::planes)
-            delete plane;
+    void deleteAllFlights() {
+        for (const Flight *flight : data::flights)
+            delete flight;
 
-        data::planes.clear();
+        data::flights.clear();
+    }
+
+    void deleteAllFlightsWithUserInput() {
+        vector<Flight*> pool = data::flights;
+
+        MenuBlock ops;
+        ops.addOption("Filter", [&pool]() { filterFlightsWithUserInput(pool); });
+        ops.addOption("Sort", [&pool]() { orderFlightsWithUserInput(pool); });
+
+        MenuBlock other_ops;
+        other_ops.addOption("Keep the first # flights", [&pool]() { utils::sliceVectorFromBeginWithUserInput(pool); });
+        other_ops.addOption("Keep the last # flights", [&pool]() { utils::sliceVectorFromEndWithUserInput(pool); });
+
+        other_ops.addOption("Reverse the current order", [&pool]() {
+            utils::reverse(pool);
+        });
+
+        MenuBlock erase;
+        erase.addOption("Delete all flights in this selection", [&pool]() {
+            vector<Flight*> new_flights;
+            
+            for (Flight *flight1 : data::flights) {
+                bool was_selected = false;
+
+                for (Flight *flight2 : pool) {
+                    if (flight1 == flight2)
+                        was_selected = true;
+                        break;
+                }
+
+                if (was_selected)
+                    delete flight1;
+                else
+                    new_flights.push_back(flight1);
+            }
+
+            data::flights = pool = new_flights;
+        });
+
+        bool is_running = true;
+        MenuBlock special_block;
+        special_block.addOption("Go Back", [&is_running]() { is_running = false; });
+
+        while (is_running) {
+            Menu menu("Your current selection:");
+
+            if (!pool.empty()) {
+                menu.addBlock(ops);
+                menu.addBlock(other_ops);
+                menu.addBlock(erase);
+            }
+
+            menu.setSpecialBlock(special_block);
+
+            if (pool.empty())
+                menu.show("\x1B[31m>>\x1B[0m There are no flights left!\n");
+            else
+                menu.show(getFlightRepresentation(pool));
+        }
     }
 
     void manageFlights() {
-        Menu menu("Flights");
-
-
         Menu menu("Select one of the following operations:");
 
-        auto allowWhenFlightExists = [](const function<void()> &func) {
+        auto allowWhenFlightsExist = [](const function<void()> &func) {
             return [func]() {
                 if (data::flights.empty()) {
                     cout << "There are no flights in the database" << endl;
@@ -910,17 +1090,18 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
         };
 
         MenuBlock normal;
-        normal.addOption("Create a new flight", createPlane);
-        normal.addOption("Update flight", allowWhenFlightExists(updatePlane));
+        normal.addOption("Create a new flight", createFlight);
+        normal.addOption("Update flight", allowWhenFlightsExist(updateFlight));
 
         MenuBlock ohno;
-        ohno.addOption("Read one flight", allowWhenFlightExists(readOnePlane));
-        ohno.addOption("Read all flights", allowWhenFlightExists(readAllPlanes));
-        ohno.addOption("Read all flights with filters", allowWhenFlightExists(readAllPlanesWithUserInput));
+        ohno.addOption("Read one flight", allowWhenFlightsExist(readOneFlight));
+        ohno.addOption("Read all flights", allowWhenFlightsExist(readAllFlights));
+        ohno.addOption("Read all flights with filters and sort", allowWhenFlightsExist(readAllFlights));
 
         MenuBlock remove;
-        remove.addOption("Delete one flight", allowWhenFlightExists(deleteOnePlane));
-        remove.addOption("Delete all flights", allowWhenFlightExists(deleteAllPlanes));
+        remove.addOption("Delete one flight", allowWhenFlightsExist(deleteOneFlight));
+        remove.addOption("Delete all flights", allowWhenFlightsExist(deleteAllFlights));
+        remove.addOption("Delete all flights with filters and sort", allowWhenFlightsExist(deleteAllFlightsWithUserInput));
 
         bool is_running = true;
         MenuBlock special_block;
@@ -933,63 +1114,20 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
 
         while (is_running)
             menu.show();
-
-
-
-        MenuBlock block;
     }
 
+    /*----------TICKETS----------*/
 
-
-
-
-
-
-
-
-
-
-// //     /*----------FLIGHTS----------*/
-
-    void manageFlights() {
-// //         Menu menu("Flights");
-
-
-
-
-
-
-// //         MenuBlock block;
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// //     /*----------TICKETS----------*/
-
-    Ticket* findTicketsBySeatNumber(Flight* flight, const unsigned int seat_number) {
-        return utils::binarySearch<Ticket*, unsigned int>(flight->getTickets(), seat_number, [](Ticket* ticket) {
+    Ticket* findTicketsBySeatNumber(Flight* flight, unsigned int seat_number) {
+        vector<Ticket*> tickets = flight->getTickets();
+        return utils::binarySearch<Ticket*, unsigned int>(tickets, seat_number, [](Ticket* ticket) {
             return ticket->getSeatNumber();
         });
     }
 
     Ticket* findTicketByFlightAndCustomer(Flight* flight, const string &name) {
         for (Ticket* ticket : flight->getTickets()) {
-            if (ticket->getCustomer().getName() == name) {
+            if (ticket->getCustomerName() == name) {
                 return ticket;
             }
         }
@@ -1045,14 +1183,17 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
         waitForInput();
     }
 
-    string getTicketRepresentation(Flight* flight) {
+    string getTicketRepresentation(const vector<Ticket*> &vec) {
         ostringstream repr;
+        
+        bool is_empty = true;
+        for (const Ticket *ticket : vec) {
+            if (!is_empty)
+                repr << '\n';
 
-        for (const Ticket *ticket : flight->getTickets()) {
-            repr << "-----------------------\n\n"
-                 << *ticket << "\n\n";
+            repr << *ticket;
+            is_empty = false;
         }
-        repr << "-----------------------";
 
         return repr.str();
     }
@@ -1063,7 +1204,158 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
     }
 
     function<bool(const Ticket* const&)> createTicketFilter(ostringstream &repr) {
+        Menu menu("Please specify a value to use as a filter:");
+        function<bool(const Ticket* const&)> filter;
 
+        MenuBlock directAttributes;
+        directAttributes.addOption(repr.str() + "customer name", [&filter, &repr]() {
+            repr << "customer name ";
+            filter = createFilter<const Ticket*, string>(repr, [](const Ticket* const &value) {
+                return value->getCustomerName();
+            });
+        });
+
+        directAttributes.addOption(repr.str() + "customer age", [&filter, &repr]() {
+            repr << "customer age ";
+            filter = createFilter<const Ticket*, unsigned int>(repr, [](const Ticket* const &value) {
+                return value->getCustomerAge();
+            });
+        });
+
+        directAttributes.addOption(repr.str() + "seat number", [&filter, &repr]() {
+            repr << "seat number ";
+            filter = createFilter<const Ticket*, unsigned int>(repr, [](const Ticket* const &value) {
+                return value->getSeatNumber();
+            });
+        });
+
+        MenuBlock flight;
+        flight.addOption(repr.str() + "flight has", [&filter, &repr]() {
+            repr << "flight has ";
+            auto flightFilter = createFlightFilter(repr);
+            filter = [flightFilter](const Ticket* const &ticket) {
+                return flightFilter(&ticket->getFlight());
+            };
+        });
+
+        MenuBlock booleanLogic;
+        booleanLogic.addOption("not", [&filter, &repr]() {
+            repr << "not (";
+            auto filter1 = createTicketFilter(repr);
+            repr << ')';
+
+            filter = [filter1](const Ticket* const &ticket) {
+                return !filter1(ticket);
+            };
+        });
+
+        booleanLogic.addOption("or", [&filter, &repr]() {
+            repr << '(';
+            auto filter1 = createTicketFilter(repr);
+            repr << ") or (";
+            auto filter2 = createTicketFilter(repr);
+            repr << ')';
+
+            filter = [filter1, filter2](const Ticket* const &ticket) {
+                return filter1(ticket) || filter2(ticket);
+            };
+        });
+
+        booleanLogic.addOption("and", [&filter, &repr]() {
+            repr << '(';
+            auto filter1 = createTicketFilter(repr);
+            repr << ") and (";
+            auto filter2 = createTicketFilter(repr);
+            repr << ')';
+
+            filter = [filter1, filter2](const Ticket* const &ticket) {
+                return filter1(ticket) && filter2(ticket);
+            };
+        });
+
+        menu.addBlock(directAttributes);
+        menu.addBlock(flight);
+        menu.addBlock(booleanLogic);
+
+        menu.show();
+        return filter;
+    }
+
+    void filterTicketsWithUserInput(vector<Ticket*> &pool) {
+        ostringstream filter_repr;
+        function<bool(const Ticket* const&)> filter = createTicketFilter(filter_repr);
+
+        cout << "\x1B[2J\x1B[;H\x1B[32m✓\x1B[0m " << "Your filter: " << filter_repr.str() << '\n' << endl;
+        waitForInput();
+
+        for (auto it = pool.begin(); it != pool.end();) {
+            if (!filter(*it))
+                it = pool.erase(it);
+            else
+                it++;
+        }
+    }
+
+    void orderTicketsWithUserInput(vector<Ticket*> &pool) {
+        Menu menu("Please select an attribute to sort the selected tickets:");
+
+        MenuBlock block;
+        block.addOption("Customer Name", [&pool]() {
+            utils::sort<Ticket*, string>(pool, [](Ticket* const &ticket) {
+                return ticket->getCustomerName();
+            });
+        });
+
+        block.addOption("Customer Age", [&pool]() {
+            utils::sort<Ticket*, unsigned int>(pool, [](Ticket* const &ticket) {
+                return ticket->getCustomerAge();
+            });
+        });
+
+        block.addOption("Seat Number", [&pool]() {
+            utils::sort<Ticket*, unsigned int>(pool, [](Ticket* const &ticket) {
+                return ticket->getSeatNumber();
+            });
+        });
+
+        menu.addBlock(block);
+        menu.show();
+    }
+
+    void readAllTicketsWithUserInput(Flight *flight) {
+        vector<Ticket*> pool = flight->getTickets();
+
+        MenuBlock ops;
+        ops.addOption("Filter", [&pool]() { filterTicketsWithUserInput(pool); });
+        ops.addOption("Sort", [&pool]() { orderTicketsWithUserInput(pool); });
+
+        MenuBlock other_ops;
+        other_ops.addOption("Keep the first # tickets", [&pool]() { utils::sliceVectorFromBeginWithUserInput(pool); });
+        other_ops.addOption("Keep the last # tickets", [&pool]() { utils::sliceVectorFromEndWithUserInput(pool); });
+
+        other_ops.addOption("Reverse the current order", [&pool]() {
+            utils::reverse(pool);
+        });
+
+        bool is_running = true;
+        MenuBlock special_block;
+        special_block.addOption("Go Back", [&is_running]() { is_running = false; });
+
+        while (is_running) {
+            Menu menu("Your current selection:");
+
+            if (!pool.empty()) {
+                menu.addBlock(ops);
+                menu.addBlock(other_ops);
+            }
+
+            menu.setSpecialBlock(special_block);
+
+            if (pool.empty())
+                menu.show("\x1B[31m>>\x1B[0m There are no tickets left!\n");
+            else
+                menu.show(getTicketRepresentation(pool));
+        }
     }
 
     void updateTicket(Flight *flight) {
@@ -1073,18 +1365,25 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
         MenuBlock choice;
         choice.addOption("Seat mumber", [&ticket, &flight]() {
             unsigned int seat = askUsedSeatNumber(flight);
-            Ticket* new_ticket = new Ticket(*flight, ticket.getCustomerName(), ticket.getCustomerAge(), seat);
+            Ticket* new_ticket = new Ticket(ticket.getFlight(), ticket.getCustomerName(), ticket.getCustomerAge(), seat);
 
-            flight->removeTicket(ticket);
+            if (!flight->removeTicket(ticket)) {
+                delete &ticket;
+                throw logic_error("No ticket was removed");
+            }
+
             delete &ticket;
 
-            flight->addTicket(*new_ticket);
+            if (!flight->addTicket(*new_ticket)) {
+                delete new_ticket;
+                throw logic_error("No ticket was added");
+            }
         });
 
         bool is_running = true;
 
         MenuBlock special_block;
-        special_block.addOption("Go Back", [&is_running]() {is_running = false});
+        special_block.addOption("Go Back", [&is_running]() { is_running = false; });
 
         menu.addBlock(choice);
         menu.setSpecialBlock(special_block);
@@ -1096,60 +1395,92 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
 
     void deteleOneTicket(Flight *flight) {
         Ticket const &ticket = findTicket(flight);
-        flight->removeTicket(ticket);
+
+        if (flight->removeTicket(ticket)) {
+            delete &ticket;
+
+            waitForInput();
+            return;
+        }
+
         delete &ticket;
-        waitForInput();
-        return;
+        throw logic_error("No tickets were deleted");
     }
 
     void deleteAllTickets(Flight *flight) {
-        for (const Ticket *ticket : flight.getTickets()) {
+        for (const Ticket *ticket : flight->getTickets()) {
             delete ticket;
         }
 
-        flight.getTickets().clear();
+        flight->clearTickets();
+    }
+
+    void deleteAllTicketsWithUserInput(Flight *flight) {
+        vector<Ticket*> pool = flight->getTickets();
+
+        MenuBlock ops;
+        ops.addOption("Filter", [&pool]() { filterTicketsWithUserInput(pool); });
+        ops.addOption("Sort", [&pool]() { orderTicketsWithUserInput(pool); });
+
+        MenuBlock other_ops;
+        other_ops.addOption("Keep the first # tickets", [&pool]() { utils::sliceVectorFromBeginWithUserInput(pool); });
+        other_ops.addOption("Keep the last # tickets", [&pool]() { utils::sliceVectorFromEndWithUserInput(pool); });
+
+        other_ops.addOption("Reverse the current order", [&pool]() {
+            utils::reverse(pool);
+        });
+
+        MenuBlock erase;
+        erase.addOption("Delete all tickets in this selection", [&pool, &flight]() {
+            vector<Ticket*> new_tickets;
+            
+            for (Ticket *ticket1 : flight->getTickets()) {
+                bool was_selected = false;
+
+                for (Ticket *ticket2 : pool) {
+                    if (ticket1 == ticket2)
+                        was_selected = true;
+                        break;
+                }
+
+                if (was_selected)
+                    delete ticket1;
+                else
+                    new_tickets.push_back(ticket1);
+            }
+
+            pool = new_tickets;
+            
+            for (Ticket* ticket : new_tickets) {
+                if (!flight->addTicket(*ticket))
+                    throw logic_error("No ticket was added");
+            }
+        });
+
+        bool is_running = true;
+        MenuBlock special_block;
+        special_block.addOption("Go Back", [&is_running]() { is_running = false; });
+
+        while (is_running) {
+            Menu menu("Your current selection:");
+
+            if (!pool.empty()) {
+                menu.addBlock(ops);
+                menu.addBlock(other_ops);
+                menu.addBlock(erase);
+            }
+
+            menu.setSpecialBlock(special_block);
+
+            if (pool.empty())
+                menu.show("\x1B[31m>>\x1B[0m There are no tickets left!\n");
+            else
+                menu.show(getTicketRepresentation(pool));
+        }
     }
 
     void manageTickets() {
-        
-// //         Menu menu("Select one of the following operations:");
 
-// //         auto allowWhenPlanesExist = [](const function<void()> &f) {
-// //             return [f]() {
-// //                 if (data::planes.empty()) {
-// //                     cout << "There are no planes in the database" << endl;
-// //                     waitForInput();
-// //                     return;
-// //                 }
-
-// //                 f();
-// //             };
-// //         };
-
-// //         MenuBlock normal;
-// //         normal.addOption("Create a new ticket", createPlane);
-// //         normal.addOption("Update tickets", allowWhenPlanesExist(updatePlane));
-
-// //         MenuBlock ohno;
-// //         ohno.addOption("Read one ticket", allowWhenPlanesExist(readOnePlane));
-// //         ohno.addOption("Read all tickets", allowWhenPlanesExist(readAllPlanes));
-// //         ohno.addOption("Read all tickets with filters", allowWhenPlanesExist(readAllPlanesWithFilters));
-
-// //         MenuBlock remove;
-// //         remove.addOption("Delete one ticket", allowWhenPlanesExist(deleteOnePlane));
-// //         remove.addOption("Delete all tickets", allowWhenPlanesExist(deleteAllPlanes));
-
-// //         bool is_running = true;
-// //         MenuBlock special_block;
-// //         special_block.addOption("Go back", [&is_running]() { is_running = false; });
-
-// //         menu.addBlock(normal);
-// //         menu.addBlock(ohno);
-// //         menu.addBlock(remove);
-// //         menu.setSpecialBlock(special_block);
-
-// //         while (is_running)
-// //             menu.show();
     }
 
     /*----------AIRPORTS----------*/
@@ -1163,18 +1494,19 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
     string askUnusedName() {
         return readValue<GetLine>("Airport name: ", "Please insert a valid airport name",[](const string &value) {
             Airport *airport = findAirportByName(value);
-            if (airport != nullptr) {
-                throw "That name is already being used"
-            }
+            if (airport != nullptr)
+                throw validation_error("There is already an airport with that name");
+                
             return true;
         });
     }
     
     string askUsedName() {
         return readValue<GetLine>("Airport name: ", "Please insert a valid airport name", [](const string &value) {
-            if (airport == nullptr) {
-                throw "That name isn't being used"
-            }
+            Airport *airport = findAirportByName(value);
+            if (airport == nullptr)
+                throw validation_error("There is no airport with that name");
+
             return true;
         });
     }
@@ -1188,11 +1520,10 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
         }
 
         string name = askUsedName();
-
         cout << endl;
 
         Airport *airport = findAirportByName(name);
-        if (name == nullptr)
+        if (airport == nullptr)
             throw logic_error("No airport found");
 
         return *airport;
@@ -1200,6 +1531,7 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
 
     void createAirport() {
         string name = askUnusedName();
+        cout << endl;
         
         Airport *airport = new Airport(name);
         auto pos = utils::lowerBound<Airport*, string>(data::airports, name, [](Airport* airport) {
@@ -1218,13 +1550,16 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
 
     string getAirportRepresentation(const vector<Airport*> &vec) {
         ostringstream repr;
-
+        
+        bool is_empty = true;
         for (const Airport *airport : vec) {
-            repr << "-----------------------\n\n"
-                 << *airport << "\n\n";
+            if (!is_empty)
+                repr << '\n';
+
+            repr << *airport;
+            is_empty = false;
         }
-        repr << "-----------------------";
-    
+
         return repr.str();
     }
 
@@ -1239,9 +1574,16 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
 
         MenuBlock directAttributes;
         directAttributes.addOption(repr.str() + "name", [&filter, &repr]() {
-            repr << name;
+            repr << "name ";
             filter = createFilter<const Airport*, string>(repr, [](const Airport* const &value) {
                 return value->getName();
+            });
+        });
+
+        directAttributes.addOption(repr.str() + "number of stops", [&filter, &repr]() {
+            repr << "number of stops ";
+            filter = createFilter<const Airport*, unsigned int>(repr, [](const Airport* const &value) {
+                return value->getTransportPlaceInfo().size();
             });
         });
 
@@ -1256,23 +1598,106 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
             };
         });
 
+        booleanLogic.addOption("or", [&filter, &repr]() {
+            repr << '(';
+            auto filter1 = createAirportFilter(repr);
+            repr << ") or (";
+            auto filter2 = createAirportFilter(repr);
+            repr << ')';
+
+            filter = [filter1, filter2](const Airport* const &airport) {
+                return filter1(airport) || filter2(airport);
+            };
+        });
+
+        booleanLogic.addOption("and", [&filter, &repr]() {
+            repr << '(';
+            auto filter1 = createAirportFilter(repr);
+            repr << ") and (";
+            auto filter2 = createAirportFilter(repr);
+            repr << ')';
+
+            filter = [filter1, filter2](const Airport* const &airport) {
+                return filter1(airport) && filter2(airport);
+            };
+        });
+
         menu.addBlock(directAttributes);
         menu.addBlock(booleanLogic);
-        menu.show();
 
+        menu.show();
         return filter;
     }
 
-    void readAirportsWithFilters(vector<Airport*> &pool) {
+    void filterAirportsWithUserInput(vector<Airport*> &pool) {
+        ostringstream filter_repr;
+        function<bool(const Airport* const&)> filter = createAirportFilter(filter_repr);
 
+        cout << "\x1B[2J\x1B[;H\x1B[32m✓\x1B[0m " << "Your filter: " << filter_repr.str() << '\n' << endl;
+        waitForInput();
+
+        for (auto it = pool.begin(); it != pool.end();) {
+            if (!filter(*it))
+                it = pool.erase(it);
+            else
+                it++;
+        }
     }
 
-    void readAirportsOrdered(vector<Airport*> &pool) {
+    void orderAirportsWithUserInput(vector<Airport*> &pool) {
+        Menu menu("Please select an attribute to sort the selected airports:");
 
+        MenuBlock block;
+        block.addOption("Name", [&pool]() {
+            utils::sort<Airport*, string>(pool, [](Airport* const &airport) {
+                return airport->getName();
+            });
+        });
+
+        block.addOption("Number of stops", [&pool]() {
+            utils::sort<Airport*, unsigned int>(pool, [](Airport* const &airport) {
+                return airport->getTransportPlaceInfo().size();
+            });
+        });
+
+        menu.addBlock(block);
+        menu.show();
     }
 
     void readAllAirportsWithUserInput(){
+        vector<Airport*> pool = data::airports;
 
+        MenuBlock ops;
+        ops.addOption("Filter", [&pool]() { filterAirportsWithUserInput(pool); });
+        ops.addOption("Sort", [&pool]() { orderAirportsWithUserInput(pool); });
+
+        MenuBlock other_ops;
+        other_ops.addOption("Keep the first # airports", [&pool]() { utils::sliceVectorFromBeginWithUserInput(pool); });
+        other_ops.addOption("Keep the last # airports", [&pool]() { utils::sliceVectorFromEndWithUserInput(pool); });
+
+        other_ops.addOption("Reverse the current order", [&pool]() {
+            utils::reverse(pool);
+        });
+
+        bool is_running = true;
+        MenuBlock special_block;
+        special_block.addOption("Go Back", [&is_running]() { is_running = false; });
+
+        while (is_running) {
+            Menu menu("Your current selection:");
+
+            if (!pool.empty()) {
+                menu.addBlock(ops);
+                menu.addBlock(other_ops);
+            }
+
+            menu.setSpecialBlock(special_block);
+
+            if (pool.empty())
+                menu.show("\x1B[31m>>\x1B[0m There are no airports left!\n");
+            else
+                menu.show(getAirportRepresentation(pool));
+        }
     }
 
     void updateAirport() {
@@ -1304,15 +1729,15 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
         choice.addOption("Remove stop", [&airport]() {
             string name = readValue<GetLine>("Name: ", "Please insert a valid name");
             for (auto it : airport.getTransportPlaceInfo()) {
-                if (*it.name == name) {
-                    airport.getTransportPlaceInfo().delete(it);
+                if (it.name == name) {
+                    airport.getTransportPlaceInfo().erase(it);
                 }
             }
         });
         
         choice.addOption("Remove all stops", [&airport]() {
             for (auto it : airport.getTransportPlaceInfo()) {
-                delete(it);
+                delete it;
             }
         });
 
@@ -1333,15 +1758,95 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
         Airport const &airport = findAirport();
         for (const TransportPlace *transport : data::airports) {
             delete transport;
+        }        
+    }
+
+    void deleteOneAirport() {
+        Airport const &airport = findAirport();
+        for (auto it = data::airports.begin(), end = data::airports.end(); it != end; it++) {
+            if (*it == &airport) {
+                data::airports.erase(it);
+                delete &airport;
+
+                waitForInput();
+                return;
+            }
+        }
+
+        delete &airport;
+        throw logic_error("No airports were deleted");
+    }
+
+    void deleteAllAirports() {
+        for (const Airport *airport : data::airports)
+            delete airport;
+
+        data::airports.clear();
+    }
+
+    void deleteAllAirportsWithUserInput(){
+        vector<Airport*> pool = data::airports;
+
+        MenuBlock ops;
+        ops.addOption("Filter", [&pool]() { filterAirportsWithUserInput(pool); });
+        ops.addOption("Sort", [&pool]() { orderAirportsWithUserInput(pool); });
+
+        MenuBlock other_ops;
+        other_ops.addOption("Keep the first # airports", [&pool]() { utils::sliceVectorFromBeginWithUserInput(pool); });
+        other_ops.addOption("Keep the last # airports", [&pool]() { utils::sliceVectorFromEndWithUserInput(pool); });
+
+        other_ops.addOption("Reverse the current order", [&pool]() {
+            utils::reverse(pool);
+        });
+
+        MenuBlock erase;
+        erase.addOption("Delete all planes in this selection", [&pool]() {
+            vector<Airport*> new_airports;
+            
+            for (Airport *airport1 : data::airports) {
+                bool was_selected = false;
+
+                for (Airport *airport2 : pool) {
+                    if (airport1 == airport2)
+                        was_selected = true;
+                        break;
+                }
+
+                if (was_selected)
+                    delete airport1;
+                else
+                    new_airports.push_back(airport1);
+            }
+
+            data::airports = pool = new_airports;
+        });
+
+        bool is_running = true;
+        MenuBlock special_block;
+        special_block.addOption("Go Back", [&is_running]() { is_running = false; });
+
+        while (is_running) {
+            Menu menu("Your current selection:");
+
+            if (!pool.empty()) {
+                menu.addBlock(ops);
+                menu.addBlock(other_ops);
+                menu.addBlock(erase);
+            }
+
+            menu.setSpecialBlock(special_block);
+
+            if (pool.empty())
+                menu.show("\x1B[31m>>\x1B[0m There are no airports left!\n");
+            else
+                menu.show(getAirportRepresentation(pool));
         }
     }
 
     void manageAirports() {
-        Menu menu("Airports");
-
         Menu menu("Select one of the following operations:");
 
-        auto allowWhenAirportExists = [](const function<void()> &func) {
+        auto allowWhenAirportsExist = [](const function<void()> &func) {
             return [func]() {
                 if (data::airports.empty()) {
                     cout<< "There are no airports in the database";
@@ -1355,16 +1860,18 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
 
         MenuBlock normal;
         normal.addOption("Create a new airport", createAirport);
-        normal.addOption("Update airport", allowWhenAirportExists(updateAirport));
+        normal.addOption("Update airport", allowWhenAirportsExist(updateAirport));
 
         MenuBlock ohno;
-        ohno.addOption("Read one airport", allowWhenAirportExists(readOneAirport()));
-        ohno.addOption("Read all flights", allowWhenAirportExists(readAllAirports()));
-        ohno.addOption("Read all airports with filters", allowWhenAirportExists(readAllAirportsWithUserInput));
+        ohno.addOption("Read one airport", allowWhenAirportsExist(readOneAirport));
+        ohno.addOption("Read all flights", allowWhenAirportsExist(readAllAirports));
+        ohno.addOption("Read all airports with filters and sort", allowWhenAirportsExist(readAllAirportsWithUserInput));
 
         MenuBlock remove;
-        remove.addOption("Delete one airport", allowWhenAirportExists(deleteOneAirport));
-        remove.addOption("Delete all airports", allowWhenAirportExists(deleteAllAirport));
+        remove.addOption("Delete one airport", allowWhenAirportsExist(deleteOneAirport));
+        remove.addOption("Delete all airports", allowWhenAirportsExist(deleteAllAirports));
+        remove.addOption("Delete all airports with filters and sort", allowWhenAirportsExist(deleteAllAirports));
+
 
         bool is_running = true;
         MenuBlock special_block;
@@ -1377,274 +1884,38 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
 
         while (is_running)
             menu.show();
-
-        MenuBlock block;
     }
 
-// //     void createAirport() {
-// //         // string name;
-// //         // GetLine type;
-// //         // unsigned int capacity;
+    /* HANDLING CARS */
 
-// //         // read_value<string>("Name: ", "Please insert a valid license plate", name, [](string value) {
-// //         //     for (const Airport *airport: data::airports) {
-// //         //         std::set<TransportPlace> airps = airport->getTransportPlaceInfo();
-// //         //         auto it = find_if(airps.begin(), airps.end(), [name](Airport &airport1){
-// //         //             return airport1.getName() == name;
-// //         //         })
-// //         //         if (it == airps.end())
-// //         //             throw "An airport with that name already exists";
-// //         //     }
-
-// //         //     return true;
-// //         // });
-// //         // read_value<GetLine>("Type: ", "Please insert a valid plane type", type);
-// //         // read_value<unsigned int>("Capacity: ", "Please insert a valid capacity", capacity);
-
-// //         // Plane *plane = new Plane(license_plate, type(), capacity);
-// //         // data::planes.push_back(plane);
-
-// //         // waitForInput();
-// //     }
-
-
-//     void manageAirports() {
-// //         Menu menu("Select one of the following operations:");
-
-// //         auto allowWhenPlanesExist = [](const function<void()> &f) {
-// //             return [f]() {
-// //                 if (data::planes.empty()) {
-// //                     cout << "There are no planes in the database" << endl;
-// //                     waitForInput();
-// //                     return;
-// //                 }
-
-// //                 f();
-// //             };
-// //         };
-
-// //         MenuBlock normal;
-// //         normal.addOption("Create a new airport", createPlane);
-// //         normal.addOption("Update airport", allowWhenPlanesExist(updatePlane));
-
-// //         MenuBlock ohno;
-// //         ohno.addOption("Read one airport", allowWhenPlanesExist(readOnePlane));
-// //         ohno.addOption("Read all airport", allowWhenPlanesExist(readAllPlanes));
-// //         ohno.addOption("Read all airports with filters", allowWhenPlanesExist(readAllPlanesWithFilters));
-
-// //         MenuBlock remove;
-// //         remove.addOption("Delete one airport", allowWhenPlanesExist(deleteOnePlane));
-// //         remove.addOption("Delete all airports", allowWhenPlanesExist(deleteAllPlanes));
-
-// //         bool is_running = true;
-// //         MenuBlock special_block;
-// //         special_block.addOption("Go back", [&is_running]() { is_running = false; });
-
-// //         menu.addBlock(normal);
-// //         menu.addBlock(ohno);
-// //         menu.addBlock(remove);
-// //         menu.setSpecialBlock(special_block);
-
-// //         while (is_running)
-// //             menu.show();
-//     }
-
-
-//     void manageHandlingCars() {
-// //         Menu menu("Select one of the following operations:");
-
-// //         auto allowWhenPlanesExist = [](const function<void()> &f) {
-// //             return [f]() {
-// //                 if (data::planes.empty()) {
-// //                     cout << "There are no planes in the database" << endl;
-// //                     waitForInput();
-// //                     return;
-// //                 }
-
-// //                 f();
-// //             };
-// //         };
-
-// //         MenuBlock normal;
-// //         normal.addOption("Create a new handling car", createPlane);
-// //         normal.addOption("Update an handling car", allowWhenPlanesExist(updatePlane));
-
-// //         MenuBlock ohno;
-// //         ohno.addOption("Read one handling car", allowWhenPlanesExist(readOnePlane));
-// //         ohno.addOption("Read all handling cars", allowWhenPlanesExist(readAllPlanes));
-// //         ohno.addOption("Read all handling cars with filters", allowWhenPlanesExist(readAllPlanesWithFilters));
-
-// //         MenuBlock remove;
-// //         remove.addOption("Delete one handling car", allowWhenPlanesExist(deleteOnePlane));
-// //         remove.addOption("Delete all handling cars", allowWhenPlanesExist(deleteAllPlanes));
-
-// //         bool is_running = true;
-// //         MenuBlock special_block;
-// //         special_block.addOption("Go back", [&is_running]() { is_running = false; });
-
-// //         menu.addBlock(normal);
-// //         menu.addBlock(ohno);
-// //         menu.addBlock(remove);
-// //         menu.setSpecialBlock(special_block);
-
-// //         while (is_running)
-// //             menu.show();
-// //     }
-// // }
-//     }
-
-// //     /*----------TICKETS----------*/
-
-    // void manageTickets() {
-// //         Menu menu("Select one of the following operations:");
-
-// //         auto allowWhenPlanesExist = [](const function<void()> &f) {
-// //             return [f]() {
-// //                 if (data::planes.empty()) {
-// //                     cout << "There are no planes in the database" << endl;
-// //                     waitForInput();
-// //                     return;
-// //                 }
-
-// //                 f();
-// //             };
-// //         };
-
-// //         MenuBlock normal;
-// //         normal.addOption("Create a new airport", createPlane);
-// //         normal.addOption("Update airport", allowWhenPlanesExist(updatePlane));
-
-// //         MenuBlock ohno;
-// //         ohno.addOption("Read one airport", allowWhenPlanesExist(readOnePlane));
-// //         ohno.addOption("Read all airport", allowWhenPlanesExist(readAllPlanes));
-// //         ohno.addOption("Read all airports with filters", allowWhenPlanesExist(readAllPlanesWithFilters));
-
-// //         MenuBlock remove;
-// //         remove.addOption("Delete one airport", allowWhenPlanesExist(deleteOnePlane));
-// //         remove.addOption("Delete all airports", allowWhenPlanesExist(deleteAllPlanes));
-
-// //         bool is_running = true;
-// //         MenuBlock special_block;
-// //         special_block.addOption("Go back", [&is_running]() { is_running = false; });
-
-// //         menu.addBlock(normal);
-// //         menu.addBlock(ohno);
-// //         menu.addBlock(remove);
-// //         menu.setSpecialBlock(special_block);
-
-// //         while (is_running)
-// //             menu.show();
-    // }
-
-// //     /*----------AIRPORTS----------*/
-
-// //     void createAirport() {
-// //         // string name;
-// //         // GetLine type;
-// //         // unsigned int capacity;
-
-// //         // read_value<string>("Name: ", "Please insert a valid license plate", name, [](string value) {
-// //         //     for (const Airport *airport: data::airports) {
-// //         //         std::set<TransportPlace> airps = airport->getTransportPlaceInfo();
-// //         //         auto it = find_if(airps.begin(), airps.end(), [name](Airport &airport1){
-// //         //             return airport1.getName() == name;
-// //         //         })
-// //         //         if (it == airps.end())
-// //         //             throw "An airport with that name already exists";
-// //         //     }
-
-// //         //     return true;
-// //         // });
-// //         // read_value<GetLine>("Type: ", "Please insert a valid plane type", type);
-// //         // read_value<unsigned int>("Capacity: ", "Please insert a valid capacity", capacity);
-
-// //         // Plane *plane = new Plane(license_plate, type(), capacity);
-// //         // data::planes.push_back(plane);
-
-// //         // waitForInput();
-// //     }
-
-
-    void manageAirports() {
-// //         Menu menu("Select one of the following operations:");
-
-// //         auto allowWhenPlanesExist = [](const function<void()> &f) {
-// //             return [f]() {
-// //                 if (data::planes.empty()) {
-// //                     cout << "There are no planes in the database" << endl;
-// //                     waitForInput();
-// //                     return;
-// //                 }
-
-// //                 f();
-// //             };
-// //         };
-
-// //         MenuBlock normal;
-// //         normal.addOption("Create a new airport", createPlane);
-// //         normal.addOption("Update airport", allowWhenPlanesExist(updatePlane));
-
-// //         MenuBlock ohno;
-// //         ohno.addOption("Read one airport", allowWhenPlanesExist(readOnePlane));
-// //         ohno.addOption("Read all airport", allowWhenPlanesExist(readAllPlanes));
-// //         ohno.addOption("Read all airports with filters", allowWhenPlanesExist(readAllPlanesWithFilters));
-
-// //         MenuBlock remove;
-// //         remove.addOption("Delete one airport", allowWhenPlanesExist(deleteOnePlane));
-// //         remove.addOption("Delete all airports", allowWhenPlanesExist(deleteAllPlanes));
-
-// //         bool is_running = true;
-// //         MenuBlock special_block;
-// //         special_block.addOption("Go back", [&is_running]() { is_running = false; });
-
-// //         menu.addBlock(normal);
-// //         menu.addBlock(ohno);
-// //         menu.addBlock(remove);
-// //         menu.setSpecialBlock(special_block);
-
-// //         while (is_running)
-// //             menu.show();
-    }
-
-    HandlingCar* findCarByID(const unsigned &id) {
+    HandlingCar* findCarById(const unsigned &id) {
         return utils::binarySearch<HandlingCar*, unsigned>(data::handlingCars, id, [](HandlingCar *car) {
-            return car->getID();
+            return car->getId();
         });
     }
 
-    unsigned askUnusedID() {
-        return readValue<unsigned>("ID: ", "Please insert a valid number", [](const unsigned &value) {
-            HandlingCar *car = findCarByID(value);
-            if (car != nullptr)
-                throw "That ID is already being used";
+    unsigned int askUsedId() {
+        return readValue<unsigned int>("ID: ", "Please input a valid ID", [](const unsigned int &value) {
+            HandlingCar *car = findCarById(value);
+            if (car == nullptr)
+                throw validation_error("That ID does not belong to any handling car");
 
             return true;
         });
     }
-
-    unsigned askUnusedID() {
-        return readValue<unsigned>("ID: ", "Please input a valid ID", [](const unsigned &value) {
-            HandlingCar *car = findCarByID(value);
-            if (car == nullptr) {
-                throw "That ID is not being used";
-            }
-
-            return true;
-        });
     
     HandlingCar &findCar() {
         if (data::handlingCars.empty())
             throw logic_error("No handling car found");
 
         if (data::handlingCars.size() == 1) {
-            return data::handlingCars.at(0);
+            return *data::handlingCars.at(0);
         }
 
-        unsigned int id = askusedID();
-
+        unsigned int id = askUsedId();
         cout << endl;
 
-        HandlingCar *car = findCarByID(id);
+        HandlingCar *car = findCarById(id);
         if (car == nullptr)
             throw logic_error("No handling car found");
     
@@ -1652,18 +1923,20 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
     }
 
     void createHandlingCar() {
-        unsigned int number_of_carriages = readValue<unsigned>("Number of carriages: ", "Please input a valid number");
-        unsigned int stacks_per_carriage = readValue<unsigned>("Number of stacks in each carriage: ", "Please input a valid number");
-        unsigned int luggage_per_stack = readValue<unsigned>("Luggage per stack: ", "Please insert a valid number");
-        HandlingCar *car = new HandlingCar(number_of_carriages, stacks_per_carriaidck);
-        auto pos = utilsgetIDgCar*, unsigned>(data::handlingCars, number_of_carriages, [](HandlingCar *car) {
-            return car->getNumberOfCarriages();
+        unsigned int number_of_carriages = readValue<unsigned>("Number of carriages: ", "Please input a valid number", [](const unsigned int &value) { return value > 0; });
+        unsigned int stacks_per_carriage = readValue<unsigned>("Number of stacks in each carriage: ", "Please input a valid number", [](const unsigned int &value) { return value > 0; });
+        unsigned int luggage_per_stack = readValue<unsigned>("Number of luggage per stack: ", "Please insert a valid number", [](const unsigned int &value) { return value > 0; });
+        
+        HandlingCar *car = new HandlingCar(number_of_carriages, stacks_per_carriage, luggage_per_stack);
+        auto pos = utils::lowerBound<HandlingCar*, unsigned int>(data::handlingCars, car->getId(), [](HandlingCar *car) {
+            return car->getId();
         });
 
         data::handlingCars.insert(pos, car);
         waitForInput();
     }
 
+    void updateHandlingCar() {
         HandlingCar &car = findCar();
         Menu menu("Please select what you want to update:");
 
@@ -1671,9 +1944,8 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
         choice.addOption("Number of carriages", [&car]() {
             unsigned int number_of_carriages = readValue<unsigned>("Number of carriages: ", "Please input a valid number");
             car.setNumber ?
-        })    void updateHandlingCar() {
-
-
+        }); 
+    }
 
     void readOneCar() {
         const HandlingCar &car = findCar();
@@ -1681,21 +1953,183 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
         waitForInput();
     }
 
-    string getHandlingCarRepresentation(const vector<HandlingCar*> &vec) {
-        ostringstream out;
-
+    string getCarsRepresentation(const vector<HandlingCar*> &vec) {
+        ostringstream repr;
+        
+        bool is_empty = true;
         for (const HandlingCar *car : vec) {
-            repr <<  "-----------------------\n\n"
-                 << *car << "\n\n";
+            if (!is_empty)
+                repr << '\n';
+
+            repr << *car;
+            is_empty = false;
         }
-        repr << "-----------------------";
 
         return repr.str();
     }
 
     void readAllCars() {
-        cout << getHandlingCarRepresentation(data::handlingCars) << endl;
+        cout << getCarsRepresentation(data::handlingCars) << endl;
         waitForInput();
+    }
+
+    function<bool(const HandlingCar* const&)> createCarFilter(ostringstream &repr) {
+        Menu menu("Please specify a value to use as a filter:");
+        function<bool(const HandlingCar* const&)> filter;
+
+        MenuBlock directAttributes;
+        directAttributes.addOption(repr.str() + "number of carriages", [&filter, &repr]() {
+            repr << "number of carriages ";
+            filter = createFilter<const HandlingCar*, unsigned int>(repr, [](const HandlingCar* const &value) {
+                return value->getNumberOfCarriages();
+            });
+        });
+
+        directAttributes.addOption(repr.str() + "number of stacks per carriage", [&filter, &repr]() {
+            repr << "number of stacks per carriage ";
+            filter = createFilter<const HandlingCar*, unsigned int>(repr, [](const HandlingCar* const &value) {
+                return value->getStacksPerCarriage();
+            });
+        });
+
+        directAttributes.addOption(repr.str() + "number of luggage per carriage", [&filter, &repr]() {
+            repr << "number of luggage per carriage ";
+            filter = createFilter<const HandlingCar*, unsigned int>(repr, [](const HandlingCar* const &value) {
+                return value->getLuggagePerStack();
+            });
+        });
+
+        MenuBlock flight;
+        flight.addOption(repr.str() + "flight has", [&filter, &repr]() {
+            repr << "flight has ";
+
+            auto flightFilter = createFlightFilter(repr);
+            filter = [flightFilter](const HandlingCar* const& car) {
+                if (car->getFlight() == nullptr)
+                    return false;
+
+                return flightFilter(car->getFlight());
+            };
+        });
+
+        MenuBlock booleanLogic;
+        booleanLogic.addOption("not", [&filter, &repr]() {
+            repr << "not (";
+            auto filter1 = createCarFilter(repr);
+            repr << ')';
+
+            filter = [filter1](const HandlingCar* const &car) {
+                return !filter1(car);
+            };
+        });
+
+        booleanLogic.addOption("or", [&filter, &repr]() {
+            repr << '(';
+            auto filter1 = createCarFilter(repr);
+            repr << ") or (";
+            auto filter2 = createCarFilter(repr);
+            repr << ')';
+
+            filter = [filter1, filter2](const HandlingCar* const &car) {
+                return filter1(car) || filter2(car);
+            };
+        });
+
+        booleanLogic.addOption("and", [&filter, &repr]() {
+            repr << '(';
+            auto filter1 = createCarFilter(repr);
+            repr << ") and (";
+            auto filter2 = createCarFilter(repr);
+            repr << ')';
+
+            filter = [filter1, filter2](const HandlingCar* const &car) {
+                return filter1(car) && filter2(car);
+            };
+        });
+
+        menu.addBlock(directAttributes);
+        menu.addBlock(flight);
+        menu.addBlock(booleanLogic);
+        menu.show();
+
+        return filter;
+    }
+
+    void filterCarsWithUserInput(vector<HandlingCar*> &pool) {
+        ostringstream filter_repr;
+        function<bool(const HandlingCar* const&)> filter = createCarFilter(filter_repr);
+
+        cout << "\x1B[2J\x1B[;H\x1B[32m✓\x1B[0m " << "Your filter: " << filter_repr.str() << '\n' << endl;
+        waitForInput();
+
+        for (auto it = pool.begin(); it != pool.end();) {
+            if (!filter(*it))
+                it = pool.erase(it);
+            else
+                it++;
+        }
+    }
+
+    void orderCarsWithUserInput(vector<HandlingCar*> &pool) {
+        Menu menu("Please select an attribute to sort the selected planes:");
+
+        MenuBlock block;
+        block.addOption("Number of carriages", [&pool]() {
+            utils::sort<HandlingCar*, unsigned int>(pool, [](HandlingCar* const &car) {
+                return car->getNumberOfCarriages();
+            });
+        });
+
+        block.addOption("Number of stacks per carriage", [&pool]() {
+            utils::sort<HandlingCar*, unsigned int>(pool, [](HandlingCar* const &car) {
+                return car->getStacksPerCarriage();
+            });
+        });
+
+        block.addOption("Number of luggage per stack", [&pool]() {
+            utils::sort<HandlingCar*, unsigned int>(pool, [](HandlingCar* const &car) {
+                return car->getLuggagePerStack();
+            });
+        });
+
+        menu.addBlock(block);
+        menu.show();
+    }
+
+    void readAllCarsWithUserInput() {
+        vector<HandlingCar*> pool = data::handlingCars;
+
+        MenuBlock ops;
+        ops.addOption("Filter", [&pool]() { filterCarsWithUserInput(pool); });
+        ops.addOption("Sort", [&pool]() { orderCarsWithUserInput(pool); });
+
+        MenuBlock other_ops;
+        other_ops.addOption("Keep the first # handling cars", [&pool]() { utils::sliceVectorFromBeginWithUserInput(pool); });
+        other_ops.addOption("Keep the last # handling cars", [&pool]() { utils::sliceVectorFromEndWithUserInput(pool); });
+
+        other_ops.addOption("Reverse the current order", [&pool]() {
+            utils::reverse(pool);
+        });
+
+        bool is_running = true;
+        MenuBlock special_block;
+        special_block.addOption("Go Back", [&is_running]() { is_running = false; });
+
+        while (is_running) {
+            Menu menu("Your current selection:");
+
+            if (!pool.empty()) {
+                menu.addBlock(ops);
+                menu.addBlock(other_ops);   
+            }
+
+            menu.setSpecialBlock(special_block);
+
+            if (pool.empty())
+                menu.show("\x1B[31m>>\x1B[0m There are no handling cars left!\n");
+            else
+                menu.show(getCarsRepresentation(pool));
+        }
     }
 
     void deleteOneCar() {
@@ -1715,38 +2149,103 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
 
     void deleteAllCars() {
         for (const HandlingCar *car : data::handlingCars)
-            delete plane;
+            delete car;
 
         data::handlingCars.clear();
-    }    }
+    }
+
+    void deleteAllCarsWithUserInput() {
+        vector<HandlingCar*> pool = data::handlingCars;
+
+        MenuBlock ops;
+        ops.addOption("Filter", [&pool]() { filterCarsWithUserInput(pool); });
+        ops.addOption("Sort", [&pool]() { orderCarsWithUserInput(pool); });
+
+        MenuBlock other_ops;
+        other_ops.addOption("Keep the first # handling cars", [&pool]() { utils::sliceVectorFromBeginWithUserInput(pool); });
+        other_ops.addOption("Keep the last # handling cars", [&pool]() { utils::sliceVectorFromEndWithUserInput(pool); });
+
+        other_ops.addOption("Reverse the current order", [&pool]() {
+            utils::reverse(pool);
+        });
+
+        MenuBlock erase;
+        erase.addOption("Delete all planes in this selection", [&pool]() {
+            vector<HandlingCar*> new_cars;
+            
+            for (HandlingCar *car1 : data::handlingCars) {
+                bool was_selected = false;
+
+                for (HandlingCar *car2 : pool) {
+                    if (car1 == car2)
+                        was_selected = true;
+                        break;
+                }
+
+                if (was_selected)
+                    delete car1;
+                else
+                    new_cars.push_back(car1);
+            }
+
+            data::handlingCars = pool = new_cars;
+        });
+
+        bool is_running = true;
+        MenuBlock special_block;
+        special_block.addOption("Go Back", [&is_running]() { is_running = false; });
+
+        while (is_running) {
+            Menu menu("Your current selection:");
+
+            if (!pool.empty()) {
+                menu.addBlock(ops);
+                menu.addBlock(other_ops);   
+                menu.addBlock(erase);
+            }
+
+            menu.setSpecialBlock(special_block);
+
+            if (pool.empty())
+                menu.show("\x1B[31m>>\x1B[0m There are no handling cars left!\n");
+            else
+                menu.show(getCarsRepresentation(pool));
+        }
+    }
+
     
     void manageHandlingCars() {
         Menu menu("Select one of the following operations:");
 
-        auto allowWhenCartsExist = [](const function<void()> &f) {
+        auto allowWhenCarsExist = [](const function<void()> &f) {
             return [f]() {
                 if (data::handlingCars.empty()) {
-                    cout << "There are no hadling cars in the database" << endl;
+                    cout << "There are no handling cars in the database" << endl;
                     waitForInput();
                     return;
-                 }
-                 f();
-             };
-         };
+                }
+                f();
+            };
+        };
 
         MenuBlock normal;
         normal.addOption("Create a new handling car", createHandlingCar);
-        normal.addOption("Update an handling car", allowWhenPlanesExist(updateHandlingCar));
+        normal.addOption("Update an handling car", allowWhenCarsExist(updateHandlingCar));
 
-        ohno.addOption("Read one handling car", allowWhenPlanesExist(readOneHandlingCar));
-        ohno.addOption("Read all handling cars", allowWhenPlanesExist(readAllHandlingCars));
-        ohno.addOption("Read all handling cars with filters", allowWhenPlanesExist(readAllHandlingCarsWithFilters));
+        MenuBlock ohno;
+        ohno.addOption("Read one handling car", allowWhenCarsExist(readOneCar));
+        ohno.addOption("Read all handling cars", allowWhenCarsExist(readAllCars));
+        ohno.addOption("Read all handling cars with filters and sort", allowWhenCarsExist(readAllCarsWithUserInput));
 
-        remove.addOption("Delete one handling car", allowWhenPlanesExist(deleteOneHandlingCar));
-        remove.addOption("Delete all handling cars", allowWhenPlanesExist(deleteAllHandlingCars));
+        MenuBlock remove;
+        remove.addOption("Delete one handling car", allowWhenCarsExist(deleteOneCar));
+        remove.addOption("Delete all handling cars", allowWhenCarsExist(deleteAllCars));
+        remove.addOption("Delete all handling cars with filters and sort", allowWhenCarsExist(deleteAllCarsWithUserInput));
 
         bool is_running = true;
         MenuBlock special_block;
+        special_block.addOption("Go back", [&is_running]() { is_running = false; });
+        
         menu.addBlock(normal);
         menu.addBlock(ohno);
         menu.addBlock(remove);
@@ -1754,10 +2253,91 @@ pos = utils::lowerBound<Plane*, string>(data::planes, license_plate, [](Plane* p
 
         while (is_running)
             menu.show();
- 
- 
-  }
+    }
 
+    function<bool(const Service* const&)> createServiceFilter(ostringstream &repr) {
+        Menu menu("Please specify a value to use as a filter:");
+        function<bool(const Service* const&)> filter;
 
-  #endif
+        MenuBlock directAttributes;
+        directAttributes.addOption(repr.str() + "type", [&filter, &repr]() {
+            repr << "type ";
+            filter = createFilter<const Service*, string>(repr, [](const Service* const &value) {
+                switch (value->getType()) {
+                    case ServiceType::MAINTENANCE:
+                        return "maintenance";
+                    case ServiceType::CLEANING:
+                        return "cleaning";
+                };
+
+                return "unknown";
+            });
+        });
+
+        directAttributes.addOption(repr.str() + "worker", [&filter, &repr]() {
+            repr << "worker ";
+            filter = createFilter<const Service*, string, GetLine>(repr, [](const Service* const &value) {
+                return value->getWorker();
+            });
+        });
+
+        directAttributes.addOption(repr.str() + "date", [&filter, &repr]() {
+            repr << "date ";
+            filter = createFilter<const Service*, string>(repr, [](const Service* const &value) {
+                return value->getDate().str();
+            });
+        });
+
+        MenuBlock plane;
+        plane.addOption(repr.str() + "the plane has", [&filter, &repr]() {
+            repr << "the plane has ";
+
+            auto planeFilter = createPlaneFilter(repr);
+            filter = [planeFilter](const Service* const &service) {
+                return planeFilter(&service->getPlane());
+            };
+        });
+
+        MenuBlock booleanLogic;
+        booleanLogic.addOption("not", [&filter, &repr]() {
+            repr << "not (";
+            auto filter1 = createServiceFilter(repr);
+            repr << ')';
+
+            filter = [filter1](const Service* const &service) {
+                return !filter1(service);
+            };
+        });
+
+        booleanLogic.addOption("or", [&filter, &repr]() {
+            repr << '(';
+            auto filter1 = createServiceFilter(repr);
+            repr << ") or (";
+            auto filter2 = createServiceFilter(repr);
+            repr << ')';
+
+            filter = [filter1, filter2](const Service* const &service) {
+                return filter1(service) || filter2(service);
+            };
+        });
+
+        booleanLogic.addOption("and", [&filter, &repr]() {
+            repr << '(';
+            auto filter1 = createServiceFilter(repr);
+            repr << ") and (";
+            auto filter2 = createServiceFilter(repr);
+            repr << ')';
+
+            filter = [filter1, filter2](const Service* const &service) {
+                return filter1(service) && filter2(service);
+            };
+        });
+
+        menu.addBlock(directAttributes);
+        menu.addBlock(plane);
+        menu.addBlock(booleanLogic);
+        menu.show();
+
+        return filter;
+    }
 }

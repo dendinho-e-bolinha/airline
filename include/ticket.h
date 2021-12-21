@@ -25,11 +25,22 @@ public:
      * @param seat_number The seat number for this ticket
      */
     Ticket(Flight &flight, const std::string &customer_name, unsigned int customer_age, unsigned int seat_number);
+
+    // Getters
+
     Flight &getFlight() const;
     std::string getCustomerName() const;
     unsigned int getCustomerAge() const;
     unsigned int getSeatNumber() const;
+
+    /**
+     * @brief Converts a Ticket instance into a string
+     */
     std::string str() const;
+
+    /**
+     * @overload Displays a Ticket instance
+     */
     friend std::ostream& operator<<(std::ostream &out, const Ticket &ticket);
 };
 

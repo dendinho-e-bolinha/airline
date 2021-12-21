@@ -13,6 +13,15 @@ public:
     virtual const char* what() const noexcept;
 };
 
+class validation_error : public std::exception {
+    const char* reason;
+public:
+    validation_error(const char* what);
+    virtual const char* what() const noexcept;
+};
+
+
+// Type alias
 using MenuOption = std::pair<std::string, std::function<void()>>;
 
 class MenuBlock {
@@ -40,6 +49,11 @@ class Menu {
     MenuOption const &getSelectedOption() const;
 
 public:
+
+    /**
+     * @brief Creates a Menu instance
+     * @param title The menu title
+     */
     explicit Menu(const std::string &title);
 
     /**
@@ -76,6 +90,21 @@ public:
  */
 void waitForInput();
 
+
+/**
+ * @brief Prompts the user to provide a value through console input.
+ * On interactive terminals, it will be done in a "fancy" fashion and in a single line.
+ * Otherwise, it will be done in a more "traditional" manner. 
+ * 
+ * @param prompt The text that will be used to prompt the user for a value.
+ * @param warning The error message that will be presented to the user if the value could not be parsed or if the validator function returns false.
+ * @param validator An optional function that determines if the value is valid.
+ * This function is only executed after the parsing of the value was successful.
+ * If this function throws a string, it will be presented to the user as an error message.
+ * If this function returns false, the warning message will be presented to the user.
+ * 
+ * @return The value which was read from the input. 
+ */
 template <typename T>
 T readValue(const std::string prompt, const std::string warning, const std::function<bool(const T&)> validator = [](const T&) { return true; }) noexcept(false) {
     T result;
@@ -90,8 +119,8 @@ T readValue(const std::string prompt, const std::string warning, const std::func
             is_input_valid = std::cin.peek() != '\n'
                              && std::cin >> result && std::cin.peek() == '\n'
                              && validator(result);
-        } catch (const char *exception) {
-            error = exception;
+        } catch (validation_error exception) {
+            error = exception.what();
         }
 
         // Clear the buffer

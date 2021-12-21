@@ -27,7 +27,7 @@ Airport &Flight::getDestination() const {
     return this->destination;
 }
 
-vector<Ticket *>& Flight::getTickets() {
+vector<Ticket *> Flight::getTickets() const {
     return this->tickets;
 }
 
@@ -68,14 +68,6 @@ bool Flight::removeFirstTicket(const std::function<bool(const Ticket &)> &select
     return false;
 }
 
-bool Flight::removeAllTickets(const std::function<bool(const Ticket &)> &selector) {
-    // FIXME
-    bool removed_any = false;
-    for (auto it = tickets.begin(), end = tickets.end(); it != end; it++) {
-        if (selector(**it)) {
-            it = this->tickets.erase(it);
-            removed_any = true;
-        }
-    }
-    return removed_any;
+void Flight::clearTickets() {
+    this->tickets.clear();
 }

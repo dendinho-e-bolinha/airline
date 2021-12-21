@@ -29,6 +29,8 @@ public:
      */
     Plane(const std::string &license_plate, const std::string &type, const unsigned int capacity);
 
+    // Getters
+
     std::string getLicensePlate() const;
     std::string getType() const;
     unsigned int getCapacity() const;
@@ -36,9 +38,14 @@ public:
     std::queue<Service*> getScheduledServices() const;
     std::vector<Service*> getFinishedServices() const;
 
+    // Setters
+
     void setType(const std::string &type);
     void setCapacity(const unsigned int &capacity);
 
+    /**
+     * @brief Converts a Plane instance into a string
+     */
     std::string str() const;
 
     /**

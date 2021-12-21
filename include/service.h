@@ -9,8 +9,8 @@ enum class ServiceType;
 #include "plane.h"
 
 enum class ServiceType {
-    MAINTENANCE,
-    CLEANING
+    MAINTENANCE = 0,
+    CLEANING = 1
 };
 
 class Service {
@@ -29,6 +29,9 @@ public:
      * @param plane The plane where the service will take place
      */
     Service(const ServiceType &type, const Date &date, const std::string &worker, Plane &plane);
+
+    // Getters
+
     ServiceType getType() const;
     Date getDate() const;
     std::string getWorker() const;
