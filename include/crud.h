@@ -11,6 +11,11 @@
 #include "ticket.h"
 #include "service.h"
 
+namespace files {
+    void read();
+    void write();
+}
+
 namespace crud {
     /**
     * @brief Displays a menu where the user can choose options regarding deletion, addition or update of planes

@@ -15,7 +15,6 @@ add_executable(airline main.cpp
         include/airport.h src/airport.cpp
         include/interact.h src/interact.cpp
         include/crud.h src/crud.cpp
-        include/files.h src/files.cpp
         include/state.h)
 
 find_package(Doxygen)
