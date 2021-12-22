@@ -11,7 +11,7 @@ using namespace std;
 
 namespace files {
 
-    static const string PATH = "/home/lima/university/FEUP-AED-AIRLINE/data.txt";
+    static const string PATH = "data.txt";
         
     void read() {
 
