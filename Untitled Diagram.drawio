@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" modified="2021-12-21T20:22:07.729Z" agent="5.0 (Windows)" etag="beRLGzsvwIqZNLn-7s7X" version="16.0.0" type="github">
+<mxfile host="app.diagrams.net" modified="2022-01-04T23:44:36.084Z" agent="5.0 (X11)" etag="4uNQ3DWH6St964Wu6KT7" version="16.1.0" type="github">
   <diagram id="W_Nx_6DD35ul7_3408HK" name="Page-1">
-    <mxGraphModel dx="650" dy="359" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="942" dy="501" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -118,67 +118,67 @@
         <mxCell id="bMeLzX-Dhkqm__7QgIpA-39" value="Datetime(unsigned, unsigned, unsigned, unsigned, unsigned, unsigned)&#xa;Datetime(const Datetime&amp;)&#xa;const str(): string&#xa;operator&lt;&lt;(ostream&amp;, const Datetime&amp;): ostream&amp;&#xa;const operator&lt;(const Datetime&amp;): bool&#xa;const operator==(const Datetime&amp;): bool&#xa;readFromString(const string&amp;): static Datetime&#xa;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;glass=0;" parent="bMeLzX-Dhkqm__7QgIpA-36" vertex="1">
           <mxGeometry y="108" width="400" height="112" as="geometry" />
         </mxCell>
-        <mxCell id="AyeVOVBuwVhrMnn7-EBD-2" value="MenuBlock" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;" vertex="1" parent="1">
+        <mxCell id="AyeVOVBuwVhrMnn7-EBD-2" value="MenuBlock" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;" parent="1" vertex="1">
           <mxGeometry x="30" y="616" width="340" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="AyeVOVBuwVhrMnn7-EBD-3" value="options: vector&lt;MenuOption&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="AyeVOVBuwVhrMnn7-EBD-2">
+        <mxCell id="AyeVOVBuwVhrMnn7-EBD-3" value="options: vector&lt;MenuOption&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="AyeVOVBuwVhrMnn7-EBD-2" vertex="1">
           <mxGeometry y="26" width="340" height="24" as="geometry" />
         </mxCell>
-        <mxCell id="AyeVOVBuwVhrMnn7-EBD-4" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" vertex="1" parent="AyeVOVBuwVhrMnn7-EBD-2">
+        <mxCell id="AyeVOVBuwVhrMnn7-EBD-4" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" parent="AyeVOVBuwVhrMnn7-EBD-2" vertex="1">
           <mxGeometry y="50" width="340" height="8" as="geometry" />
         </mxCell>
-        <mxCell id="AyeVOVBuwVhrMnn7-EBD-5" value="addOption(const string&amp;, const function&lt;void()&gt;&amp;): void&#xa;const getOptions(): vector&lt;MenuOption&gt; const&#xa;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="AyeVOVBuwVhrMnn7-EBD-2">
+        <mxCell id="AyeVOVBuwVhrMnn7-EBD-5" value="addOption(const string&amp;, const function&lt;void()&gt;&amp;): void&#xa;const getOptions(): vector&lt;MenuOption&gt; const&#xa;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="AyeVOVBuwVhrMnn7-EBD-2" vertex="1">
           <mxGeometry y="58" width="340" height="42" as="geometry" />
         </mxCell>
-        <mxCell id="AyeVOVBuwVhrMnn7-EBD-6" value="Menu" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;" vertex="1" parent="1">
+        <mxCell id="AyeVOVBuwVhrMnn7-EBD-6" value="Menu" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;" parent="1" vertex="1">
           <mxGeometry x="30" y="730" width="340" height="190" as="geometry" />
         </mxCell>
-        <mxCell id="AyeVOVBuwVhrMnn7-EBD-7" value="title: string&#xa;blocks: list&lt;MenuBlock&gt;&#xa;special_block: MenuBlock&#xa;const printOptions(): void&#xa;const getSelectedOption(): MenuOption const&#xa;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="AyeVOVBuwVhrMnn7-EBD-6">
+        <mxCell id="AyeVOVBuwVhrMnn7-EBD-7" value="title: string&#xa;blocks: list&lt;MenuBlock&gt;&#xa;special_block: MenuBlock&#xa;const printOptions(): void&#xa;const getSelectedOption(): MenuOption const&#xa;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="AyeVOVBuwVhrMnn7-EBD-6" vertex="1">
           <mxGeometry y="26" width="340" height="84" as="geometry" />
         </mxCell>
-        <mxCell id="AyeVOVBuwVhrMnn7-EBD-8" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" vertex="1" parent="AyeVOVBuwVhrMnn7-EBD-6">
+        <mxCell id="AyeVOVBuwVhrMnn7-EBD-8" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" parent="AyeVOVBuwVhrMnn7-EBD-6" vertex="1">
           <mxGeometry y="110" width="340" height="8" as="geometry" />
         </mxCell>
-        <mxCell id="AyeVOVBuwVhrMnn7-EBD-9" value="Menu(const string&amp;)&#xa;addBlock(const MenuBlock&amp;): void&#xa;setSpecialBlock(const MenuBlock&amp;): void&#xa;const show(): void&#xa;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="AyeVOVBuwVhrMnn7-EBD-6">
+        <mxCell id="AyeVOVBuwVhrMnn7-EBD-9" value="Menu(const string&amp;)&#xa;addBlock(const MenuBlock&amp;): void&#xa;setSpecialBlock(const MenuBlock&amp;): void&#xa;const show(): void&#xa;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="AyeVOVBuwVhrMnn7-EBD-6" vertex="1">
           <mxGeometry y="118" width="340" height="72" as="geometry" />
         </mxCell>
-        <mxCell id="AyeVOVBuwVhrMnn7-EBD-11" value="{" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=28;" vertex="1" parent="1">
-          <mxGeometry x="920" y="616" width="20" height="40" as="geometry" />
+        <mxCell id="AyeVOVBuwVhrMnn7-EBD-11" value="{" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=34;" parent="1" vertex="1">
+          <mxGeometry x="930" y="667" width="30" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="AyeVOVBuwVhrMnn7-EBD-12" value="{" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=28;rotation=-180;" vertex="1" parent="1">
-          <mxGeometry x="1140" y="622" width="20" height="40" as="geometry" />
+        <mxCell id="AyeVOVBuwVhrMnn7-EBD-12" value="{" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=34;rotation=-180;" parent="1" vertex="1">
+          <mxGeometry x="1111" y="667" width="30" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="AyeVOVBuwVhrMnn7-EBD-13" value="&lt;div&gt;TransportType é do tipo unsigned int&lt;/div&gt;&lt;div&gt; e pode ter os valores 0, 1 ou 2&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=12;" vertex="1" parent="1">
-          <mxGeometry x="933" y="625" width="210" height="30" as="geometry" />
+        <mxCell id="AyeVOVBuwVhrMnn7-EBD-13" value="&lt;div&gt;TransportType é um enum&lt;br&gt;&lt;/div&gt;&lt;div&gt; e pode ter os valores&lt;/div&gt;&lt;div&gt;SUBWAY, TRAIN or BUS&lt;br&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="960" y="667" width="150" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="AyeVOVBuwVhrMnn7-EBD-15" value="{" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=28;" vertex="1" parent="1">
-          <mxGeometry x="920" y="662" width="20" height="40" as="geometry" />
+        <mxCell id="AyeVOVBuwVhrMnn7-EBD-15" value="{" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=34;" parent="1" vertex="1">
+          <mxGeometry x="860" y="872" width="30" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="AyeVOVBuwVhrMnn7-EBD-16" value="{" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=28;rotation=-180;" vertex="1" parent="1">
-          <mxGeometry x="1140" y="668" width="20" height="40" as="geometry" />
+        <mxCell id="AyeVOVBuwVhrMnn7-EBD-16" value="{" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=34;rotation=-180;" parent="1" vertex="1">
+          <mxGeometry x="1080" y="872" width="30" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="AyeVOVBuwVhrMnn7-EBD-17" value="&lt;div&gt;ServiceType é do tipo unsigned int&lt;/div&gt;&lt;div&gt;e pode ter os valores 0 ou 1&lt;br&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=12;" vertex="1" parent="1">
-          <mxGeometry x="938" y="671" width="200" height="30" as="geometry" />
+        <mxCell id="AyeVOVBuwVhrMnn7-EBD-17" value="&lt;div&gt;ServiceType é um enum&lt;br&gt;&lt;/div&gt;&lt;div&gt;e pode ter os valores&lt;br&gt;&lt;/div&gt;&lt;div&gt;MAINTENANCE ou CLEANING&lt;br&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="893" y="870" width="180" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="AyeVOVBuwVhrMnn7-EBD-18" value="{" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=28;" vertex="1" parent="1">
-          <mxGeometry x="95.5" y="940" width="20" height="40" as="geometry" />
+        <mxCell id="AyeVOVBuwVhrMnn7-EBD-18" value="{" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=28;" parent="1" vertex="1">
+          <mxGeometry x="95.5" y="946" width="20" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="AyeVOVBuwVhrMnn7-EBD-19" value="{" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=28;rotation=-180;" vertex="1" parent="1">
+        <mxCell id="AyeVOVBuwVhrMnn7-EBD-19" value="{" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=28;rotation=-180;" parent="1" vertex="1">
           <mxGeometry x="284.5" y="946" width="20" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="AyeVOVBuwVhrMnn7-EBD-20" value="&lt;div&gt;MenuOption é do tipo&lt;/div&gt;&lt;div&gt;pair&amp;lt;string, function&amp;lt;void()&amp;gt;&amp;gt;&lt;br&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=12;" vertex="1" parent="1">
+        <mxCell id="AyeVOVBuwVhrMnn7-EBD-20" value="&lt;div&gt;MenuOption é do tipo&lt;/div&gt;&lt;div&gt;pair&amp;lt;string, function&amp;lt;void()&amp;gt;&amp;gt;&lt;br&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=12;" parent="1" vertex="1">
           <mxGeometry x="115.5" y="949" width="170" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="AyeVOVBuwVhrMnn7-EBD-27" value="Flight" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fontSize=12;" vertex="1" parent="1">
+        <mxCell id="AyeVOVBuwVhrMnn7-EBD-27" value="Flight" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fontSize=12;" parent="1" vertex="1">
           <mxGeometry x="390" y="600" width="430" height="450" as="geometry" />
         </mxCell>
-        <mxCell id="AyeVOVBuwVhrMnn7-EBD-28" value="plane: Plane&amp;&#xa;flight_id: string&#xa;departure_time: Datetime&#xa;duration: Time&#xa;origin: Airport&amp;&#xa;destination: Airport&amp;&#xa;tickets: vector&lt;Ticket*&gt;&#xa;luggage: vector&lt;Luggage*&gt;&#xa;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;" vertex="1" parent="AyeVOVBuwVhrMnn7-EBD-27">
+        <mxCell id="AyeVOVBuwVhrMnn7-EBD-28" value="plane: Plane&amp;&#xa;flight_id: string&#xa;departure_time: Datetime&#xa;duration: Time&#xa;origin: Airport&amp;&#xa;destination: Airport&amp;&#xa;tickets: vector&lt;Ticket*&gt;&#xa;luggage: vector&lt;Luggage*&gt;&#xa;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;" parent="AyeVOVBuwVhrMnn7-EBD-27" vertex="1">
           <mxGeometry y="26" width="430" height="124" as="geometry" />
         </mxCell>
-        <mxCell id="AyeVOVBuwVhrMnn7-EBD-29" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;fontSize=28;" vertex="1" parent="AyeVOVBuwVhrMnn7-EBD-27">
+        <mxCell id="AyeVOVBuwVhrMnn7-EBD-29" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;fontSize=28;" parent="AyeVOVBuwVhrMnn7-EBD-27" vertex="1">
           <mxGeometry y="150" width="430" height="8" as="geometry" />
         </mxCell>
-        <mxCell id="AyeVOVBuwVhrMnn7-EBD-30" value="Flight(const string&amp;, const Datetime&amp;, const Time&amp;, Airport&amp;, Airport&amp;, Plane&amp;)&#xa;const getFlightId(): string&#xa;const getDepartureTime(): Datetime&#xa;const getDuration(): Time&#xa;const getOrigin(): Airport&amp;&#xa;const getDestination(): Airport&amp;&#xa;const getTickets(): vector&lt;Ticket*&gt;&#xa;const getLuggage(): vector&lt;Luggage*&gt;&#xa;const getPlane(): Plane&amp;&#xa;setDatetime(Datetime&amp;): void&#xa;setDuration(Time&amp;): void&#xa;setOrigin(Airport&amp;): void&#xa;setDestination(Airport&amp;): void&#xa;addLuggage(Luggage&amp;): void&#xa;const str(): string&#xa;addTicket(Ticket&amp;): bool&#xa;removeTicket(Ticket&amp;): bool&#xa;removeFirstTicket(const function&lt;bool(const Ticket&amp;)&gt;&amp;): bool&#xa;clearTickets(): void&#xa;operator&lt;&lt;(ostream&amp;, const Flight&amp;): ostream&amp;&#xa;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;" vertex="1" parent="AyeVOVBuwVhrMnn7-EBD-27">
+        <mxCell id="AyeVOVBuwVhrMnn7-EBD-30" value="Flight(const string&amp;, const Datetime&amp;, const Time&amp;, Airport&amp;, Airport&amp;, Plane&amp;)&#xa;const getFlightId(): string&#xa;const getDepartureTime(): Datetime&#xa;const getDuration(): Time&#xa;const getOrigin(): Airport&amp;&#xa;const getDestination(): Airport&amp;&#xa;const getTickets(): vector&lt;Ticket*&gt;&#xa;const getLuggage(): vector&lt;Luggage*&gt;&#xa;const getPlane(): Plane&amp;&#xa;setDatetime(Datetime&amp;): void&#xa;setDuration(Time&amp;): void&#xa;setOrigin(Airport&amp;): void&#xa;setDestination(Airport&amp;): void&#xa;addLuggage(Luggage&amp;): void&#xa;const str(): string&#xa;addTicket(Ticket&amp;): bool&#xa;removeTicket(Ticket&amp;): bool&#xa;removeFirstTicket(const function&lt;bool(const Ticket&amp;)&gt;&amp;): bool&#xa;clearTickets(): void&#xa;operator&lt;&lt;(ostream&amp;, const Flight&amp;): ostream&amp;&#xa;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;" parent="AyeVOVBuwVhrMnn7-EBD-27" vertex="1">
           <mxGeometry y="158" width="430" height="292" as="geometry" />
         </mxCell>
       </root>
