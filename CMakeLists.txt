@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.10)
 project(airline)
 
 set(CMAKE_CXX_STANDARD 11)
-include_directories(include)
 
 add_executable(airline main.cpp
         include/flight.h src/flight.cpp
@@ -16,6 +15,8 @@ add_executable(airline main.cpp
         include/interact.h src/interact.cpp
         include/crud.h src/crud.cpp
         include/state.h)
+
+include_directories(airline include/)
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
@@ -35,3 +36,4 @@ if(DOXYGEN_FOUND)
 else(DOXYGEN_FOUND)
     message("Doxygen needs to be installed to generate the documentation.")
 endif(DOXYGEN_FOUND)
+
