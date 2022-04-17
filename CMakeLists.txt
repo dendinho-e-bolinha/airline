@@ -1,19 +1,22 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.20.2)
 project(airline)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 20)
 include_directories(include)
 
-add_executable(airline main.cpp
-        include/flight.h src/flight.cpp
-        include/plane.h src/plane.cpp
-        include/datetime.h src/datetime.cpp
-        include/service.h src/service.cpp
-        include/ticket.h src/ticket.cpp
-        include/luggage.h src/luggage.cpp
-        include/handling_car.h src/handling_car.cpp
-        include/airport.h src/airport.cpp
-        include/customer.h src/customer.cpp)
+add_executable(airline 
+        main.cpp
+        src/airport.cpp
+        src/crud.cpp
+        src/datetime.cpp
+        src/flight.cpp
+        src/handling_car.cpp
+        src/interact.cpp
+        src/luggage.cpp
+        src/plane.cpp
+        src/service.cpp
+        src/ticket.cpp
+)
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)

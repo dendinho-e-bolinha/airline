@@ -1,5 +1,4 @@
-#ifndef AIRLINE_PLANE_H
-#define AIRLINE_PLANE_H
+#pragma once
 
 class Plane;
 
@@ -8,11 +7,12 @@ class Plane;
 #include <queue>
 #include <list>
 #include <functional>
+#include <ostream>
 #include "flight.h"
 #include "service.h"
 
 class Plane {
-    std::string plate;
+    std::string license_plate;
     std::string type;
     unsigned int capacity;
     std::list<Flight*> flights;
@@ -22,18 +22,30 @@ class Plane {
 public:
     /**
      * @brief Creates an object of type Plane with the given attributes
-     * @param plate The plane's license plate
+     * @param license_plate The plane's license plate
      * @param type The plane's type
      * @param capacity The plane's capacity
      */
-    Plane(const std::string &plate, const std::string &type, const unsigned int capacity);
+    Plane(const std::string &license_plate, const std::string &type, const unsigned int capacity);
 
-    std::string getPlate() const;
+    // Getters
+
+    std::string getLicensePlate() const;
     std::string getType() const;
     unsigned int getCapacity() const;
     std::list<Flight*> getFlights() const;
     std::queue<Service*> getScheduledServices() const;
     std::vector<Service*> getFinishedServices() const;
+
+    // Setters
+
+    void setType(const std::string &type);
+    void setCapacity(const unsigned int &capacity);
+
+    /**
+     * @brief Converts a Plane instance into a string
+     */
+    std::string str() const;
 
     /**
      * @brief Adds a flight to the planes scheduled flights
@@ -76,6 +88,9 @@ public:
      * @return true, if a service was completed; false, if there were no services scheduled for the plane
      */
     bool completeService();
-};
 
-#endif //AIRLINE_PLANE_H
+    /**
+     * @overload Displays a Plane instance
+     */
+    friend std::ostream &operator<<(std::ostream &os, const Plane &plane);
+};

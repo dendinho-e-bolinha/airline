@@ -1,5 +1,6 @@
-#ifndef AIRLINE_DATETIME_H
-#define AIRLINE_DATETIME_H
+#pragma once
+
+#include <ostream>
 
 class Date {
     unsigned int day;
@@ -15,17 +16,38 @@ public:
      * @param year A year
      */
     Date(unsigned int day, unsigned int month, unsigned int year);
+
+    /**
+     * @brief Copies a Date instance
+     */
     Date(const Date &date);
+
+
+    // Setters
+
     void setDay(unsigned int day);
     void setMonth(unsigned int month);
     void setYear(unsigned int year);
+
+    // Getters
+
     unsigned int getDay() const;
     unsigned int getMonth() const;
     unsigned int getYear() const;
+
+    /**
+     * @brief Converts a Date instance to a String
+     */
+    std::string str() const;
+
+    /**
+    * @brief Converts a string into a Date intance
+    */
+    static Date readFromString(const std::string &str);
 };
 
 class Time {
-    unsigned int hour, minute, second;
+    unsigned int hour, minute;
 
 public:
     /**
@@ -33,16 +55,31 @@ public:
      *
      * @param hour An hour between 0-23
      * @param minute A minute between 0-59
-     * @param second A second between 0-59
      */
-    Time(unsigned int hour, unsigned int minute, unsigned int second);
+    Time(unsigned int hour, unsigned int minute);
     Time(const Time &time);
+
+    // Setters
+
     void setHour(unsigned int hour);
     void setMinute(unsigned int minute);
-    void setSecond(unsigned int second);
+
+    // Getters
+
     unsigned int getHour() const;
     unsigned int getMinute() const;
-    unsigned int getSecond() const;
+
+    /**
+     * @brief Converts a Time instance to a String
+     */
+    std::string str() const;
+
+    static Time readFromString(const std::string &str);
+
+    /**
+     * @overload Relational operator overload
+     */
+    bool operator<(const Time &time) const;
 };
 
 class Datetime: public Date, public Time {
@@ -55,10 +92,35 @@ public:
      * @param day A day between 1-31
      * @param hour An hour between 0-23
      * @param minute A minute between 0-59
-     * @param second A second between 0-59
      */
-    Datetime(unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute, unsigned int second);
-    Datetime(const Datetime &datetime);
-};
+    Datetime(unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute);
 
-#endif //AIRLINE_DATETIME_H
+    /**
+     * @brief Copies a Datetime instance
+     */
+    Datetime(const Datetime &datetime);
+
+
+    /**
+     * @overload Displays a Datetime
+     */
+    friend std::ostream &operator<<(std::ostream &os, const Datetime &datetime);
+
+    /**
+     * @brief Converts a Datetime instance to a string 
+     */
+    std::string str() const;
+
+    // Relational operators overload
+    bool operator<(const Datetime &datetime) const;
+    bool operator==(const Datetime &datetime) const;
+    
+    /**
+     * @brief Converts a string to a Datetime instance
+     * @param str String representing the datetime
+     * 
+     * @note The string must be in a valid format: `YYYY/MM/dd HH:mm`
+     */
+    static Datetime readFromString(const std::string &str);
+
+};

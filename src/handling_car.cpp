@@ -1,4 +1,5 @@
 #include "handling_car.h"
+#include <sstream>
 #include <stdexcept>
 
 using namespace std;
@@ -6,6 +7,9 @@ using namespace std;
 HandlingCar::HandlingCar(const unsigned int number_of_carriages, const unsigned int stacks_per_carriage, const unsigned int luggage_per_stack)
         : number_of_carriages(number_of_carriages), stacks_per_carriage(stacks_per_carriage),
           luggage_per_stack(luggage_per_stack) {
+
+    static unsigned int counter = 1;
+    this->id = counter++;
 
     if (number_of_carriages == 0)
         throw invalid_argument("Number of carriages must be greater than 0");
@@ -15,6 +19,10 @@ HandlingCar::HandlingCar(const unsigned int number_of_carriages, const unsigned 
 
     if (luggage_per_stack == 0)
         throw invalid_argument("Number of luggage per stack must be greater than 0");
+}
+
+unsigned int HandlingCar::getId() {
+    return this->id;
 }
 
 unsigned int HandlingCar::getNumberOfCarriages() const {
@@ -27,6 +35,19 @@ unsigned int HandlingCar::getStacksPerCarriage() const {
 
 unsigned int HandlingCar::getLuggagePerStack() const {
     return this->luggage_per_stack;
+}
+
+string HandlingCar::str() const {
+    ostringstream out;
+    out << "ID: " << this->id << endl
+        << "Number of carriages: " << this->number_of_carriages << endl
+        << "Number of stacks per carriage: " << this->stacks_per_carriage << endl
+        << "Number of luggage per stack: " << this->luggage_per_stack;
+
+    if (this->flight != nullptr)
+        out << "\nCurrently serving flight: " << this->flight->getFlightId();
+
+    return out.str();
 }
 
 Carriage *HandlingCar::getBackCarriage() {
@@ -150,4 +171,20 @@ bool HandlingCar::addLuggage(Luggage &luggage) {
 
     this->carriages.push_back(new_carriage);
     return true;
+}
+
+Flight* HandlingCar::getFlight() const {
+    return this->flight;
+}
+
+void HandlingCar::setFlight(Flight &flight) {
+    this->flight = &flight;
+}
+
+deque<Carriage> HandlingCar::getCarriages() const {
+    return this->carriages;
+}
+
+ostream& operator<<(ostream &out, const HandlingCar &car) {
+    return out << car.str() << endl;
 }

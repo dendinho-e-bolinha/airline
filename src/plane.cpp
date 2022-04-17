@@ -1,16 +1,17 @@
 #include "plane.h"
 #include <algorithm>
+#include <sstream>
 
 using namespace std;
 
-Plane::Plane(const string &plate, const string &type, const unsigned int capacity) {
-    this->plate = plate;
+Plane::Plane(const string &license_plate, const string &type, const unsigned int capacity) {
+    this->license_plate = license_plate;
     this->type= type;
     this->capacity = capacity;
 }
 
-string Plane::getPlate() const {
-    return this->plate;
+string Plane::getLicensePlate() const {
+    return this->license_plate;
 }
 
 string Plane::getType() const {
@@ -33,6 +34,14 @@ vector<Service*> Plane::getFinishedServices() const {
     return this->finished_services;
 }
 
+void Plane::setType(const string &type) {
+    this->type = type;
+}
+
+void Plane::setCapacity(const unsigned int &capacity) {
+    this->capacity = capacity;
+}
+
 void Plane::addFlight(Flight &flight) {
     this->flights.push_back(&flight);
 }
@@ -47,10 +56,10 @@ bool Plane::removeFlight(const Flight &flight) {
 }
 
 bool Plane::removeFirstFlight(const std::function<bool(const Flight &)>& selector) {
-    // FIXME
     for (auto it = flights.begin(), end = flights.end(); it != end; it++) {
         if (selector(**it)) {
             it = this->flights.erase(it);
+            it--;
             return true;
         }
     }
@@ -58,26 +67,40 @@ bool Plane::removeFirstFlight(const std::function<bool(const Flight &)>& selecto
 }
 
 bool Plane::removeAllFlights(const function<bool(const Flight&)>& selector) {
-    // FIXME
     bool removed_any = false;
     for (auto it = flights.begin(), end = flights.end(); it != end; it++) {
         if (selector(**it)) {
             it = this->flights.erase(it);
+            it--;
             removed_any = true;
         }
-        return removed_any;
     }
+    return removed_any;
 }
 
 void Plane::scheduleService(Service& service) {
     this->scheduled_services.push(&service);
 }
 
+string Plane::str() const {
+    ostringstream out;
+    out << "Plate: " << this->license_plate << endl
+        << "Type: " << this->type << endl
+        << "Capacity: " << this->capacity << endl;
+
+    return out.str();
+}
+
 bool Plane::completeService() {
-    if (this->scheduled_services.empty()) {
+    if (this->scheduled_services.empty())
         return false;
-    }
+
     this->finished_services.push_back(this->scheduled_services.front());
     this->scheduled_services.pop();
     return true;
+}
+
+ostream &operator<<(ostream &os, const Plane &plane) {
+    os << plane.str();
+    return os;
 }

@@ -1,5 +1,4 @@
-#ifndef AIRLINE_AIRPORT_H
-#define AIRLINE_AIRPORT_H
+#pragma once
 
 #include <set>
 #include <string>
@@ -15,9 +14,9 @@ enum TransportType {
 struct TransportPlace {
     std::string name;
     float latitude, longitude;
-    TransportType transportType;
-    float airportDistance;
-    std::set<Datetime> schedule;
+    TransportType transport_type;
+    float airport_distance;
+    std::set<Time> schedule;
 
     /**
      * @overload Operator <
@@ -29,30 +28,45 @@ struct TransportPlace {
 
 
 class Airport {
-    std::set<TransportPlace> transportPlaceInfo;
+    std::string name;
+    std::set<TransportPlace> transport_place_info;
 public:
 
-    Airport(const std::set<TransportPlace> &transportPlaceInfo);
+    /**
+     * @brief Creates an Airport instance
+     * @param name Airport name
+     */
+    Airport(const std::string &name);
+
+    // Getters
+
+    std::set<TransportPlace> getTransportPlaceInfo() const;
+    const std::string &getName() const;
+
+    // Setters
 
     /**
-     * @return Returns a set containing each transport of the
+     * @brief Adds the given TransportPlace to `transport_place_info`
+     * @param transportPlace A TransportPlace instance
      */
-    const std::set<TransportPlace> &getTransportPlaceInfo() const;
+    void addTransportPlaceInfo(TransportPlace transportPlace);
 
 
     /**
-     * @return Returns a set containing each transport of the
+     * @brief Removes all elements from the transport_place_info
      */
-    void setTransportPlaceInfo(const std::set<TransportPlace> &transportPlaceInfo);
+    void removeAllTransportPlaceInfo();
 
     /**
-     * @brief Adds a TransportPlace to `transportPlaceInfo`
-     * @param transportPlace TransportPlace
+     * @brief Removes all elements with a certain name from transport_place_info
+     * 
+     * @param name The name of the transport place infos to be removed
      */
-    void addTransportPlaceInfo(TransportPlace transportPlace) {
-        this->transportPlaceInfo.insert(transportPlace);
-    }
+    void removeTransportPlaceInfo(const std::string &name);
+
+    /**
+     * @overload Displays a plane
+     */
+    friend std::ostream &operator<<(std::ostream &os, const Airport &airport);
+    std::string str() const;
 };
-
-
-#endif //AIRLINE_AIRPORT_H

@@ -1,5 +1,4 @@
-#ifndef AIRLINE_MAINTENANCE_H
-#define AIRLINE_MAINTENANCE_H
+#pragma once
 
 class Service;
 enum class ServiceType;
@@ -9,13 +8,13 @@ enum class ServiceType;
 #include "plane.h"
 
 enum class ServiceType {
-    MAINTENANCE,
-    CLEANING
+    MAINTENANCE = 0,
+    CLEANING = 1
 };
 
 class Service {
     ServiceType type;
-    Date date;
+    Datetime datetime;
     std::string worker;
     Plane& plane;
 
@@ -28,11 +27,17 @@ public:
      * @param worker The worker that will perform the service
      * @param plane The plane where the service will take place
      */
-    Service(const ServiceType &type, const Date &date, const std::string &worker, Plane &plane);
+    Service(const ServiceType &type, const Datetime &datetime, const std::string &worker, Plane &plane);
+
+    // Getters
+
     ServiceType getType() const;
-    Date getDate() const;
+    Datetime getDatetime() const;
     std::string getWorker() const;
     Plane& getPlane() const;
-};
 
-#endif //AIRLINE_MAINTENANCE_H
+    /**
+     * @overload Displays a Service instance
+     */
+    friend std::ostream& operator<<(std::ostream &out, const Service &service);
+};
